@@ -13,7 +13,7 @@ from typing import Optional, List, Dict, Any
 
 # 💡 ضع رابط Supabase المشفر الخاص بك هنا
 # تذكر استبدال [YOUR-PASSWORD] بكلمة المرور الحقيقية التي أنشأتها (بدون الأقواس המربعة [])
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:Aa01093179299Aa@db.ytfkmuvlbuzbhjthurzv.supabase.co:5432/postgres"
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres.ytfkmuvlbuzbhjthurzv:Aa01093179299Aa@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
