@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+psycopg2-binary
+streamlit
+streamlit-option-menu
+pandas
+requests
+hijri-converter
+XlsxWriter
