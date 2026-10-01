@@ -78,56 +78,103 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ==========================================
-# نظام تسجيل الدخول (Authentication)
-# ==========================================
-if "user_id" not in st.session_state:
-    st.markdown("""
-        <div style='text-align:center; padding: 50px;'>
-            <div style='background: linear-gradient(135deg, #4318FF, #3B82F6); display:inline-block; padding:20px; border-radius:20px; box-shadow: 0 10px 30px rgba(67,24,255,0.4); margin-bottom:20px;'>
-                <h1 style='color: white; margin:0; font-size: 4rem; line-height:1;'>A.K</h1>
-            </div>
-            <h2 style='color:#1B2559; font-weight:800; font-family:Cairo;'>أهلاً بك في نظام A.K السحابي</h2>
-            <p style='color:#64748B; font-weight:600;'>الرجاء تسجيل الدخول للوصول لبيانات شركتك السحابية</p>
-        </div>
-    """, unsafe_allow_html=True)
+# ====================================================================
+# استبدل فقط قسم تسجيل الدخول القديم بهذا القسم الجديد داخل ملفك الضخم
+# ====================================================================
+
+elif choice == "تسجيل الدخول":
+    st.subheader("تسجيل الدخول إلى حسابك")
     
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        tab1, tab2 = st.tabs(["تسجيل الدخول", "إنشاء حساب جديد كلياً"])
+    # إدارة حالة استعادة كلمة المرور
+    if "reset_step" not in st.session_state:
+        st.session_state.reset_step = 0
+
+    # 1. شاشة الدخول العادية
+    if st.session_state.reset_step == 0:
+        login_email = st.text_input("البريد الإلكتروني")
+        login_password = st.text_input("كلمة المرور", type="password")
         
-        with tab1:
-            st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
-            l_email = st.text_input("البريد الإلكتروني", key="l_e")
-            l_pass = st.text_input("كلمة المرور", type="password", key="l_p")
-            if st.button("تسجيل الدخول 🚀", type="primary", use_container_width=True):
+        if st.button("دخول"):
+            data = {"email": login_email, "password": login_password}
+            try:
+                response = requests.post(f"{API_URL}/login", json=data)
+                if response.status_code == 200:
+                    st.success("تم تسجيل الدخول بنجاح")
+                    
+                    # ⚠️ هام جداً: هنا تضع الكود الخاص بك الذي يفتح باقي الشاشات الـ 1000 سطر
+                    # مثل: st.session_state['logged_in'] = True
+                    # أو استدعاء دوال لوحة القيادة الخاصة بك التي برمجتها
+                    
+                else:
+                    st.error("بيانات الدخول غير صحيحة")
+            except requests.exceptions.ConnectionError:
+                st.error("فشل الاتصال بالسيرفر.")
+        
+        st.markdown("---")
+        # زر تفعيل مسار استعادة كلمة المرور
+        if st.button("نسيت كلمة المرور؟"):
+            st.session_state.reset_step = 1
+            st.rerun()
+
+    # 2. الخطوة الأولى في الاستعادة (طلب الرمز)
+    elif st.session_state.reset_step == 1:
+        st.info("أدخل بريدك الإلكتروني لإرسال رمز التحقق")
+        reset_email = st.text_input("البريد الإلكتروني المسجل", key="reset_email_input")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("إرسال الرمز"):
                 try:
-                    res = requests.post(f"{API_URL}/login", json={"email": l_email, "password": l_pass})
-                    if res.status_code == 200:
-                        data = res.json(); st.session_state["user_id"] = data["id"]; st.session_state["user_name"] = data["name"]
-                        st.success("تم تسجيل الدخول بنجاح!"); time.sleep(1); st.rerun()
-                    else: st.error(res.json().get("detail", "البيانات غير صحيحة."))
-                except requests.exceptions.RequestException: st.error("خطأ في الاتصال بالسيرفر. يرجى التأكد من تشغيل (main.py).")
-            st.markdown("</div>", unsafe_allow_html=True)
-            
-        with tab2:
-            st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
-            r_name = st.text_input("اسم الشركة / المستخدم")
-            r_phone = st.text_input("رقم الجوال")
-            r_email = st.text_input("البريد الإلكتروني")
-            r_pass = st.text_input("كلمة المرور السحابية", type="password")
-            if st.button("إنشاء حسابي السحابي ✨", type="primary", use_container_width=True):
-                if r_name and r_phone and r_email and r_pass:
+                    response = requests.post(f"{API_URL}/forgot-password", json={"email": reset_email})
+                    if response.status_code == 200:
+                        st.success("تم إرسال الرمز إلى بريدك بنجاح.")
+                        st.session_state.reset_email = reset_email
+                        st.session_state.reset_step = 2
+                        st.rerun()
+                    else:
+                        st.error("البريد غير مسجل أو حدث خطأ.")
+                except requests.exceptions.ConnectionError:
+                    st.error("فشل الاتصال بالسيرفر.")
+        with col2:
+            if st.button("العودة لتسجيل الدخول"):
+                st.session_state.reset_step = 0
+                st.rerun()
+
+    # 3. الخطوة الثانية (إدخال الرمز وكلمة المرور الجديدة)
+    elif st.session_state.reset_step == 2:
+        st.info(f"تم إرسال الرمز إلى: {st.session_state.reset_email}")
+        otp_code = st.text_input("رمز التحقق (OTP)")
+        new_pass = st.text_input("كلمة المرور الجديدة", type="password")
+        confirm_pass = st.text_input("تأكيد كلمة المرور", type="password")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("تغيير كلمة المرور"):
+                if new_pass != confirm_pass:
+                    st.error("كلمتا المرور غير متطابقتين")
+                elif not otp_code:
+                    st.error("الرجاء إدخال رمز التحقق")
+                else:
+                    data = {
+                        "email": st.session_state.reset_email,
+                        "otp": otp_code,
+                        "new_password": new_pass
+                    }
                     try:
-                        res = requests.post(f"{API_URL}/register", json={"full_name": r_name, "phone": r_phone, "email": r_email, "password": r_pass})
-                        if res.status_code == 200:
-                            data = res.json(); st.session_state["user_id"] = data["id"]; st.session_state["user_name"] = data["name"]
-                            st.success("تم إنشاء المساحة السحابية بنجاح!"); time.sleep(1); st.rerun()
-                        else: st.error(res.json().get("detail", "حدث خطأ غير معروف"))
-                    except requests.exceptions.RequestException: st.error("خطأ في الاتصال بالسيرفر.")
-                else: st.warning("الرجاء تعبئة جميع الحقول.")
-            st.markdown("</div>", unsafe_allow_html=True)
-    st.stop()
+                        response = requests.post(f"{API_URL}/reset-password", json=data)
+                        if response.status_code == 200:
+                            st.success("تم تغيير كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.")
+                            st.session_state.reset_step = 0
+                            st.rerun()
+                        else:
+                            st.error(response.json().get("detail", "رمز التحقق غير صحيح أو منتهي الصلاحية"))
+                    except requests.exceptions.ConnectionError:
+                        st.error("فشل الاتصال بالسيرفر.")
+        with col2:
+            if st.button("إلغاء"):
+                st.session_state.reset_step = 0
+                st.rerun()
+
 
 # ==========================================
 # دوال النظام الأساسية (Multi-Tenant)

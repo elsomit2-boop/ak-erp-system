@@ -381,3 +381,64 @@ def get_daily_alerts(user_id: int, db: Session = Depends(get_db)):
                     alerts.append({"القسم": "الأقساط", "البيان": f"{plan.client_name} - قسط رقم {p.get('installment_number')} ({round(amt_due - amt_paid, 2)} ريال)", "تاريخ_الانتهاء": due_date, "الايام_المتبقية": days, "الحالة": "حرج" if days <= inst_danger else "تحذير"})
                 break 
     return {"إجمالي التنبيهات": len(alerts), "التفاصيل": alerts}
+# إعدادات البريد الإلكتروني (ضع بريدك وكلمة مرور التطبيق هنا)
+SENDER_EMAIL = "بريدك_هنا@gmail.com"
+SENDER_PASSWORD = "كلمة_مرور_التطبيق_المكونة_من_16_حرف"
+
+def send_otp_email(to_email: str, otp: str):
+    msg = MIMEText(f"رمز استعادة كلمة المرور الخاص بنظام ERP هو: {otp}\nهذا الرمز صالح لمدة 10 دقائق فقط.")
+    msg['Subject'] = 'استعادة كلمة المرور - نظام ERP'
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = to_email
+
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(SENDER_EMAIL, SENDER_PASSWORD)
+            server.send_message(msg)
+    except Exception as e:
+        print(f"Error sending email: {e}")
+
+# نماذج البيانات (Pydantic Models)
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    otp: str
+    new_password: str
+
+# 1. مسار طلب الرمز
+@app.post("/forgot-password")
+def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == req.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="البريد الإلكتروني غير مسجل")
+    
+    # إنشاء رمز من 6 أرقام وتحديد الصلاحية بـ 10 دقائق
+    otp = str(random.randint(100000, 999999))
+    user.reset_otp = otp
+    user.otp_expiry = datetime.now() + timedelta(minutes=10)
+    db.commit()
+    
+    # إرسال البريد
+    send_otp_email(user.email, otp)
+    return {"message": "تم إرسال رمز التحقق إلى بريدك الإلكتروني"}
+
+# 2. مسار تعيين كلمة المرور الجديدة
+@app.post("/reset-password")
+def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == req.email).first()
+    
+    if not user or user.reset_otp != req.otp:
+        raise HTTPException(status_code=400, detail="رمز التحقق غير صحيح")
+    
+    if user.otp_expiry < datetime.now():
+        raise HTTPException(status_code=400, detail="انتهت صلاحية رمز التحقق")
+    
+    # تحديث كلمة المرور ومسح الرمز
+    user.hashed_password = get_password_hash(req.new_password)
+    user.reset_otp = None
+    user.otp_expiry = None
+    db.commit()
+    
+    return {"message": "تم تغيير كلمة المرور بنجاح"}
