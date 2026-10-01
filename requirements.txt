@@ -9,3 +9,5 @@ pandas
 requests
 hijri-converter
 XlsxWriter
+psycopg
+psycopg2-binary
