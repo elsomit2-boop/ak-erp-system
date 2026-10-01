@@ -19,7 +19,7 @@ except ImportError:
 # 1. الإعدادات والـ CSS (حل مشكلة ألوان القائمة الجانبية)
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
-API_URL = "http://127.0.0.1:8000"
+API_URL = "API_URL = "https://ak-erp-system.onrender.com"
 
 st.markdown("""
     <style>
