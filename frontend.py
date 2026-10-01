@@ -210,7 +210,7 @@ if st.session_state["user_id"] is None:
     st.stop()
 
 # ==========================================
-# دوال النظام الأساسية (Multi-Tenant)
+# 3. بناء القائمة الجانبية بعد تسجيل الدخول (نظامك الأصلي كاملاً)
 # ==========================================
 UID = st.session_state["user_id"]
 
@@ -434,7 +434,9 @@ with st.sidebar:
 
     st.markdown("<hr style='border-color: #E2E8F0; margin: 20px 10px;'>", unsafe_allow_html=True)
     if st.button("🚪 تسجيل الخروج", use_container_width=True):
-        del st.session_state["user_id"]; del st.session_state["user_name"]; st.rerun()
+        st.session_state["user_id"] = None
+        st.session_state["user_name"] = ""
+        st.rerun()
 
 if selected_item != st.session_state.current_nav:
     if selected_item == "المتابعة الشاملة ⏴": st.session_state.sub_expanded = True; st.session_state.current_nav = "   🔹 الموظفين"
@@ -485,7 +487,7 @@ def render_top_navbar(title, subtitle):
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 6. التوجيه وعرض الواجهة الرئيسية
+# 6. التوجيه وعرض الواجهة الرئيسية (جميع أقسامك تعمل بكفاءة هنا)
 # ==========================================
 
 if main_menu == "لوحة القيادة":
@@ -588,7 +590,7 @@ elif main_menu == "نظام الرواتب" and selected_sub:
                 requests.post(f"{API_URL}/payroll/{p_year}/{p_month}/sync", json={"owner_id": UID, "records": save_data})
                 st.success("تم الحساب والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
         with c_print:
-             st.download_button("🖨️ تصدير PDF", to_pdf_html_basic(edited_df[cols], f"كشف الرواتب - {p_month} {p_year}"), f"payroll_{p_year}_{p_month}.html", mime="text/html", use_container_width=True)
+             st.download_button("🖨️️ تصدير PDF", to_pdf_html_basic(edited_df[cols], f"كشف الرواتب - {p_month} {p_year}"), f"payroll_{p_year}_{p_month}.html", mime="text/html", use_container_width=True)
 
     elif selected_sub == "حركة وسلف":
         st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
