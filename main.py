@@ -40,6 +40,9 @@ class User(Base):
     phone = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
+    # الحقول الجديدة للاستعادة:
+    reset_otp = Column(String, nullable=True)
+    otp_expiry = Column(DateTime, nullable=True)
 
 class Employee(Base):
     __tablename__ = "employees"
@@ -407,14 +410,57 @@ class ResetPasswordRequest(BaseModel):
     otp: str
     new_password: str
 
-# 1. مسار طلب الرمز
+# ==========================================
+# 6. نظام استعادة كلمة المرور عبر البريد الإلكتروني
+# ==========================================
+import smtplib
+from email.mime.text import MIMEText
+import random
+from datetime import datetime, timedelta
+
+# إعدادات البريد الإلكتروني (ضع بريدك وكلمة مرور التطبيق هنا)
+SENDER_EMAIL = "elsomit2@gmail.com"  # استبدل ببريدك
+SENDER_PASSWORD = "كلمة_مرور_التطبيق_المكونة_من_16_حرف" # استبدل بكلمة مرور التطبيق
+
+def send_otp_email(to_email: str, otp: str):
+    msg = MIMEText(f"رمز استعادة كلمة المرور الخاص بنظام ERP هو: {otp}\nهذا الرمز صالح لمدة 10 دقائق فقط.")
+    msg['Subject'] = 'استعادة كلمة المرور - نظام ERP'
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = to_email
+
+    try:
+        # استخدام منفذ 587 للاتصال الآمن (TLS)
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls() 
+            server.login(SENDER_EMAIL, SENDER_PASSWORD)
+            server.send_message(msg)
+            print(f"Email successfully sent to {to_email}")
+    except Exception as e:
+        print(f"Error sending email: {e}")
+
+# نماذج البيانات (Pydantic Models)
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    otp: str
+    new_password: str
+
+# مسار طلب الرمز
 @app.post("/forgot-password")
 def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.user_email == req.email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="البريد الإلكتروني غير مسجل")
+    clean_email = req.email.strip()
+    print(f"Processing forgot-password for: {clean_email}")
     
-    # إنشاء رمز من 6 أرقام وتحديد الصلاحية بـ 10 دقائق
+    # ⚠️ التعديل الجوهري: استخدام User بدلاً من models.User
+    user = db.query(User).filter(User.email == clean_email).first()
+    
+    if not user:
+        print("User not found!")
+        raise HTTPException(status_code=404, detail="البريد الإلكتروني غير مسجل في النظام")
+    
+    # إنشاء رمز وتحديد الصلاحية
     otp = str(random.randint(100000, 999999))
     user.reset_otp = otp
     user.otp_expiry = datetime.now() + timedelta(minutes=10)
@@ -422,20 +468,24 @@ def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
     
     # إرسال البريد
     send_otp_email(user.email, otp)
-    return {"message": "تم إرسال رمز التحقق إلى بريدك الإلكتروني"}
+    return {"message": "تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح"}
 
-# 2. مسار تعيين كلمة المرور الجديدة
+# مسار تعيين كلمة المرور الجديدة
 @app.post("/reset-password")
 def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == req.email).first()
+    clean_email = req.email.strip()
+    user = db.query(User).filter(User.email == clean_email).first()
     
-    if not user or user.reset_otp != req.otp:
-        raise HTTPException(status_code=400, detail="رمز التحقق غير صحيح")
+    if not user:
+         raise HTTPException(status_code=404, detail="البريد غير موجود")
+         
+    if user.reset_otp != req.otp:
+        raise HTTPException(status_code=400, detail="رمز التحقق (OTP) غير صحيح")
     
-    if user.otp_expiry < datetime.now():
+    if user.otp_expiry and user.otp_expiry < datetime.now():
         raise HTTPException(status_code=400, detail="انتهت صلاحية رمز التحقق")
     
-    # تحديث كلمة المرور ومسح الرمز
+    # تحديث كلمة المرور وتشفيرها
     user.hashed_password = get_password_hash(req.new_password)
     user.reset_otp = None
     user.otp_expiry = None
