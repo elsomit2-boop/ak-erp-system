@@ -412,6 +412,31 @@ def to_pdf_html_basic(df, title):
     </body></html>"""
     return html_content.encode('utf-8')
 
+def to_pdf_html_with_dashboard(df, title, g_total=None, g_paid=None, g_rem=None, g_late=None):
+    h_date = get_hijri_date_str()
+    dashboard_html = ""
+    if g_total is not None:
+        dashboard_html = f"""
+        <div style="display:flex; justify-content:space-around; background:#F8FAFC; padding:15px; border-radius:10px; border:1px solid #E2E8F0; margin-bottom:20px;">
+            <div style="text-align:center;"><b>إجمالي مبلغ التقسيط</b><br><span style="color:#1B2559; font-size:18px;">{g_total:,.2f}</span></div>
+            <div style="text-align:center;"><b>إجمالي المبلغ المسدد</b><br><span style="color:#0284C7; font-size:18px;">{g_paid:,.2f}</span></div>
+            <div style="text-align:center;"><b>إجمالي المبالغ المتبقية</b><br><span style="color:#D97706; font-size:18px;">{g_rem:,.2f}</span></div>
+            <div style="text-align:center;"><b>إجمالي المبالغ المتأخرة</b><br><span style="color:#EE5D50; font-size:18px;">{g_late:,.2f}</span></div>
+        </div>
+        """
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head><meta charset="UTF-8"><title>تقرير أقساط - A.K ERP</title>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap'); body {{ font-family: 'Cairo', sans-serif; padding: 20px; direction: rtl; text-align:right;}} .header {{ text-align: center; margin-bottom: 20px; }} table {{ width: 100%; border-collapse: collapse; margin-top: 15px; text-align: center; direction:rtl;}} th, td {{ padding: 12px; border: 1px solid #E9EDF7; }} th {{ background-color: #1E293B !important; color: #FFFFFF !important; font-weight: bold; -webkit-print-color-adjust: exact; color-adjust: exact; }} tr:nth-child(even) {{ background-color: #F8FAFC !important; -webkit-print-color-adjust: exact; color-adjust: exact; }} .print-btn {{ padding: 10px 20px; background: #2563EB; color: white; border: none; border-radius: 6px; cursor: pointer; display: block; margin: auto; }} @media print {{ .no-print {{ display: none !important; }} }}</style>
+    </head><body>
+    <button onclick="window.print()" class="print-btn no-print">🖨️ للطباعة</button>
+    <div class="header"><h2 style="color:#4318FF;">A.K ERP System</h2><h3>{title}</h3><p>الميلادي: {date.today().strftime('%Y-%m-%d')} | الهجري: {h_date}هـ</p></div>
+    {dashboard_html}
+    {df.to_html(index=False, classes='modern-table', border=0)}
+    </body></html>"""
+    return html_content.encode('utf-8')
+
 # ==========================================
 # 4. بناء القائمة الجانبية المحدثة للظهور الواضح
 # ==========================================
@@ -547,103 +572,103 @@ if main_menu == "لوحة القيادة":
     data = fetch_data(f"api/daily-report/{UID}")
     alerts = data.get("التفاصيل", []) if isinstance(data, dict) else []
     if alerts:
-            # 1. كود التصميم للشبكة المرنة والبطاقات المدمجة
-            st.markdown("""
-            <style>
-            .alerts-grid {
-                display: grid;
-                /* السطر التالي هو السر: يضع أكبر عدد ممكن من البطاقات بعرض 320px في السطر الواحد */
-                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-                gap: 15px;
-                margin-top: 15px;
-                direction: rtl;
-            }
-            .alert-card-compact {
-                background-color: #FFFFFF;
-                border: 1px solid #E2E8F0;
-                border-radius: 12px;
-                padding: 16px;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
-            .alert-card-compact:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-            }
-            .alert-icon-box {
-                width: 45px;
-                height: 45px;
-                border-radius: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 22px;
-                flex-shrink: 0;
-            }
-            .alert-text-box {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-            .alert-title-text {
-                color: #1B2559;
-                font-size: 13px;
-                font-weight: 700;
-                line-height: 1.5;
-            }
-            .alert-date-text {
-                color: #64748B;
-                font-size: 12px;
-                font-weight: 600;
-            }
-            .alert-date-text span {
-                font-weight: 800;
-            }
-            </style>
-            """, unsafe_allow_html=True)
+        # 1. كود التصميم للشبكة المرنة والبطاقات المدمجة
+        st.markdown("""
+        <style>
+        .alerts-grid {
+            display: grid;
+            /* السطر التالي هو السر: يضع أكبر عدد ممكن من البطاقات بعرض 320px في السطر الواحد */
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 15px;
+            margin-top: 15px;
+            direction: rtl;
+        }
+        .alert-card-compact {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .alert-card-compact:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+        .alert-icon-box {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .alert-text-box {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .alert-title-text {
+            color: #1B2559;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+        .alert-date-text {
+            color: #64748B;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .alert-date-text span {
+            font-weight: 800;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
-            # 2. بناء هيكل الشبكة
-            grid_html = '<div class="alerts-grid">'
+        # 2. بناء هيكل الشبكة
+        grid_html = '<div class="alerts-grid">'
+        
+        for alert in alerts:
+            status = alert.get("الحالة", "")
+            title = alert.get("البيان", "")
+            exp_date = alert.get("تاريخ_الانتهاء", "")
+            days = alert.get("الايام_المتبقية", 0)
             
-            for alert in alerts:
-                status = alert.get("الحالة", "")
-                title = alert.get("البيان", "")
-                exp_date = alert.get("تاريخ_الانتهاء", "")
-                days = alert.get("الايام_المتبقية", 0)
+            # تخصيص الألوان بناءً على حالة التنبيه
+            if status == "حرج":
+                border_color = "#EE5D50"  # أحمر
+                bg_color = "#FEE2E2"
+                text_color = "#EE5D50"
+                icon = "🚨"
+            else:
+                border_color = "#D97706"  # برتقالي/أصفر
+                bg_color = "#FEF3C7"
+                text_color = "#D97706"
+                icon = "⚠️"
                 
-                # تخصيص الألوان بناءً على حالة التنبيه
-                if status == "حرج":
-                    border_color = "#EE5D50"  # أحمر
-                    bg_color = "#FEE2E2"
-                    text_color = "#EE5D50"
-                    icon = "🚨"
-                else:
-                    border_color = "#D97706"  # برتقالي/أصفر
-                    bg_color = "#FEF3C7"
-                    text_color = "#D97706"
-                    icon = "⚠️"
-                    
-                # إضافة البطاقة إلى الشبكة
-                grid_html += f"""
-                <div class="alert-card-compact" style="border-right: 5px solid {border_color};">
-                    <div class="alert-icon-box" style="background-color: {bg_color};">{icon}</div>
-                    <div class="alert-text-box">
-                        <div class="alert-title-text">{title}</div>
-                        <div class="alert-date-text">ينتهي في: <span style="color: {text_color};">{exp_date}</span> (متبقي {days} يوم)</div>
-                    </div>
+            # إضافة البطاقة إلى الشبكة
+            grid_html += f"""
+            <div class="alert-card-compact" style="border-right: 5px solid {border_color};">
+                <div class="alert-icon-box" style="background-color: {bg_color};">{icon}</div>
+                <div class="alert-text-box">
+                    <div class="alert-title-text">{title}</div>
+                    <div class="alert-date-text">ينتهي في: <span style="color: {text_color};">{exp_date}</span> (متبقي {days} يوم)</div>
                 </div>
-                """
-                
-            grid_html += '</div>'
+            </div>
+            """
             
-            # 3. عرض الشبكة بالكامل بضغطة واحدة
-            st.markdown(grid_html, unsafe_allow_html=True)
-            
-        else:
-            st.success("🎉 لا توجد أي تنبيهات حالياً. كل الأمور ممتازة!")
+        grid_html += '</div>'
+        
+        # 3. عرض الشبكة بالكامل بضغطة واحدة
+        st.markdown(grid_html, unsafe_allow_html=True)
+        
+    else:
+        st.success("🎉 لا توجد أي تنبيهات حالياً. كل الأمور ممتازة!")
 
 elif main_menu == "محول التاريخ":
     render_top_navbar("محول التاريخ 🔄", "تحويل دقيق ومباشر بين التاريخ الميلادي والهجري")
@@ -722,7 +747,7 @@ elif main_menu == "نظام الرواتب" and selected_sub:
                 requests.post(f"{API_URL}/payroll/{p_year}/{p_month}/sync", json={"owner_id": UID, "records": save_data})
                 st.success("تم الحساب والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
         with c_print:
-             st.download_button("🖨️️ تصدير PDF", to_pdf_html_basic(edited_df[cols], f"كشف الرواتب - {p_month} {p_year}"), f"payroll_{p_year}_{p_month}.html", mime="text/html", use_container_width=True)
+             st.download_button("🖨 تصدير PDF", to_pdf_html_basic(edited_df[cols], f"كشف الرواتب - {p_month} {p_year}"), f"payroll_{p_year}_{p_month}.html", mime="text/html", use_container_width=True)
 
     elif selected_sub == "حركة وسلف":
         st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
