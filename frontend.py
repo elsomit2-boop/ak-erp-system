@@ -9,6 +9,13 @@ import calendar
 import json
 import numpy as np
 
+# مكتبة الكوكيز لمنع تسجيل الخروج عند التحديث
+try:
+    from streamlit_cookies_manager import EncryptedCookieManager
+except ImportError:
+    st.error("الرجاء تثبيت مكتبة الكوكيز عبر: pip install streamlit-cookies-manager")
+    st.stop()
+
 try:
     from hijri_converter import Gregorian, Hijri
     HAS_HIJRI = True
@@ -20,6 +27,11 @@ except ImportError:
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
+
+# إعداد مدير الكوكيز (تذكر الدخول)
+cookies = EncryptedCookieManager(prefix="ak_erp_", password="secure_super_secret_password_for_erp_system")
+if not cookies.ready():
+    st.stop()
 
 st.markdown("""
     <style>
@@ -55,16 +67,14 @@ st.markdown("""
     section[data-testid="stSidebar"] { 
         background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important; 
         border-right: none !important;
-        border-left: none !important; /* إخفاء الخط بشكل افتراضي لتجنب ظهوره عند الطي */
+        border-left: none !important; 
         overflow: hidden !important; 
     }
     
-    /* 💡 السر هنا: إظهار الخط الفاصل فقط عندما تكون القائمة "مفتوحة" 💡 */
     section[data-testid="stSidebar"][aria-expanded="true"] {
         border-left: 1px solid #E2E8F0 !important;
     }
     
-    /* منع التفاف النصوص تماماً لمنع التقطع العمودي أثناء الطي */
     [data-testid="stSidebar"] * {
         white-space: nowrap !important;
     }
@@ -83,7 +93,6 @@ st.markdown("""
         border-color: #E2E8F0 !important; 
     }
 
-    /* تجميل زر الطي (السهم) */
     button[data-testid="stSidebarCollapseButton"] {
         background-color: #FFFFFF !important;
         border-radius: 50% !important;
@@ -127,16 +136,73 @@ st.markdown("""
     div[data-testid="stDataFrame"] { direction: rtl !important; }
     div[data-baseweb="popover"] { z-index: 999999 !important; }
     div[data-baseweb="calendar"] { padding-top: 10px !important; direction: ltr !important; } 
+    
+    /* تصميم شبكة التنبيهات */
+    .alerts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+        gap: 15px;
+        margin-top: 15px;
+        direction: rtl;
+    }
+    .alert-card-compact {
+        background-color: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .alert-card-compact:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .alert-icon-box {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+    .alert-text-box {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .alert-title-text {
+        color: #1B2559;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.5;
+    }
+    .alert-date-text {
+        color: #64748B;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .alert-date-text span {
+        font-weight: 800;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. إدارة حالة تسجيل الدخول واستعادة كلمة المرور
+# 2. إدارة حالة تسجيل الدخول والكوكيز واستعادة كلمة المرور
 # ==========================================
-if "user_id" not in st.session_state:
-    st.session_state["user_id"] = None
-if "user_name" not in st.session_state:
-    st.session_state["user_name"] = ""
+# استعادة الدخول من الكوكيز إذا كانت موجودة
+if cookies.get("user_id"):
+    st.session_state["user_id"] = int(cookies["user_id"])
+    st.session_state["user_name"] = cookies.get("user_name", "")
+else:
+    if "user_id" not in st.session_state: st.session_state["user_id"] = None
+    if "user_name" not in st.session_state: st.session_state["user_name"] = ""
+
 if "reset_step" not in st.session_state:
     st.session_state.reset_step = 0
 
@@ -155,9 +221,9 @@ if st.session_state["user_id"] is None:
         
         if st.button("تسجيل الحساب"):
             data = {
-                "full_name": new_company,  # تم تصحيح الكلمة لتطابق السيرفر
+                "full_name": new_company,
                 "phone": new_phone,
-                "email": new_email.strip(), # تجاهل المسافات الزائدة
+                "email": new_email.strip(),
                 "password": new_password
             }
             try:
@@ -170,14 +236,14 @@ if st.session_state["user_id"] is None:
             except requests.exceptions.ConnectionError:
                 st.error("فشل الاتصال بالسيرفر. يرجى التأكد من تشغيل السيرفر الخلفي.")
 
-    # --- صفحة تسجيل الدخول (مع دعم نسيت كلمة المرور) ---
+    # --- صفحة تسجيل الدخول ---
     elif auth_choice == "تسجيل الدخول":
         st.subheader("تسجيل الدخول إلى حسابك")
         
-        # الخطوة 0: الدخول العادي أو طلب استعادة كلمة المرور
         if st.session_state.reset_step == 0:
             login_email = st.text_input("البريد الإلكتروني").strip()
             login_password = st.text_input("كلمة المرور", type="password")
+            remember_me = st.checkbox("تذكرني (البقاء مسجلاً للدخول)")
             
             if st.button("دخول"):
                 data = {"email": login_email, "password": login_password}
@@ -185,8 +251,14 @@ if st.session_state["user_id"] is None:
                     response = requests.post(f"{API_URL}/login", json=data)
                     if response.status_code == 200:
                         res_data = response.json()
-                        st.session_state["user_id"] = res_data.get("user_id", 1)
-                        st.session_state["user_name"] = res_data.get("company_name", login_email)
+                        st.session_state["user_id"] = res_data.get("id", 1) # Note: API returns "id"
+                        st.session_state["user_name"] = res_data.get("name", login_email)
+                        
+                        if remember_me:
+                            cookies["user_id"] = str(st.session_state["user_id"])
+                            cookies["user_name"] = st.session_state["user_name"]
+                            cookies.save()
+                            
                         st.success("تم تسجيل الدخول بنجاح!")
                         st.rerun()
                     else:
@@ -199,11 +271,9 @@ if st.session_state["user_id"] is None:
                 st.session_state.reset_step = 1
                 st.rerun()
 
-        # الخطوة 1: إدخال البريد لإرسال الرمز
         elif st.session_state.reset_step == 1:
             st.info("أدخل بريدك الإلكتروني المسجل لإرسال رمز التحقق (OTP)")
             reset_email = st.text_input("البريد الإلكتروني المسجل", key="reset_email_input").strip()
-            
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("إرسال الرمز"):
@@ -223,13 +293,11 @@ if st.session_state["user_id"] is None:
                     st.session_state.reset_step = 0
                     st.rerun()
 
-        # الخطوة 2: إدخال الرمز وكلمة المرور الجديدة
         elif st.session_state.reset_step == 2:
             st.info(f"تم إرسال الرمز إلى: {st.session_state.reset_email}")
             otp_code = st.text_input("رمز التحقق (OTP)")
             new_pass = st.text_input("كلمة المرور الجديدة", type="password")
             confirm_pass = st.text_input("تأكيد كلمة المرور", type="password")
-            
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("تغيير كلمة المرور"):
@@ -238,11 +306,7 @@ if st.session_state["user_id"] is None:
                     elif not otp_code:
                         st.error("الرجاء إدخال رمز التحقق")
                     else:
-                        data = {
-                            "email": st.session_state.reset_email,
-                            "otp": otp_code,
-                            "new_password": new_pass
-                        }
+                        data = {"email": st.session_state.reset_email, "otp": otp_code, "new_password": new_pass}
                         try:
                             response = requests.post(f"{API_URL}/reset-password", json=data)
                             if response.status_code == 200:
@@ -257,8 +321,6 @@ if st.session_state["user_id"] is None:
                 if st.button("إلغاء"):
                     st.session_state.reset_step = 0
                     st.rerun()
-
-    # إيقاف تنفيذ باقي الكود حتى يسجل المستخدم دخوله
     st.stop()
 
 # ==========================================
@@ -513,6 +575,9 @@ with st.sidebar:
     if st.button("🚪 تسجيل الخروج", use_container_width=True):
         st.session_state["user_id"] = None
         st.session_state["user_name"] = ""
+        cookies["user_id"] = ""
+        cookies["user_name"] = ""
+        cookies.save()
         st.rerun()
 
 if selected_item != st.session_state.current_nav:
@@ -564,7 +629,7 @@ def render_top_navbar(title, subtitle):
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 6. التوجيه وعرض الواجهة الرئيسية (جميع أقسامك تعمل بكفاءة هنا)
+# 6. التوجيه وعرض الواجهة الرئيسية
 # ==========================================
 
 if main_menu == "لوحة القيادة":
@@ -572,86 +637,24 @@ if main_menu == "لوحة القيادة":
     data = fetch_data(f"api/daily-report/{UID}")
     alerts = data.get("التفاصيل", []) if isinstance(data, dict) else []
     if alerts:
-        # 1. كود التصميم للشبكة المرنة والبطاقات المدمجة
-        st.markdown("""
-        <style>
-        .alerts-grid {
-            display: grid;
-            /* السطر التالي هو السر: يضع أكبر عدد ممكن من البطاقات بعرض 320px في السطر الواحد */
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-            gap: 15px;
-            margin-top: 15px;
-            direction: rtl;
-        }
-        .alert-card-compact {
-            background-color: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 12px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .alert-card-compact:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        }
-        .alert-icon-box {
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
-        }
-        .alert-text-box {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .alert-title-text {
-            color: #1B2559;
-            font-size: 13px;
-            font-weight: 700;
-            line-height: 1.5;
-        }
-        .alert-date-text {
-            color: #64748B;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .alert-date-text span {
-            font-weight: 800;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-
-        # 2. بناء هيكل الشبكة
         grid_html = '<div class="alerts-grid">'
-        
         for alert in alerts:
             status = alert.get("الحالة", "")
             title = alert.get("البيان", "")
             exp_date = alert.get("تاريخ_الانتهاء", "")
             days = alert.get("الايام_المتبقية", 0)
             
-            # تخصيص الألوان بناءً على حالة التنبيه
             if status == "حرج":
-                border_color = "#EE5D50"  # أحمر
+                border_color = "#EE5D50" 
                 bg_color = "#FEE2E2"
                 text_color = "#EE5D50"
                 icon = "🚨"
             else:
-                border_color = "#D97706"  # برتقالي/أصفر
+                border_color = "#D97706"  
                 bg_color = "#FEF3C7"
                 text_color = "#D97706"
                 icon = "⚠️"
                 
-            # إضافة البطاقة إلى الشبكة
             grid_html += f"""
             <div class="alert-card-compact" style="border-right: 5px solid {border_color};">
                 <div class="alert-icon-box" style="background-color: {bg_color};">{icon}</div>
@@ -661,12 +664,8 @@ if main_menu == "لوحة القيادة":
                 </div>
             </div>
             """
-            
         grid_html += '</div>'
-        
-        # 3. عرض الشبكة بالكامل بضغطة واحدة
         st.markdown(grid_html, unsafe_allow_html=True)
-        
     else:
         st.success("🎉 لا توجد أي تنبيهات حالياً. كل الأمور ممتازة!")
 
