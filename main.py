@@ -394,7 +394,7 @@ def get_daily_alerts(user_id: int, db: Session = Depends(get_db)):
 
 # إعدادات البريد الإلكتروني (ضع بريدك وكلمة مرور التطبيق هنا)
 SENDER_EMAIL = "elsomit2@gmail.com"  # استبدل ببريدك
-SENDER_PASSWORD = "كلمة_مرور_التطبيق_المكونة_من_16_حرف" # استبدل بكلمة مرور التطبيق هنا
+SENDER_PASSWORD = "iedc hukt gnbo smef" # استبدل بكلمة مرور التطبيق هنا
 
 def send_otp_email(to_email: str, otp: str):
     msg = MIMEText(f"رمز استعادة كلمة المرور الخاص بنظام ERP هو: {otp}\nهذا الرمز صالح لمدة 10 دقائق فقط.")
