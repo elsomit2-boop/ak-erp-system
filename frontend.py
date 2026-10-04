@@ -16,7 +16,7 @@ except ImportError:
     HAS_HIJRI = False
 
 # ==========================================
-# 1. الإعدادات والـ CSS (الحل النهائي للقائمة الجانبية)
+# 1. الإعدادات والـ CSS (الحل النهائي للقائمة الجانبية وإخفاء الخط)
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
@@ -54,12 +54,17 @@ st.markdown("""
     
     section[data-testid="stSidebar"] { 
         background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important; 
-        border-left: 1px solid #E2E8F0 !important;
         border-right: none !important;
-        overflow: hidden !important; /* إخفاء المحتوى الزائد أثناء الإغلاق */
+        border-left: none !important; /* إخفاء الخط بشكل افتراضي لتجنب ظهوره عند الطي */
+        overflow: hidden !important; 
     }
     
-    /* 💡 السر هنا: منع التفاف النصوص تماماً لمنع التقطع العمودي أثناء الطي 💡 */
+    /* 💡 السر هنا: إظهار الخط الفاصل فقط عندما تكون القائمة "مفتوحة" 💡 */
+    section[data-testid="stSidebar"][aria-expanded="true"] {
+        border-left: 1px solid #E2E8F0 !important;
+    }
+    
+    /* منع التفاف النصوص تماماً لمنع التقطع العمودي أثناء الطي */
     [data-testid="stSidebar"] * {
         white-space: nowrap !important;
     }
@@ -85,7 +90,7 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
         border: 1px solid #E2E8F0 !important;
         color: #1B2559 !important;
-        direction: ltr !important; /* الحفاظ على اتجاه السهم */
+        direction: ltr !important; 
     }
 
     /* ========================================= */
