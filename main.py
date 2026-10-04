@@ -410,7 +410,7 @@ class ResetPasswordRequest(BaseModel):
 # 1. مسار طلب الرمز
 @app.post("/forgot-password")
 def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == req.email).first()
+    user = db.query(models.User).filter(models.User.user_email == req.email).first()
     if not user:
         raise HTTPException(status_code=404, detail="البريد الإلكتروني غير مسجل")
     
