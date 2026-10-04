@@ -189,7 +189,6 @@ st.markdown("""
 # ==========================================
 # 2. إدارة حالة تسجيل الدخول والكوكيز واستعادة كلمة المرور
 # ==========================================
-# استعادة الدخول من الكوكيز
 saved_user_id = cookie_manager.get("ak_erp_user_id")
 saved_user_name = cookie_manager.get("ak_erp_user_name")
 
@@ -207,7 +206,6 @@ else:
 if "reset_step" not in st.session_state:
     st.session_state.reset_step = 0
 
-# شاشات الدخول
 if st.session_state["user_id"] is None:
     st.sidebar.title("نظام A.K (ERP)")
     auth_choice = st.sidebar.radio("بوابة الدخول", ["تسجيل الدخول", "إنشاء حساب جديد كلياً"])
@@ -548,8 +546,8 @@ with st.sidebar:
     except ValueError: def_idx = 0
 
     selected_item = option_menu(
-        None, 
-        menu_options,
+        menu_title="", 
+        options=menu_options,
         icons=menu_icons,
         default_index=def_idx,
         styles={
@@ -584,7 +582,7 @@ with st.sidebar:
             pass
         st.rerun()
 
-if selected_item != st.session_state.current_nav:
+if selected_item and selected_item != st.session_state.current_nav:
     if selected_item == "المتابعة الشاملة ⏴": st.session_state.sub_expanded = True; st.session_state.current_nav = "   🔹 الموظفين"
     elif selected_item == "المتابعة الشاملة ⏷": st.session_state.sub_expanded = False; st.session_state.current_nav = "لوحة القيادة"
     elif selected_item == "نظام الرواتب ⏴": st.session_state.payroll_expanded = True; st.session_state.current_nav = "   🔹 كشف الرواتب"
@@ -658,16 +656,15 @@ if main_menu == "لوحة القيادة":
                 bg_color = "#FEF3C7"
                 text_color = "#D97706"
                 icon = "⚠️"
-                
-            grid_html += f"""
-            <div class="alert-card-compact" style="border-right: 5px solid {border_color};">
-                <div class="alert-icon-box" style="background-color: {bg_color};">{icon}</div>
-                <div class="alert-text-box">
-                    <div class="alert-title-text">{title}</div>
-                    <div class="alert-date-text">ينتهي في: <span style="color: {text_color};">{exp_date}</span> (متبقي {days} يوم)</div>
-                </div>
-            </div>
-            """
+            
+            # بدون مسافات إضافية لتجنب خطأ الـ Code Block في Markdown
+            grid_html += f"""<div class="alert-card-compact" style="border-right: 5px solid {border_color};">
+<div class="alert-icon-box" style="background-color: {bg_color};">{icon}</div>
+<div class="alert-text-box">
+<div class="alert-title-text">{title}</div>
+<div class="alert-date-text">ينتهي في: <span style="color: {text_color};">{exp_date}</span> (متبقي {days} يوم)</div>
+</div>
+</div>"""
         grid_html += '</div>'
         st.markdown(grid_html, unsafe_allow_html=True)
     else:
@@ -1172,7 +1169,7 @@ elif main_menu == "المتابعة الشاملة" and selected_sub:
     with col2:
         if not df.empty: st.download_button("📊 تصدير Excel", to_excel(prepare_export_df(df, selected_sub), selected_sub), f"{selected_sub}.xlsx", use_container_width=True)
     with col3:
-        if not df.empty: st.download_button("🖨️ تصدير PDF", to_pdf_html_basic(prepare_export_df(df, selected_sub), f"تقرير - {selected_sub}"), f"{selected_sub}_تقرير.html", mime="text/html", use_container_width=True)
+        if not df.empty: st.download_button("🖨️️ تصدير PDF", to_pdf_html_basic(prepare_export_df(df, selected_sub), f"تقرير - {selected_sub}"), f"{selected_sub}_تقرير.html", mime="text/html", use_container_width=True)
     with col_search: search_q = st.text_input("🔍", placeholder="بحث في السجلات...", label_visibility="collapsed")
     st.markdown("</div>", unsafe_allow_html=True)
 
