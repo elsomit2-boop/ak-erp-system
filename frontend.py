@@ -193,12 +193,13 @@ st.markdown("""
 saved_user_id = cookie_manager.get("ak_erp_user_id")
 saved_user_name = cookie_manager.get("ak_erp_user_name")
 
-if saved_user_id:
+if saved_user_id and str(saved_user_id) != "None":
     try:
         st.session_state["user_id"] = int(saved_user_id)
-        st.session_state["user_name"] = saved_user_name
-    except:
-        pass
+        st.session_state["user_name"] = str(saved_user_name) if saved_user_name else ""
+    except Exception:
+        if "user_id" not in st.session_state: st.session_state["user_id"] = None
+        if "user_name" not in st.session_state: st.session_state["user_name"] = ""
 else:
     if "user_id" not in st.session_state: st.session_state["user_id"] = None
     if "user_name" not in st.session_state: st.session_state["user_name"] = ""
@@ -250,7 +251,8 @@ if st.session_state["user_id"] is None:
                     if response.status_code == 200:
                         res_data = response.json()
                         st.session_state["user_id"] = res_data.get("id", 1) 
-                        st.session_state["user_name"] = res_data.get("name", login_email)
+                        fetched_name = res_data.get("name")
+                        st.session_state["user_name"] = str(fetched_name) if fetched_name else login_email
                         
                         if remember_me:
                             expire_date = datetime.datetime.now() + datetime.timedelta(days=30)
@@ -506,13 +508,14 @@ if "sub_expanded" not in st.session_state: st.session_state.sub_expanded = False
 if "payroll_expanded" not in st.session_state: st.session_state.payroll_expanded = False
 
 with st.sidebar:
-    st.markdown("""
+    user_name_display = str(st.session_state.get("user_name", ""))
+    st.markdown(f"""
         <div style="text-align: center; padding: 20px 0 10px 0;">
             <div style="background: linear-gradient(135deg, #4318FF, #3B82F6); display:inline-block; padding:15px; border-radius:15px; margin-bottom:10px; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.4);">
                 <h1 style="color: #FFFFFF; margin:0; font-size:2.5rem; line-height:1;">A.K</h1>
             </div>
             <h2 style="color: #0F172A; font-family:'Cairo'; font-weight:800; margin:0; font-size: 1.6rem; letter-spacing: 1px;">ERP SYSTEM</h2>
-            <p style="color: #64748B; font-size:12px; margin-top:5px; font-weight:700;">المساحة السحابية: """+st.session_state["user_name"]+"""</p>
+            <p style="color: #64748B; font-size:12px; margin-top:5px; font-weight:700;">المساحة السحابية: {user_name_display}</p>
             <hr style="border-color: #E2E8F0; margin: 20px 10px 10px 10px;">
         </div>
     """, unsafe_allow_html=True)
