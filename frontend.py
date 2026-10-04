@@ -29,8 +29,8 @@ except ImportError:
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
 
-# تهيئة مدير الكوكيز
-@st.cache_resource(experimental_allow_widgets=True)
+# تهيئة مدير الكوكيز بدون الخصائص القديمة الملغاة
+@st.cache_resource
 def get_cookie_manager():
     return stx.CookieManager()
 
@@ -194,12 +194,15 @@ st.markdown("""
 # 2. إدارة حالة تسجيل الدخول والكوكيز واستعادة كلمة المرور
 # ==========================================
 # استعادة الدخول من الكوكيز
-saved_user_id = cookie_manager.get(cookie="ak_erp_user_id")
-saved_user_name = cookie_manager.get(cookie="ak_erp_user_name")
+saved_user_id = cookie_manager.get("ak_erp_user_id")
+saved_user_name = cookie_manager.get("ak_erp_user_name")
 
 if saved_user_id:
-    st.session_state["user_id"] = int(saved_user_id)
-    st.session_state["user_name"] = saved_user_name
+    try:
+        st.session_state["user_id"] = int(saved_user_id)
+        st.session_state["user_name"] = saved_user_name
+    except:
+        pass
 else:
     if "user_id" not in st.session_state: st.session_state["user_id"] = None
     if "user_name" not in st.session_state: st.session_state["user_name"] = ""
@@ -254,7 +257,6 @@ if st.session_state["user_id"] is None:
                         st.session_state["user_name"] = res_data.get("name", login_email)
                         
                         if remember_me:
-                            # حفظ الكوكيز لمدة 30 يوم
                             expire_date = datetime.datetime.now() + datetime.timedelta(days=30)
                             cookie_manager.set("ak_erp_user_id", str(st.session_state["user_id"]), expires_at=expire_date)
                             cookie_manager.set("ak_erp_user_name", st.session_state["user_name"], expires_at=expire_date)
@@ -501,7 +503,7 @@ def to_pdf_html_with_dashboard(df, title, g_total=None, g_paid=None, g_rem=None,
     return html_content.encode('utf-8')
 
 # ==========================================
-# 4. بناء القائمة الجانبية
+# 4. بناء القائمة الجانبية المحدثة للظهور الواضح
 # ==========================================
 if "current_nav" not in st.session_state: st.session_state.current_nav = "لوحة القيادة"
 if "sub_expanded" not in st.session_state: st.session_state.sub_expanded = False
@@ -576,8 +578,11 @@ with st.sidebar:
     if st.button("🚪 تسجيل الخروج", use_container_width=True):
         st.session_state["user_id"] = None
         st.session_state["user_name"] = ""
-        cookie_manager.delete("ak_erp_user_id")
-        cookie_manager.delete("ak_erp_user_name")
+        try:
+            cookie_manager.delete("ak_erp_user_id")
+            cookie_manager.delete("ak_erp_user_name")
+        except:
+            pass
         st.rerun()
 
 if selected_item != st.session_state.current_nav:
@@ -867,7 +872,7 @@ elif main_menu == "نظام الرواتب" and selected_sub:
                     save_data = work_df.replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
                     requests.post(f"{API_URL}/annual_report/{a_emp}/{a_year}/sync", json={"owner_id": UID, "records": save_data})
                     st.success("تم التجميع والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
-            with c_p: st.download_button("🖨️️ PDF", to_pdf_html_basic(edited_ann[cols], f"التقرير السنوي - {a_emp} ({a_year})"), f"ann_{a_emp}_{a_year}.html", mime="text/html", use_container_width=True)
+            with c_p: st.download_button("🖨️ PDF", to_pdf_html_basic(edited_ann[cols], f"التقرير السنوي - {a_emp} ({a_year})"), f"ann_{a_emp}_{a_year}.html", mime="text/html", use_container_width=True)
         else: st.info("يرجى إدخال اسم الموظف للعرض.")
 
 elif main_menu == "الإعدادات":
