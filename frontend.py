@@ -8,12 +8,13 @@ from datetime import date
 import calendar
 import json
 import numpy as np
+import datetime
 
-# استيراد مكتبة الكوكيز بالطريقة الصحيحة (النسخة الحديثة)
+# استيراد مدير الكوكيز الحديث
 try:
-    from streamlit_cookies_manager import CookieManager
+    import extra_streamlit_components as stx
 except ImportError:
-    st.error("الرجاء تثبيت مكتبة الكوكيز عبر: pip install streamlit-cookies-manager")
+    st.error("الرجاء تثبيت المكتبة عبر: pip install extra-streamlit-components")
     st.stop()
 
 try:
@@ -23,15 +24,17 @@ except ImportError:
     HAS_HIJRI = False
 
 # ==========================================
-# 1. الإعدادات والـ CSS (الحل النهائي للقائمة الجانبية وإخفاء الخط)
+# 1. الإعدادات والـ CSS
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
 
-# تهيئة مدير الكوكيز بالطريقة الجديدة
-cookies = CookieManager()
-if not cookies.ready():
-    st.stop()
+# تهيئة مدير الكوكيز
+@st.cache_resource(experimental_allow_widgets=True)
+def get_cookie_manager():
+    return stx.CookieManager()
+
+cookie_manager = get_cookie_manager()
 
 st.markdown("""
     <style>
@@ -60,10 +63,7 @@ st.markdown("""
     .stDeployButton {display: none !important;}
     #MainMenu, footer {display:none !important;}
 
-    /* ========================================= */
     /* 5. الحل السحري والنهائي للقائمة الجانبية  */
-    /* ========================================= */
-    
     section[data-testid="stSidebar"] { 
         background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important; 
         border-right: none !important;
@@ -102,9 +102,7 @@ st.markdown("""
         direction: ltr !important; 
     }
 
-    /* ========================================= */
-    /* 6. باقي تنسيقات النظام                    */
-    /* ========================================= */
+    /* 6. باقي تنسيقات النظام */
     .erp-card { background: #FFFFFF; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
     .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; direction: rtl; border: 1px solid #E2E8F0; }
     .top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 26px; }
@@ -195,10 +193,13 @@ st.markdown("""
 # ==========================================
 # 2. إدارة حالة تسجيل الدخول والكوكيز واستعادة كلمة المرور
 # ==========================================
-# استعادة الدخول من الكوكيز إذا كانت موجودة
-if cookies.get("user_id"):
-    st.session_state["user_id"] = int(cookies.get("user_id"))
-    st.session_state["user_name"] = cookies.get("user_name", "")
+# استعادة الدخول من الكوكيز
+saved_user_id = cookie_manager.get(cookie="ak_erp_user_id")
+saved_user_name = cookie_manager.get(cookie="ak_erp_user_name")
+
+if saved_user_id:
+    st.session_state["user_id"] = int(saved_user_id)
+    st.session_state["user_name"] = saved_user_name
 else:
     if "user_id" not in st.session_state: st.session_state["user_id"] = None
     if "user_name" not in st.session_state: st.session_state["user_name"] = ""
@@ -206,12 +207,11 @@ else:
 if "reset_step" not in st.session_state:
     st.session_state.reset_step = 0
 
-# إذا لم يتم تسجيل الدخول، نعرض شاشات (تسجيل الدخول / إنشاء حساب)
+# شاشات الدخول
 if st.session_state["user_id"] is None:
     st.sidebar.title("نظام A.K (ERP)")
     auth_choice = st.sidebar.radio("بوابة الدخول", ["تسجيل الدخول", "إنشاء حساب جديد كلياً"])
     
-    # --- صفحة إنشاء حساب جديد كلياً ---
     if auth_choice == "إنشاء حساب جديد كلياً":
         st.subheader("تسجيل حساب شركة جديد")
         new_company = st.text_input("اسم الشركة")
@@ -236,7 +236,6 @@ if st.session_state["user_id"] is None:
             except requests.exceptions.ConnectionError:
                 st.error("فشل الاتصال بالسيرفر. يرجى التأكد من تشغيل السيرفر الخلفي.")
 
-    # --- صفحة تسجيل الدخول ---
     elif auth_choice == "تسجيل الدخول":
         st.subheader("تسجيل الدخول إلى حسابك")
         
@@ -255,11 +254,13 @@ if st.session_state["user_id"] is None:
                         st.session_state["user_name"] = res_data.get("name", login_email)
                         
                         if remember_me:
-                            cookies["user_id"] = str(st.session_state["user_id"])
-                            cookies["user_name"] = st.session_state["user_name"]
-                            cookies.save()
+                            # حفظ الكوكيز لمدة 30 يوم
+                            expire_date = datetime.datetime.now() + datetime.timedelta(days=30)
+                            cookie_manager.set("ak_erp_user_id", str(st.session_state["user_id"]), expires_at=expire_date)
+                            cookie_manager.set("ak_erp_user_name", st.session_state["user_name"], expires_at=expire_date)
                             
                         st.success("تم تسجيل الدخول بنجاح!")
+                        time.sleep(1)
                         st.rerun()
                     else:
                         st.error("البريد الإلكتروني أو كلمة المرور غير صحيحة")
@@ -324,7 +325,7 @@ if st.session_state["user_id"] is None:
     st.stop()
 
 # ==========================================
-# 3. بناء القائمة الجانبية بعد تسجيل الدخول (نظامك الأصلي كاملاً)
+# 3. الدوال المساعدة
 # ==========================================
 UID = st.session_state["user_id"]
 
@@ -500,7 +501,7 @@ def to_pdf_html_with_dashboard(df, title, g_total=None, g_paid=None, g_rem=None,
     return html_content.encode('utf-8')
 
 # ==========================================
-# 4. بناء القائمة الجانبية المحدثة للظهور الواضح
+# 4. بناء القائمة الجانبية
 # ==========================================
 if "current_nav" not in st.session_state: st.session_state.current_nav = "لوحة القيادة"
 if "sub_expanded" not in st.session_state: st.session_state.sub_expanded = False
@@ -575,11 +576,8 @@ with st.sidebar:
     if st.button("🚪 تسجيل الخروج", use_container_width=True):
         st.session_state["user_id"] = None
         st.session_state["user_name"] = ""
-        try:
-            del cookies["user_id"]
-            del cookies["user_name"]
-            cookies.save()
-        except: pass
+        cookie_manager.delete("ak_erp_user_id")
+        cookie_manager.delete("ak_erp_user_name")
         st.rerun()
 
 if selected_item != st.session_state.current_nav:
@@ -869,7 +867,7 @@ elif main_menu == "نظام الرواتب" and selected_sub:
                     save_data = work_df.replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
                     requests.post(f"{API_URL}/annual_report/{a_emp}/{a_year}/sync", json={"owner_id": UID, "records": save_data})
                     st.success("تم التجميع والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
-            with c_p: st.download_button("🖨️ PDF", to_pdf_html_basic(edited_ann[cols], f"التقرير السنوي - {a_emp} ({a_year})"), f"ann_{a_emp}_{a_year}.html", mime="text/html", use_container_width=True)
+            with c_p: st.download_button("🖨️️ PDF", to_pdf_html_basic(edited_ann[cols], f"التقرير السنوي - {a_emp} ({a_year})"), f"ann_{a_emp}_{a_year}.html", mime="text/html", use_container_width=True)
         else: st.info("يرجى إدخال اسم الموظف للعرض.")
 
 elif main_menu == "الإعدادات":
