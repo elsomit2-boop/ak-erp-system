@@ -29,12 +29,8 @@ except ImportError:
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
 
-# تهيئة مدير الكوكيز بدون الخصائص القديمة الملغاة
-@st.cache_resource
-def get_cookie_manager():
-    return stx.CookieManager()
-
-cookie_manager = get_cookie_manager()
+# تهيئة مدير الكوكيز بالطريقة المباشرة لتجنب رسائل التحذير الخاصة بالذاكرة المؤقتة (Cache)
+cookie_manager = stx.CookieManager(key="ak_erp_cookie_manager")
 
 st.markdown("""
     <style>
@@ -503,7 +499,7 @@ def to_pdf_html_with_dashboard(df, title, g_total=None, g_paid=None, g_rem=None,
     return html_content.encode('utf-8')
 
 # ==========================================
-# 4. بناء القائمة الجانبية المحدثة للظهور الواضح
+# 4. بناء القائمة الجانبية
 # ==========================================
 if "current_nav" not in st.session_state: st.session_state.current_nav = "لوحة القيادة"
 if "sub_expanded" not in st.session_state: st.session_state.sub_expanded = False
