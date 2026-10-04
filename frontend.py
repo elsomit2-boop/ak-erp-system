@@ -9,9 +9,9 @@ import calendar
 import json
 import numpy as np
 
-# مكتبة الكوكيز لمنع تسجيل الخروج عند التحديث
+# استيراد مكتبة الكوكيز بالطريقة الصحيحة (النسخة الحديثة)
 try:
-    from streamlit_cookies_manager import EncryptedCookieManager
+    from streamlit_cookies_manager import CookieManager
 except ImportError:
     st.error("الرجاء تثبيت مكتبة الكوكيز عبر: pip install streamlit-cookies-manager")
     st.stop()
@@ -28,8 +28,8 @@ except ImportError:
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
 
-# إعداد مدير الكوكيز (تذكر الدخول)
-cookies = EncryptedCookieManager(prefix="ak_erp_", password="secure_super_secret_password_for_erp_system")
+# تهيئة مدير الكوكيز بالطريقة الجديدة
+cookies = CookieManager()
 if not cookies.ready():
     st.stop()
 
@@ -197,7 +197,7 @@ st.markdown("""
 # ==========================================
 # استعادة الدخول من الكوكيز إذا كانت موجودة
 if cookies.get("user_id"):
-    st.session_state["user_id"] = int(cookies["user_id"])
+    st.session_state["user_id"] = int(cookies.get("user_id"))
     st.session_state["user_name"] = cookies.get("user_name", "")
 else:
     if "user_id" not in st.session_state: st.session_state["user_id"] = None
@@ -251,7 +251,7 @@ if st.session_state["user_id"] is None:
                     response = requests.post(f"{API_URL}/login", json=data)
                     if response.status_code == 200:
                         res_data = response.json()
-                        st.session_state["user_id"] = res_data.get("id", 1) # Note: API returns "id"
+                        st.session_state["user_id"] = res_data.get("id", 1) 
                         st.session_state["user_name"] = res_data.get("name", login_email)
                         
                         if remember_me:
@@ -575,9 +575,11 @@ with st.sidebar:
     if st.button("🚪 تسجيل الخروج", use_container_width=True):
         st.session_state["user_id"] = None
         st.session_state["user_name"] = ""
-        cookies["user_id"] = ""
-        cookies["user_name"] = ""
-        cookies.save()
+        try:
+            del cookies["user_id"]
+            del cookies["user_name"]
+            cookies.save()
+        except: pass
         st.rerun()
 
 if selected_item != st.session_state.current_nav:
