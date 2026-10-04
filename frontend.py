@@ -547,23 +547,103 @@ if main_menu == "لوحة القيادة":
     data = fetch_data(f"api/daily-report/{UID}")
     alerts = data.get("التفاصيل", []) if isinstance(data, dict) else []
     if alerts:
-        st.markdown("<div class='erp-card'><h3 style='color:#1B2559; margin-bottom:20px; font-weight:800;'>التنبيهات الحالية المكتشفة</h3>", unsafe_allow_html=True)
-        for a in alerts:
-            icon = "💰" if a['القسم'] == 'الأقساط' else "👤" if a['القسم'] == 'الإقامات' else "🚗" if a['القسم'] == 'السيارات' else "📑"
-            color = "#EE5D50" if a['الحالة'] == 'حرج' else "#F59E0B"
-            bg = "#FFF0F0" if a['الحالة'] == 'حرج' else "#FFFBEB"
-            st.markdown(f"""
-            <div style="background:{bg}; border-right: 5px solid {color}; padding:20px; border-radius:12px; margin-bottom:12px; display:flex; align-items:center; flex-direction: row-reverse; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
-                <div style="font-size:2rem; margin-right:20px; margin-left:20px;">{icon}</div>
-                <div style="text-align: right; width: 100%;">
-                    <div style="font-weight:800; color:#1B2559; font-size:16px; margin-bottom:4px;">[{a['القسم']}] {a['البيان']}</div>
-                    <div style="color:#64748B; font-size:14px; font-weight:600;">ينتهي في: <b style="color:{color};">{a['تاريخ_الانتهاء']}</b> (متبقي {a['الايام_المتبقية']} يوم)</div>
-                </div>
-            </div>
+            # 1. كود التصميم للشبكة المرنة والبطاقات المدمجة
+            st.markdown("""
+            <style>
+            .alerts-grid {
+                display: grid;
+                /* السطر التالي هو السر: يضع أكبر عدد ممكن من البطاقات بعرض 320px في السطر الواحد */
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+                gap: 15px;
+                margin-top: 15px;
+                direction: rtl;
+            }
+            .alert-card-compact {
+                background-color: #FFFFFF;
+                border: 1px solid #E2E8F0;
+                border-radius: 12px;
+                padding: 16px;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .alert-card-compact:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            }
+            .alert-icon-box {
+                width: 45px;
+                height: 45px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 22px;
+                flex-shrink: 0;
+            }
+            .alert-text-box {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .alert-title-text {
+                color: #1B2559;
+                font-size: 13px;
+                font-weight: 700;
+                line-height: 1.5;
+            }
+            .alert-date-text {
+                color: #64748B;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            .alert-date-text span {
+                font-weight: 800;
+            }
+            </style>
             """, unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-    else:
-        st.markdown("<div style='background-color:#FFFFFF; border:1px solid #E2E8F0; padding:60px 20px; border-radius:20px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.03);'><h1 style='font-size: 60px; margin-bottom: 20px; color:#4318FF;'>✨</h1><h2 style='color:#1B2559; font-weight:800; margin:0;'>لا توجد تنبيهات حالياً</h2><p style='color:#64748B; font-size:16px; font-weight:600; margin-top:10px;'>جميع بياناتك محدثة والنظام يعمل بكفاءة تامة.</p></div>", unsafe_allow_html=True)
+
+            # 2. بناء هيكل الشبكة
+            grid_html = '<div class="alerts-grid">'
+            
+            for alert in alerts:
+                status = alert.get("الحالة", "")
+                title = alert.get("البيان", "")
+                exp_date = alert.get("تاريخ_الانتهاء", "")
+                days = alert.get("الايام_المتبقية", 0)
+                
+                # تخصيص الألوان بناءً على حالة التنبيه
+                if status == "حرج":
+                    border_color = "#EE5D50"  # أحمر
+                    bg_color = "#FEE2E2"
+                    text_color = "#EE5D50"
+                    icon = "🚨"
+                else:
+                    border_color = "#D97706"  # برتقالي/أصفر
+                    bg_color = "#FEF3C7"
+                    text_color = "#D97706"
+                    icon = "⚠️"
+                    
+                # إضافة البطاقة إلى الشبكة
+                grid_html += f"""
+                <div class="alert-card-compact" style="border-right: 5px solid {border_color};">
+                    <div class="alert-icon-box" style="background-color: {bg_color};">{icon}</div>
+                    <div class="alert-text-box">
+                        <div class="alert-title-text">{title}</div>
+                        <div class="alert-date-text">ينتهي في: <span style="color: {text_color};">{exp_date}</span> (متبقي {days} يوم)</div>
+                    </div>
+                </div>
+                """
+                
+            grid_html += '</div>'
+            
+            # 3. عرض الشبكة بالكامل بضغطة واحدة
+            st.markdown(grid_html, unsafe_allow_html=True)
+            
+        else:
+            st.success("🎉 لا توجد أي تنبيهات حالياً. كل الأمور ممتازة!")
 
 elif main_menu == "محول التاريخ":
     render_top_navbar("محول التاريخ 🔄", "تحويل دقيق ومباشر بين التاريخ الميلادي والهجري")
