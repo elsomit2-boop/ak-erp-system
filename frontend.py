@@ -20,6 +20,7 @@ except ImportError:
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
+
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;900&display=swap');
@@ -33,51 +34,7 @@ st.markdown("""
     .stDeployButton {display: none !important;}
     #MainMenu, footer {display:none !important;}
 
-    /* --------- تثبيت ألوان القائمة الجانبية لتكون واضحة 100% --------- */
-    [data-testid="stSidebar"] { 
-        background-color: #FFFFFF !important; 
-        border-left: 1px solid #E2E8F0 !important; 
-        box-shadow: -5px 0 20px rgba(0,0,0,0.05); 
-    }
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] p {
-        color: #0F172A !important;
-    }
-    [data-testid="stSidebar"] hr { border-color: #E2E8F0 !important; }
-    
-    .erp-card { background: #FFFFFF; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
-    .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; direction: rtl; border: 1px solid #E2E8F0; }
-    .top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 26px; }
-    .top-navbar-titles p { margin: 0; color: #64748B; font-size: 14px; font-weight: 600; margin-top: 4px; }
-    .top-navbar-date { background: #F4F7FE; color: #4318FF; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; direction: rtl;}
-
-    .summary-card { background: #FFFFFF; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 20px; border-bottom: 4px solid #4318FF; border: 1px solid #E2E8F0;}
-    .summary-card h3 { margin: 0; font-size: 14px; color: #64748B; font-family: 'Cairo'; font-weight: 700;}
-    .summary-card h2 { margin: 10px 0 0 0; font-size: 28px; font-weight: 800; color: #1B2559; font-family: 'Tajawal';}
-    .summary-card.danger { border-bottom-color: #EE5D50; }
-    .summary-card.danger h2 { color: #EE5D50; }
-
-    .modern-table-wrapper { overflow-x: auto; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 20px; background: white; border: 1px solid #E2E8F0;}
-    .modern-table { width: 100%; border-collapse: collapse; text-align: center; direction: rtl;}
-    .modern-table th { background-color: #F8FAFC; color: #1B2559; font-weight: 800; font-size: 13px; padding: 18px 15px; border-bottom: 1px solid #E2E8F0; text-transform: uppercase; }
-    .modern-table td { padding: 16px 15px; color: #475569; font-weight: 700; font-size: 14px; border-bottom: 1px solid #E2E8F0; vertical-align: middle; white-space: nowrap; transition: background 0.2s; }
-    .modern-table tbody tr:hover td { background-color: #F1F5F9; }
-
-    .stButton>button { border-radius: 12px !important; font-weight: 800 !important; font-family: 'Cairo', sans-serif !important; transition: all 0.3s ease !important; }
-    button[data-testid="baseButton-primary"] { background: linear-gradient(135deg, #4318FF 0%, #3B82F6 100%) !important; color: white !important; border: none !important; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.2) !important; }
-    button[data-testid="baseButton-primary"]:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 24, 255, 0.4) !important; }
-    
-    .status-badge { padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 800; display: inline-block; text-align: center;}
-    .status-danger { background-color: #FEE2E2; color: #EE5D50; }
-    .status-warning { background-color: #FEF3C7; color: #D97706; }
-    .status-success { background-color: #E0F2FE; color: #0284C7; } 
-    .status-none { background-color: #F1F5F9; color: #64748B; }
-
-    div[data-testid="stDataFrame"] { direction: rtl !important; }
-    div[data-baseweb="popover"] { z-index: 999999 !important; }
-    div[data-baseweb="calendar"] { padding-top: 10px !important; direction: ltr !important; } 
-    </style>
-""", unsafe_allow_html=True)
-/* --------- تحسين وتثبيت القائمة الجانبية (شاشات الكمبيوتر والجوال) --------- */
+    /* --------- تحسين وتثبيت القائمة الجانبية (شاشات الكمبيوتر والجوال) --------- */
     [data-testid="stSidebar"] { 
         background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important; 
         border-left: 1px solid #E2E8F0 !important; 
@@ -124,6 +81,41 @@ st.markdown("""
             box-shadow: 10px 0px 50px rgba(0,0,0,0.5) !important;
         }
     }
+
+    /* --------- باقي تنسيقات النظام --------- */
+    .erp-card { background: #FFFFFF; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
+    .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; direction: rtl; border: 1px solid #E2E8F0; }
+    .top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 26px; }
+    .top-navbar-titles p { margin: 0; color: #64748B; font-size: 14px; font-weight: 600; margin-top: 4px; }
+    .top-navbar-date { background: #F4F7FE; color: #4318FF; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; direction: rtl;}
+
+    .summary-card { background: #FFFFFF; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 20px; border-bottom: 4px solid #4318FF; border: 1px solid #E2E8F0;}
+    .summary-card h3 { margin: 0; font-size: 14px; color: #64748B; font-family: 'Cairo'; font-weight: 700;}
+    .summary-card h2 { margin: 10px 0 0 0; font-size: 28px; font-weight: 800; color: #1B2559; font-family: 'Tajawal';}
+    .summary-card.danger { border-bottom-color: #EE5D50; }
+    .summary-card.danger h2 { color: #EE5D50; }
+
+    .modern-table-wrapper { overflow-x: auto; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 20px; background: white; border: 1px solid #E2E8F0;}
+    .modern-table { width: 100%; border-collapse: collapse; text-align: center; direction: rtl;}
+    .modern-table th { background-color: #F8FAFC; color: #1B2559; font-weight: 800; font-size: 13px; padding: 18px 15px; border-bottom: 1px solid #E2E8F0; text-transform: uppercase; }
+    .modern-table td { padding: 16px 15px; color: #475569; font-weight: 700; font-size: 14px; border-bottom: 1px solid #E2E8F0; vertical-align: middle; white-space: nowrap; transition: background 0.2s; }
+    .modern-table tbody tr:hover td { background-color: #F1F5F9; }
+
+    .stButton>button { border-radius: 12px !important; font-weight: 800 !important; font-family: 'Cairo', sans-serif !important; transition: all 0.3s ease !important; }
+    button[data-testid="baseButton-primary"] { background: linear-gradient(135deg, #4318FF 0%, #3B82F6 100%) !important; color: white !important; border: none !important; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.2) !important; }
+    button[data-testid="baseButton-primary"]:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 24, 255, 0.4) !important; }
+    
+    .status-badge { padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 800; display: inline-block; text-align: center;}
+    .status-danger { background-color: #FEE2E2; color: #EE5D50; }
+    .status-warning { background-color: #FEF3C7; color: #D97706; }
+    .status-success { background-color: #E0F2FE; color: #0284C7; } 
+    .status-none { background-color: #F1F5F9; color: #64748B; }
+
+    div[data-testid="stDataFrame"] { direction: rtl !important; }
+    div[data-baseweb="popover"] { z-index: 999999 !important; }
+    div[data-baseweb="calendar"] { padding-top: 10px !important; direction: ltr !important; } 
+    </style>
+""", unsafe_allow_html=True)
 
 # ==========================================
 # 2. إدارة حالة تسجيل الدخول واستعادة كلمة المرور
