@@ -11,3 +11,4 @@ hijri-converter
 XlsxWriter
 psycopg
 psycopg2-binary
+streamlit-cookies-manager
