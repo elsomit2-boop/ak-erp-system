@@ -29,7 +29,7 @@ except ImportError:
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
 
-# تهيئة مدير الكوكيز بالطريقة المباشرة لتجنب رسائل التحذير الخاصة بالذاكرة المؤقتة (Cache)
+# تهيئة مدير الكوكيز بالطريقة المباشرة
 cookie_manager = stx.CookieManager(key="ak_erp_cookie_manager")
 
 st.markdown("""
@@ -546,8 +546,8 @@ with st.sidebar:
     except ValueError: def_idx = 0
 
     selected_item = option_menu(
-        menu_title="", 
-        options=menu_options,
+        None, 
+        menu_options,
         icons=menu_icons,
         default_index=def_idx,
         styles={
@@ -582,7 +582,7 @@ with st.sidebar:
             pass
         st.rerun()
 
-if selected_item and selected_item != st.session_state.current_nav:
+if selected_item != st.session_state.current_nav:
     if selected_item == "المتابعة الشاملة ⏴": st.session_state.sub_expanded = True; st.session_state.current_nav = "   🔹 الموظفين"
     elif selected_item == "المتابعة الشاملة ⏷": st.session_state.sub_expanded = False; st.session_state.current_nav = "لوحة القيادة"
     elif selected_item == "نظام الرواتب ⏴": st.session_state.payroll_expanded = True; st.session_state.current_nav = "   🔹 كشف الرواتب"
@@ -657,7 +657,6 @@ if main_menu == "لوحة القيادة":
                 text_color = "#D97706"
                 icon = "⚠️"
             
-            # بدون مسافات إضافية لتجنب خطأ الـ Code Block في Markdown
             grid_html += f"""<div class="alert-card-compact" style="border-right: 5px solid {border_color};">
 <div class="alert-icon-box" style="background-color: {bg_color};">{icon}</div>
 <div class="alert-text-box">
@@ -872,7 +871,7 @@ elif main_menu == "نظام الرواتب" and selected_sub:
         else: st.info("يرجى إدخال اسم الموظف للعرض.")
 
 elif main_menu == "الإعدادات":
-    render_top_navbar("إعدادات النظام ⚙️", "التحكم في التنبيهات والألوان والنسخ الاحتياطي")
+    render_top_navbar("إعدادات النظام ⚙️️", "التحكم في التنبيهات والألوان والنسخ الاحتياطي")
     
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
     st.markdown("<h3 style='color:#4318FF; font-family:Cairo; font-weight:800; margin-bottom:15px;'>🛡️ النسخة الاحتياطية السحابية</h3>", unsafe_allow_html=True)
@@ -1169,7 +1168,7 @@ elif main_menu == "المتابعة الشاملة" and selected_sub:
     with col2:
         if not df.empty: st.download_button("📊 تصدير Excel", to_excel(prepare_export_df(df, selected_sub), selected_sub), f"{selected_sub}.xlsx", use_container_width=True)
     with col3:
-        if not df.empty: st.download_button("🖨️️ تصدير PDF", to_pdf_html_basic(prepare_export_df(df, selected_sub), f"تقرير - {selected_sub}"), f"{selected_sub}_تقرير.html", mime="text/html", use_container_width=True)
+        if not df.empty: st.download_button("🖨 تصدير PDF", to_pdf_html_basic(prepare_export_df(df, selected_sub), f"تقرير - {selected_sub}"), f"{selected_sub}_تقرير.html", mime="text/html", use_container_width=True)
     with col_search: search_q = st.text_input("🔍", placeholder="بحث في السجلات...", label_visibility="collapsed")
     st.markdown("</div>", unsafe_allow_html=True)
 
