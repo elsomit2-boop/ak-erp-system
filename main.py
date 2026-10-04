@@ -9,6 +9,7 @@ import hashlib
 import smtplib # 3. ⚠️ تمت إضافة مكتبات البريد هنا
 from email.mime.text import MIMEText
 import random
+import requests
 from typing import Optional, List, Dict, Any
 
 # ==========================================
@@ -396,21 +397,29 @@ def get_daily_alerts(user_id: int, db: Session = Depends(get_db)):
 SENDER_EMAIL = "elsomit2@gmail.com"  # استبدل ببريدك
 SENDER_PASSWORD = "iedc hukt gnbo smef" # استبدل بكلمة مرور التطبيق هنا
 
-def send_otp_email(to_email: str, otp: str):
-    msg = MIMEText(f"رمز استعادة كلمة المرور الخاص بنظام ERP هو: {otp}\nهذا الرمز صالح لمدة 10 دقائق فقط.")
-    msg['Subject'] = 'استعادة كلمة المرور - نظام ERP'
-    msg['From'] = SENDER_EMAIL
-    msg['To'] = to_email
+# ==========================================
+# 6. نظام استعادة كلمة المرور (عبر Brevo API لتجاوز حظر Render)
+# ==========================================
 
+def send_otp_email(to_email: str, otp: str):
+    url = "https://api.brevo.com/v3/smtp/email"
+    headers = {
+        "accept": "application/json",
+        "api-key": "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",  # ⚠️ سنضع المفتاح هنا لاحقاً
+        "content-type": "application/json"
+    }
+    payload = {
+        "sender": {"name": "نظام A.K ERP", "email": "noreply@ak-erp.com"},
+        "to": [{"email": to_email}],
+        "subject": "استعادة كلمة المرور - نظام ERP",
+        "htmlContent": f"<div style='text-align: right; direction: rtl;'><h2>مرحباً بك،</h2><p>طلب أحدهم استعادة كلمة المرور لحسابك. رمز التحقق (OTP) الخاص بك هو:</p><h1 style='color: #4318FF; letter-spacing: 5px;'>{otp}</h1><p>هذا الرمز صالح لمدة 10 دقائق فقط. إذا لم تكن أنت من طلب ذلك، يرجى تجاهل هذه الرسالة.</p></div>"
+    }
+    
     try:
-        # استخدام منفذ 587 للاتصال الآمن (TLS)
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls() 
-            server.login(SENDER_EMAIL, SENDER_PASSWORD)
-            server.send_message(msg)
-            print(f"Email successfully sent to {to_email}")
+        response = requests.post(url, json=payload, headers=headers)
+        print(f"API Response: {response.status_code} - {response.text}")
     except Exception as e:
-        print(f"Error sending email: {e}")
+        print(f"API Error: {e}")
 
 # نماذج البيانات (Pydantic Models)
 class ForgotPasswordRequest(BaseModel):
