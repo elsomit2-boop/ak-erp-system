@@ -409,7 +409,7 @@ def send_otp_email(to_email: str, otp: str):
         "content-type": "application/json"
     }
     payload = {
-        "sender": {"name": "نظام A.K ERP", "email": "noreply@ak-erp.com"},
+        "sender": {"name": "نظام A.K ERP", "email": "elsomit2@gmail.com"},
         "to": [{"email": to_email}],
         "subject": "استعادة كلمة المرور - نظام ERP",
         "htmlContent": f"<div style='text-align: right; direction: rtl;'><h2>مرحباً بك،</h2><p>طلب أحدهم استعادة كلمة المرور لحسابك. رمز التحقق (OTP) الخاص بك هو:</p><h1 style='color: #4318FF; letter-spacing: 5px;'>{otp}</h1><p>هذا الرمز صالح لمدة 10 دقائق فقط. إذا لم تكن أنت من طلب ذلك، يرجى تجاهل هذه الرسالة.</p></div>"
