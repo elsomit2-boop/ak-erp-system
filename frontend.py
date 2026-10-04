@@ -16,7 +16,7 @@ except ImportError:
     HAS_HIJRI = False
 
 # ==========================================
-# 1. الإعدادات والـ CSS (حل مشكلة النصوص المتقطعة وتجاوب القائمة الجانبية)
+# 1. الإعدادات والـ CSS (الحل النهائي للقائمة الجانبية)
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
@@ -25,44 +25,49 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;900&display=swap');
     
-    /* 1. الإعدادات الأساسية للخطوط والخلفية (بدون التأثير على التخطيط الهيكلي) */
+    /* 1. الإعدادات الأساسية والاتجاه (RTL) */
     .stApp, html, body { 
+        direction: rtl !important; 
+        text-align: right !important; 
         font-family: 'Cairo', sans-serif !important; 
         background-color: #F4F7FE !important; 
     }
     
-    /* 2. ضبط اتجاه التطبيق من الداخل (RTL) بطريقة آمنة */
-    [data-testid="stAppViewContainer"], [data-testid="stSidebar"] {
-        direction: rtl !important; 
-        text-align: right !important; 
-    }
+    /* 2. عكس ترتيب الأعمدة لتتوافق مع العربية */
+    div[data-testid="stHorizontalBlock"] { flex-direction: row-reverse !important; }
     
     /* 3. توحيد اتجاه النصوص والألوان */
-    .stMarkdown, h1, h2, h3, h4, h5, h6, label, input, textarea, select, p, span, div { 
+    .stMarkdown, h1, h2, h3, h4, h5, h6, label, input, textarea, select { 
         text-align: right !important; 
         direction: rtl !important; 
         color: #1B2559 !important; 
     }
 
-    /* 4. إخفاء العناصر غير المرغوب فيها (رأس وتذييل Streamlit الافتراضي) */
+    /* 4. إخفاء العناصر غير المرغوب فيها */
     header[data-testid="stHeader"] { background-color: transparent !important; direction: ltr !important; }
     .stDeployButton {display: none !important;}
     #MainMenu, footer {display:none !important;}
 
     /* ========================================= */
-    /* 5. تصميم القائمة الجانبية (Sidebar)       */
+    /* 5. الحل السحري والنهائي للقائمة الجانبية  */
     /* ========================================= */
     
-    /* تلوين الخلفية فقط بدون مقاسات إجبارية */
     section[data-testid="stSidebar"] { 
         background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important; 
         border-left: 1px solid #E2E8F0 !important;
         border-right: none !important;
+        overflow: hidden !important; /* إخفاء المحتوى الزائد أثناء الإغلاق */
     }
     
-    /* إلغاء أي تأثير للـ flex-direction يعيق عرض النصوص أفقياً */
+    /* 💡 السر هنا: منع التفاف النصوص تماماً لمنع التقطع العمودي أثناء الطي 💡 */
+    [data-testid="stSidebar"] * {
+        white-space: nowrap !important;
+    }
+    
     [data-testid="stSidebarUserContent"] {
-        flex-direction: column !important;
+        direction: rtl !important;
+        text-align: right !important;
+        overflow-x: hidden !important;
     }
     
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] p {
@@ -80,17 +85,17 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
         border: 1px solid #E2E8F0 !important;
         color: #1B2559 !important;
-        direction: ltr !important; /* للحفاظ على شكل السهم */
+        direction: ltr !important; /* الحفاظ على اتجاه السهم */
     }
 
     /* ========================================= */
     /* 6. باقي تنسيقات النظام                    */
     /* ========================================= */
-    .erp-card { background: #FFFFFF; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; }
-    .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #E2E8F0; }
+    .erp-card { background: #FFFFFF; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
+    .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; direction: rtl; border: 1px solid #E2E8F0; }
     .top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 26px; }
     .top-navbar-titles p { margin: 0; color: #64748B; font-size: 14px; font-weight: 600; margin-top: 4px; }
-    .top-navbar-date { background: #F4F7FE; color: #4318FF; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px;}
+    .top-navbar-date { background: #F4F7FE; color: #4318FF; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; direction: rtl;}
 
     .summary-card { background: #FFFFFF; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 20px; border-bottom: 4px solid #4318FF; border: 1px solid #E2E8F0;}
     .summary-card h3 { margin: 0; font-size: 14px; color: #64748B; font-family: 'Cairo'; font-weight: 700;}
@@ -99,7 +104,7 @@ st.markdown("""
     .summary-card.danger h2 { color: #EE5D50; }
 
     .modern-table-wrapper { overflow-x: auto; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 20px; background: white; border: 1px solid #E2E8F0;}
-    .modern-table { width: 100%; border-collapse: collapse; text-align: center; }
+    .modern-table { width: 100%; border-collapse: collapse; text-align: center; direction: rtl;}
     .modern-table th { background-color: #F8FAFC; color: #1B2559; font-weight: 800; font-size: 13px; padding: 18px 15px; border-bottom: 1px solid #E2E8F0; text-transform: uppercase; }
     .modern-table td { padding: 16px 15px; color: #475569; font-weight: 700; font-size: 14px; border-bottom: 1px solid #E2E8F0; vertical-align: middle; white-space: nowrap; transition: background 0.2s; }
     .modern-table tbody tr:hover td { background-color: #F1F5F9; }
@@ -114,6 +119,7 @@ st.markdown("""
     .status-success { background-color: #E0F2FE; color: #0284C7; } 
     .status-none { background-color: #F1F5F9; color: #64748B; }
 
+    div[data-testid="stDataFrame"] { direction: rtl !important; }
     div[data-baseweb="popover"] { z-index: 999999 !important; }
     div[data-baseweb="calendar"] { padding-top: 10px !important; direction: ltr !important; } 
     </style>
