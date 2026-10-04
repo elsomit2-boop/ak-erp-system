@@ -332,7 +332,7 @@ def update_setting(section_name: str, setting: SettingUpdateBase, db: Session = 
     return {"error": "not found"}
 
 # ==========================================
-# 5. التقرير اليومي والنسخ الاحتياطي
+# 5. التقرير اليومي الشامل (لجميع التواريخ) والنسخ الاحتياطي
 # ==========================================
 @app.get("/api/backup/{user_id}")
 def generate_backup(user_id: int, db: Session = Depends(get_db)):
@@ -352,9 +352,11 @@ def generate_backup(user_id: int, db: Session = Depends(get_db)):
 
 @app.get("/api/daily-report/{user_id}")
 def get_daily_alerts(user_id: int, db: Session = Depends(get_db)):
-    today = date.today(); alerts = []
+    today = date.today()
+    alerts = []
     settings = {s.section: {"warn": s.warning_days, "danger": s.danger_days} for s in db.query(Setting).filter(Setting.owner_id == user_id).all()}
-    def check_alerts(query, sec_name, sec_db_name, name_attr, date_attr):
+    
+    def check_alerts(query, alert_title, sec_db_name, name_attr, date_attr):
         items = db.query(query).filter(query.owner_id == user_id).all()
         warn_days = settings.get(sec_db_name, {}).get("warn", 30)
         danger_days = settings.get(sec_db_name, {}).get("danger", 0)
@@ -364,29 +366,69 @@ def get_daily_alerts(user_id: int, db: Session = Depends(get_db)):
                 days = (exp_date - today).days
                 if days <= warn_days:
                     display_name = getattr(item, name_attr)
-                    if sec_name == "السيارات":
+                    if sec_db_name == "السيارات":
                         car_n = getattr(item, "car_name")
-                        if car_n and car_n != "لا يوجد": display_name = f"{car_n} - {display_name}"
-                    alerts.append({"القسم": sec_name, "البيان": display_name, "تاريخ_الانتهاء": exp_date, "الايام_المتبقية": days, "الحالة": "حرج" if days <= danger_days else "تحذير"})
+                        if car_n and car_n != "لا يوجد": 
+                            display_name = f"{car_n} - {display_name}"
+                    
+                    # دمج نوع التنبيه مع الاسم ليكون واضحاً للمستخدم
+                    alerts.append({
+                        "القسم": sec_db_name, 
+                        "البيان": f"[{alert_title}] {display_name}", 
+                        "تاريخ_الانتهاء": exp_date, 
+                        "الايام_المتبقية": days, 
+                        "الحالة": "حرج" if days <= danger_days else "تحذير"
+                    })
     
-    check_alerts(Employee, "الإقامات", "الموظفين", "name", "iqama_expiry")
-    check_alerts(Vehicle, "السيارات", "السيارات", "plate_number", "registration_expiry")
-    check_alerts(Visa, "التأشيرات", "التأشيرات", "employee_name", "expiry_date")
-    check_alerts(Rent, "الإيجارات", "عقود الإيجار", "tenant_name", "contract_expiry")
-    check_alerts(Subscription, "الاشتراكات", "الاشتراكات العامة", "service_name", "subscription_expiry")
+    # 1. الموظفين (فحص 3 تواريخ مختلفة)
+    check_alerts(Employee, "انتهاء الإقامة", "الموظفين", "name", "iqama_expiry")
+    check_alerts(Employee, "انتهاء التأمين الطبي", "الموظفين", "name", "health_insurance_expiry")
+    check_alerts(Employee, "انتهاء الجواز", "الموظفين", "name", "passport_expiry")
     
+    # 2. السيارات (فحص تاريخين)
+    check_alerts(Vehicle, "انتهاء الاستمارة", "السيارات", "plate_number", "registration_expiry")
+    check_alerts(Vehicle, "انتهاء التأمين", "السيارات", "plate_number", "insurance_expiry")
+    
+    # 3. التأشيرات (فحص تاريخين)
+    check_alerts(Visa, "تاريخ السفر", "التأشيرات", "employee_name", "travel_date")
+    check_alerts(Visa, "انتهاء التأشيرة", "التأشيرات", "employee_name", "expiry_date")
+    
+    # 4. عقود الإيجار (فحص 3 تواريخ)
+    check_alerts(Rent, "بداية العقد", "عقود الإيجار", "tenant_name", "contract_start_date")
+    check_alerts(Rent, "انتهاء العقد", "عقود الإيجار", "tenant_name", "contract_expiry")
+    check_alerts(Rent, "الدفعة القادمة", "عقود الإيجار", "tenant_name", "next_payment_date")
+    
+    # 5. الاشتراكات العامة (فحص تاريخ واحد)
+    check_alerts(Subscription, "انتهاء الاشتراك", "الاشتراكات العامة", "service_name", "subscription_expiry")
+    
+    # 6. الأقساط (فحص أول قسط)
+    check_alerts(Installment, "تاريخ أول قسط", "الأقساط", "client_name", "first_installment_date")
+    
+    # فحص الدفعات المجدولة للأقساط (من داخل ملفات الدفع JSON)
     inst_items = db.query(Installment).filter(Installment.owner_id == user_id).all()
-    inst_warn = settings.get("الأقساط", {}).get("warn", 30); inst_danger = settings.get("الأقساط", {}).get("danger", 0)
+    inst_warn = settings.get("الأقساط", {}).get("warn", 30)
+    inst_danger = settings.get("الأقساط", {}).get("danger", 0)
+    
     for plan in inst_items:
-        try: payments = json.loads(plan.payments_data)
-        except: payments = []
+        try: 
+            payments = json.loads(plan.payments_data)
+        except: 
+            payments = []
         for p in payments:
-            amt_due = round(float(p.get("amount_due", 0)), 2); amt_paid = round(float(p.get("paid_amount", 0)), 2)
+            amt_due = round(float(p.get("amount_due", 0)), 2)
+            amt_paid = round(float(p.get("paid_amount", 0)), 2)
             if amt_paid < amt_due and p.get("due_date"):
-                due_date = date.fromisoformat(p.get("due_date")); days = (due_date - today).days
+                due_date = date.fromisoformat(p.get("due_date"))
+                days = (due_date - today).days
                 if days <= inst_warn:
-                    alerts.append({"القسم": "الأقساط", "البيان": f"{plan.client_name} - قسط رقم {p.get('installment_number')} ({round(amt_due - amt_paid, 2)} ريال)", "تاريخ_الانتهاء": due_date, "الايام_المتبقية": days, "الحالة": "حرج" if days <= inst_danger else "تحذير"})
-                break 
+                    alerts.append({
+                        "القسم": "الأقساط", 
+                        "البيان": f"[استحقاق دفعة] {plan.client_name} - قسط رقم {p.get('installment_number')} ({round(amt_due - amt_paid, 2)} ريال)", 
+                        "تاريخ_الانتهاء": due_date, 
+                        "الايام_المتبقية": days, 
+                        "الحالة": "حرج" if days <= inst_danger else "تحذير"
+                    })
+                    
     return {"إجمالي التنبيهات": len(alerts), "التفاصيل": alerts}
 
 # ==========================================
