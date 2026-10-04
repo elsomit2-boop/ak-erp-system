@@ -1,10 +1,14 @@
 from fastapi import FastAPI, Depends, HTTPException, status
-from sqlalchemy import create_engine, Column, Integer, String, Date, Float
+# 1. ⚠️ تمت إضافة DateTime هنا
+from sqlalchemy import create_engine, Column, Integer, String, Date, Float, DateTime 
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from pydantic import BaseModel, root_validator
-from datetime import date
+from datetime import date, datetime, timedelta # 2. ⚠️ تمت إضافة datetime و timedelta هنا
 import json
 import hashlib
+import smtplib # 3. ⚠️ تمت إضافة مكتبات البريد هنا
+from email.mime.text import MIMEText
+import random
 from typing import Optional, List, Dict, Any
 
 # ==========================================
@@ -12,7 +16,6 @@ from typing import Optional, List, Dict, Any
 # ==========================================
 
 # 💡 ضع رابط Supabase المشفر الخاص بك هنا
-# تذكر استبدال [YOUR-PASSWORD] بكلمة المرور الحقيقية التي أنشأتها (بدون الأقواس המربعة [])
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres.ytfkmuvlbuzbhjthurzv:Aa01093179299Aa@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
@@ -40,7 +43,7 @@ class User(Base):
     phone = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
-    # الحقول الجديدة للاستعادة:
+    # 4. ⚠️ إضافة حقول الاستعادة
     reset_otp = Column(String, nullable=True)
     otp_expiry = Column(DateTime, nullable=True)
 
@@ -384,43 +387,14 @@ def get_daily_alerts(user_id: int, db: Session = Depends(get_db)):
                     alerts.append({"القسم": "الأقساط", "البيان": f"{plan.client_name} - قسط رقم {p.get('installment_number')} ({round(amt_due - amt_paid, 2)} ريال)", "تاريخ_الانتهاء": due_date, "الايام_المتبقية": days, "الحالة": "حرج" if days <= inst_danger else "تحذير"})
                 break 
     return {"إجمالي التنبيهات": len(alerts), "التفاصيل": alerts}
-# إعدادات البريد الإلكتروني (ضع بريدك وكلمة مرور التطبيق هنا)
-SENDER_EMAIL = "بريدك_هنا@gmail.com"
-SENDER_PASSWORD = "كلمة_مرور_التطبيق_المكونة_من_16_حرف"
-
-def send_otp_email(to_email: str, otp: str):
-    msg = MIMEText(f"رمز استعادة كلمة المرور الخاص بنظام ERP هو: {otp}\nهذا الرمز صالح لمدة 10 دقائق فقط.")
-    msg['Subject'] = 'استعادة كلمة المرور - نظام ERP'
-    msg['From'] = SENDER_EMAIL
-    msg['To'] = to_email
-
-    try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-            server.login(SENDER_EMAIL, SENDER_PASSWORD)
-            server.send_message(msg)
-    except Exception as e:
-        print(f"Error sending email: {e}")
-
-# نماذج البيانات (Pydantic Models)
-class ForgotPasswordRequest(BaseModel):
-    email: str
-
-class ResetPasswordRequest(BaseModel):
-    email: str
-    otp: str
-    new_password: str
 
 # ==========================================
 # 6. نظام استعادة كلمة المرور عبر البريد الإلكتروني
 # ==========================================
-import smtplib
-from email.mime.text import MIMEText
-import random
-from datetime import datetime, timedelta
 
 # إعدادات البريد الإلكتروني (ضع بريدك وكلمة مرور التطبيق هنا)
 SENDER_EMAIL = "elsomit2@gmail.com"  # استبدل ببريدك
-SENDER_PASSWORD = "كلمة_مرور_التطبيق_المكونة_من_16_حرف" # استبدل بكلمة مرور التطبيق
+SENDER_PASSWORD = "كلمة_مرور_التطبيق_المكونة_من_16_حرف" # استبدل بكلمة مرور التطبيق هنا
 
 def send_otp_email(to_email: str, otp: str):
     msg = MIMEText(f"رمز استعادة كلمة المرور الخاص بنظام ERP هو: {otp}\nهذا الرمز صالح لمدة 10 دقائق فقط.")
@@ -453,7 +427,7 @@ def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
     clean_email = req.email.strip()
     print(f"Processing forgot-password for: {clean_email}")
     
-    # ⚠️ التعديل الجوهري: استخدام User بدلاً من models.User
+    # 5. ⚠️ استخدام User هنا
     user = db.query(User).filter(User.email == clean_email).first()
     
     if not user:
