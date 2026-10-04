@@ -16,7 +16,7 @@ except ImportError:
     HAS_HIJRI = False
 
 # ==========================================
-# 1. الإعدادات والـ CSS (حل مشكلة ألوان القائمة الجانبية)
+# 1. الإعدادات والـ CSS (حل مشكلة ألوان وتجاوب القائمة الجانبية)
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
@@ -25,21 +25,44 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;900&display=swap');
     
-    .stApp, html, body { direction: rtl !important; text-align: right !important; font-family: 'Cairo', sans-serif !important; background-color: #F4F7FE !important; }
+    /* 1. الإعدادات الأساسية والاتجاه (RTL) */
+    .stApp, html, body { 
+        direction: rtl !important; 
+        text-align: right !important; 
+        font-family: 'Cairo', sans-serif !important; 
+        background-color: #F4F7FE !important; 
+    }
+    
+    /* 2. عكس ترتيب الأعمدة لتتوافق مع العربية */
     div[data-testid="stHorizontalBlock"] { flex-direction: row-reverse !important; }
-    .stMarkdown, h1, h2, h3, h4, h5, h6, label { text-align: right !important; direction: rtl !important; color: #1B2559 !important; }
-    input, textarea, select { text-align: right !important; direction: rtl !important; color: #1B2559 !important; }
+    
+    /* 3. توحيد اتجاه النصوص والألوان */
+    .stMarkdown, h1, h2, h3, h4, h5, h6, label, input, textarea, select { 
+        text-align: right !important; 
+        direction: rtl !important; 
+        color: #1B2559 !important; 
+    }
 
+    /* 4. إخفاء العناصر غير المرغوب فيها */
     header[data-testid="stHeader"] { background-color: transparent !important; direction: ltr !important; }
     .stDeployButton {display: none !important;}
     #MainMenu, footer {display:none !important;}
 
-    /* --------- تحسين وتثبيت القائمة الجانبية (شاشات الكمبيوتر والجوال) --------- */
-    [data-testid="stSidebar"] { 
+    /* ========================================= */
+    /* 5. الحل النهائي لمشكلة القائمة الجانبية   */
+    /* ========================================= */
+    
+    /* تلوين الخلفية فقط بدون التلاعب في الأبعاد التي تسبب المشاكل */
+    section[data-testid="stSidebar"] { 
         background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important; 
-        border-left: 1px solid #E2E8F0 !important; 
-        box-shadow: -5px 0 25px rgba(0,0,0,0.04) !important; 
-        transition: all 0.3s ease-in-out !important;
+        border-left: 1px solid #E2E8F0 !important;
+        border-right: none !important;
+    }
+    
+    /* ضبط محتوى القائمة من الداخل ليكون يمينياً */
+    [data-testid="stSidebarUserContent"] {
+        direction: rtl !important;
+        text-align: right !important;
     }
     
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] p {
@@ -50,39 +73,18 @@ st.markdown("""
         border-color: #E2E8F0 !important; 
     }
 
-    /* 💻 تحسينات شاشات الكمبيوتر (المتصفح) */
-    @media (min-width: 769px) {
-        [data-testid="stSidebar"] {
-            min-width: 280px !important;
-            max-width: 280px !important;
-        }
-        
-        /* تجميل زر طي القائمة العلوية (السهم) */
-        button[data-testid="stSidebarCollapseButton"] {
-            background-color: #FFFFFF !important;
-            border-radius: 50% !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
-            border: 1px solid #E2E8F0 !important;
-            color: #1B2559 !important;
-            transition: all 0.3s ease !important;
-            margin-top: 10px !important;
-        }
-        button[data-testid="stSidebarCollapseButton"]:hover {
-            color: #4318FF !important;
-            transform: scale(1.1);
-        }
+    /* تجميل زر الطي (السهم) */
+    button[data-testid="stSidebarCollapseButton"] {
+        background-color: #FFFFFF !important;
+        border-radius: 50% !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
+        border: 1px solid #E2E8F0 !important;
+        color: #1B2559 !important;
     }
 
-    /* 📱 تحسينات شاشات الجوال */
-    @media (max-width: 768px) {
-        [data-testid="stSidebar"] {
-            min-width: 260px !important;
-            max-width: 260px !important;
-            box-shadow: 10px 0px 50px rgba(0,0,0,0.5) !important;
-        }
-    }
-
-    /* --------- باقي تنسيقات النظام --------- */
+    /* ========================================= */
+    /* 6. باقي تنسيقات النظام                    */
+    /* ========================================= */
     .erp-card { background: #FFFFFF; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
     .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; direction: rtl; border: 1px solid #E2E8F0; }
     .top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 26px; }
