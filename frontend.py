@@ -77,6 +77,53 @@ st.markdown("""
     div[data-baseweb="calendar"] { padding-top: 10px !important; direction: ltr !important; } 
     </style>
 """, unsafe_allow_html=True)
+/* --------- تحسين وتثبيت القائمة الجانبية (شاشات الكمبيوتر والجوال) --------- */
+    [data-testid="stSidebar"] { 
+        background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important; 
+        border-left: 1px solid #E2E8F0 !important; 
+        box-shadow: -5px 0 25px rgba(0,0,0,0.04) !important; 
+        transition: all 0.3s ease-in-out !important;
+    }
+    
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] p {
+        color: #0F172A !important;
+    }
+    
+    [data-testid="stSidebar"] hr { 
+        border-color: #E2E8F0 !important; 
+    }
+
+    /* 💻 تحسينات شاشات الكمبيوتر (المتصفح) */
+    @media (min-width: 769px) {
+        [data-testid="stSidebar"] {
+            min-width: 280px !important;
+            max-width: 280px !important;
+        }
+        
+        /* تجميل زر طي القائمة العلوية (السهم) */
+        button[data-testid="stSidebarCollapseButton"] {
+            background-color: #FFFFFF !important;
+            border-radius: 50% !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
+            border: 1px solid #E2E8F0 !important;
+            color: #1B2559 !important;
+            transition: all 0.3s ease !important;
+            margin-top: 10px !important;
+        }
+        button[data-testid="stSidebarCollapseButton"]:hover {
+            color: #4318FF !important;
+            transform: scale(1.1);
+        }
+    }
+
+    /* 📱 تحسينات شاشات الجوال */
+    @media (max-width: 768px) {
+        [data-testid="stSidebar"] {
+            min-width: 260px !important;
+            max-width: 260px !important;
+            box-shadow: 10px 0px 50px rgba(0,0,0,0.5) !important;
+        }
+    }
 
 # ==========================================
 # 2. إدارة حالة تسجيل الدخول واستعادة كلمة المرور
