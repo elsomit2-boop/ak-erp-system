@@ -103,9 +103,9 @@ if st.session_state["user_id"] is None:
         
         if st.button("تسجيل الحساب"):
             data = {
-                "company_name": new_company,
+                "full_name": new_company,  # تم تصحيح الكلمة لتطابق السيرفر
                 "phone": new_phone,
-                "email": new_email,
+                "email": new_email.strip(), # تجاهل المسافات الزائدة
                 "password": new_password
             }
             try:
@@ -124,7 +124,7 @@ if st.session_state["user_id"] is None:
         
         # الخطوة 0: الدخول العادي أو طلب استعادة كلمة المرور
         if st.session_state.reset_step == 0:
-            login_email = st.text_input("البريد الإلكتروني")
+            login_email = st.text_input("البريد الإلكتروني").strip()
             login_password = st.text_input("كلمة المرور", type="password")
             
             if st.button("دخول"):
@@ -150,7 +150,7 @@ if st.session_state["user_id"] is None:
         # الخطوة 1: إدخال البريد لإرسال الرمز
         elif st.session_state.reset_step == 1:
             st.info("أدخل بريدك الإلكتروني المسجل لإرسال رمز التحقق (OTP)")
-            reset_email = st.text_input("البريد الإلكتروني المسجل", key="reset_email_input")
+            reset_email = st.text_input("البريد الإلكتروني المسجل", key="reset_email_input").strip()
             
             col1, col2 = st.columns(2)
             with col1:
