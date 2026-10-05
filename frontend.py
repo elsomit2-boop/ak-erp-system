@@ -23,7 +23,7 @@ except ImportError:
     HAS_HIJRI = False
 
 # ==========================================
-# 1. الإعدادات والـ CSS 
+# 1. الإعدادات والـ CSS
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="collapsed")
 API_URL = "https://ak-erp-system.onrender.com"
@@ -36,18 +36,18 @@ st.markdown("""
 
 /* الإعدادات الأساسية والاتجاه (RTL) */
 .stApp, html, body { 
-    direction: rtl !important; 
-    text-align: right !important; 
-    font-family: 'Cairo', sans-serif !important; 
-    background-color: #F4F7FE !important; 
+direction: rtl !important; 
+text-align: right !important; 
+font-family: 'Cairo', sans-serif !important; 
+background-color: #F4F7FE !important; 
 }
 
 div[data-testid="stHorizontalBlock"] { flex-direction: row-reverse !important; }
 
 .stMarkdown, h1, h2, h3, h4, h5, h6, label, input, textarea, select { 
-    text-align: right !important; 
-    direction: rtl !important; 
-    color: #1B2559 !important; 
+text-align: right !important; 
+direction: rtl !important; 
+color: #1B2559 !important; 
 }
 
 /* الإخفاء الجذري لكل علامات Streamlit المزعجة */
@@ -62,9 +62,89 @@ footer { display: none !important; }
 
 /* تقليل المساحات العلوية */
 .block-container {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-    max-width: 98% !important; 
+padding-top: 1rem !important;
+padding-bottom: 1rem !important;
+max-width: 98% !important; 
+}
+
+/* تصميم الشريط العلوي الاحترافي */
+.ak-navbar {
+background: linear-gradient(90deg, #1E293B 0%, #0F172A 100%);
+border-radius: 12px;
+display: flex;
+direction: rtl; 
+padding: 0 15px;
+box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+margin-bottom: 25px;
+align-items: center;
+z-index: 999999;
+position: relative;
+}
+.ak-logo {
+color: #FFFFFF;
+font-family: 'Tajawal', sans-serif;
+font-size: 22px;
+font-weight: 900;
+padding: 10px 20px;
+background-color: #4318FF;
+border-radius: 10px;
+margin-left: 20px;
+letter-spacing: 1px;
+}
+.ak-nav-item {
+position: relative;
+padding: 20px 15px;
+cursor: pointer;
+}
+.ak-nav-item > a {
+color: #F8FAFC;
+text-decoration: none;
+font-family: 'Cairo', sans-serif;
+font-weight: 700;
+font-size: 15px;
+transition: all 0.3s ease;
+display: block;
+}
+.ak-nav-item:hover {
+background-color: rgba(255, 255, 255, 0.1);
+border-radius: 8px;
+}
+.ak-nav-item:hover > a {
+color: #FFFFFF;
+}
+
+/* القائمة المنسدلة */
+.ak-dropdown {
+display: none; 
+position: absolute;
+top: 100%;
+right: 0;
+background-color: #FFFFFF;
+min-width: 220px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+border-radius: 12px;
+z-index: 999999;
+border: 1px solid #E2E8F0;
+overflow: hidden;
+padding: 5px 0;
+flex-direction: column;
+}
+.ak-nav-item:hover .ak-dropdown {
+display: flex; 
+}
+.ak-dropdown a {
+color: #1E293B !important;
+padding: 12px 20px;
+font-size: 14px;
+text-align: right;
+transition: background 0.2s;
+text-decoration: none;
+display: block;
+}
+.ak-dropdown a:hover {
+background-color: #F4F7FE;
+color: #4318FF !important;
+font-weight: 800;
 }
 
 /* تنسيقات البطاقات والجداول */
@@ -234,75 +314,78 @@ if st.session_state["user_id"] is None:
     st.stop()
 
 # ==========================================
-# 3. الشريط العلوي - استخدام st.button للتوجيه الداخلي
+# 3. الشريط العلوي HTML/CSS الخالي من المسافات
 # ==========================================
-if "current_nav" not in st.session_state:
-    st.session_state.current_nav = "dashboard"
+# دالة JavaScript لتحديث معلمات الـ URL دون إعادة تحميل الصفحة بالكامل
+st.markdown("""
+<script>
+function changeNav(navName) {
+    const url = new URL(window.location);
+    url.searchParams.set('nav', navName);
+    window.history.pushState({}, '', url);
+    window.dispatchEvent(new Event('popstate'));
+}
+</script>
+""", unsafe_allow_html=True)
 
-def set_nav(nav_key):
-    st.session_state.current_nav = nav_key
+query_params = st.query_params
+current_nav = query_params.get("nav", "dashboard")
+
+if current_nav == "logout":
+    st.session_state["user_id"] = None
+    st.session_state["user_name"] = ""
+    try:
+        cookie_manager.delete("ak_erp_user_id")
+        cookie_manager.delete("ak_erp_user_name")
+    except: pass
+    st.query_params.clear()
+    st.rerun()
 
 user_name_display = str(st.session_state.get("user_name", ""))
 
 st.markdown(f"""
-    <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 15px 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #E2E8F0; direction: rtl;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <div style="background: linear-gradient(135deg, #4318FF, #3B82F6); padding: 10px 20px; border-radius: 12px; color: white; font-weight: 900; font-size: 24px; letter-spacing: 1px;">A.K</div>
-            <div>
-                <h2 style="margin: 0; color: #0F172A; font-family: 'Cairo'; font-weight: 800; font-size: 20px;">ERP SYSTEM</h2>
-                <p style="margin: 0; color: #64748B; font-size: 13px; font-weight: 700;">المساحة السحابية: {user_name_display}</p>
-            </div>
-        </div>
-    </div>
+<div class="ak-navbar">
+<div class="ak-logo">A.K</div>
+<div class="ak-nav-item"><a href="javascript:void(0)" onclick="changeNav('dashboard')">📊 لوحة القيادة</a></div>
+<div class="ak-nav-item">
+<a href="javascript:void(0)">📁 المتابعة الشاملة ⏷</a>
+<div class="ak-dropdown">
+<a href="javascript:void(0)" onclick="changeNav('employees')">الموظفين</a>
+<a href="javascript:void(0)" onclick="changeNav('cars')">السيارات</a>
+<a href="javascript:void(0)" onclick="changeNav('visas')">التأشيرات</a>
+<a href="javascript:void(0)" onclick="changeNav('rents')">عقود الإيجار</a>
+<a href="javascript:void(0)" onclick="changeNav('subs')">الاشتراكات العامة</a>
+</div>
+</div>
+<div class="ak-nav-item">
+<a href="javascript:void(0)">💰 نظام الرواتب ⏷</a>
+<div class="ak-dropdown">
+<a href="javascript:void(0)" onclick="changeNav('payroll')">كشف الرواتب</a>
+<a href="javascript:void(0)" onclick="changeNav('loans')">حركة وسلف</a>
+<a href="javascript:void(0)" onclick="changeNav('support')">راتب مساند</a>
+<a href="javascript:void(0)" onclick="changeNav('annual')">التقرير السنوي</a>
+</div>
+</div>
+<div class="ak-nav-item"><a href="javascript:void(0)" onclick="changeNav('installments')">💳 إدارة الأقساط</a></div>
+<div class="ak-nav-item">
+<a href="javascript:void(0)">⚙️ إعدادات وجداول ⏷</a>
+<div class="ak-dropdown">
+<a href="javascript:void(0)" onclick="changeNav('manager')">بيانات المدير</a>
+<a href="javascript:void(0)" onclick="changeNav('workers')">بيانات العمال</a>
+<a href="javascript:void(0)" onclick="changeNav('extra')">جداول إضافية</a>
+<a href="javascript:void(0)" onclick="changeNav('calendar')">محول التاريخ</a>
+<a href="javascript:void(0)" onclick="changeNav('settings')">الإعدادات</a>
+</div>
+</div>
+<div style="flex-grow: 1;"></div>
+<div class="ak-nav-item" style="color:#64748B; font-size:13px; font-weight:700;">{user_name_display} :المساحة السحابية</div>
+<div class="ak-nav-item"><a href="javascript:void(0)" onclick="changeNav('logout')" style="color:#EE5D50;">🚪 خروج</a></div>
+</div>
 """, unsafe_allow_html=True)
 
-nav_cols = st.columns(6)
-
-with nav_cols[5]:
-    if st.button("📊 لوحة القيادة", use_container_width=True):
-        set_nav("dashboard")
-        st.rerun()
-
-with nav_cols[4]:
-    with st.popover("📁 المتابعة الشاملة ⏷", use_container_width=True):
-        if st.button("الموظفين", use_container_width=True): set_nav("employees"); st.rerun()
-        if st.button("السيارات", use_container_width=True): set_nav("cars"); st.rerun()
-        if st.button("التأشيرات", use_container_width=True): set_nav("visas"); st.rerun()
-        if st.button("عقود الإيجار", use_container_width=True): set_nav("rents"); st.rerun()
-        if st.button("الاشتراكات العامة", use_container_width=True): set_nav("subs"); st.rerun()
-
-with nav_cols[3]:
-    with st.popover("💰 نظام الرواتب ⏷", use_container_width=True):
-        if st.button("كشف الرواتب", use_container_width=True): set_nav("payroll"); st.rerun()
-        if st.button("حركة وسلف", use_container_width=True): set_nav("loans"); st.rerun()
-        if st.button("راتب مساند", use_container_width=True): set_nav("support"); st.rerun()
-        if st.button("التقرير السنوي", use_container_width=True): set_nav("annual"); st.rerun()
-
-with nav_cols[2]:
-    if st.button("💳 إدارة الأقساط", use_container_width=True):
-        set_nav("installments")
-        st.rerun()
-
-with nav_cols[1]:
-    with st.popover("⚙️ إعدادات وجداول ⏷", use_container_width=True):
-        if st.button("بيانات المدير", use_container_width=True): set_nav("manager"); st.rerun()
-        if st.button("بيانات العمال", use_container_width=True): set_nav("workers"); st.rerun()
-        if st.button("جداول إضافية", use_container_width=True): set_nav("extra"); st.rerun()
-        if st.button("محول التاريخ", use_container_width=True): set_nav("calendar"); st.rerun()
-        if st.button("الإعدادات", use_container_width=True): set_nav("settings"); st.rerun()
-
-with nav_cols[0]:
-    if st.button("🚪 خروج", use_container_width=True):
-        st.session_state["user_id"] = None
-        st.session_state["user_name"] = ""
-        try:
-            cookie_manager.delete("ak_erp_user_id")
-            cookie_manager.delete("ak_erp_user_name")
-        except: pass
-        st.rerun()
-
-st.markdown("<hr style='margin-top: 5px; margin-bottom: 20px; border-color: #E2E8F0;'>", unsafe_allow_html=True)
-
+# استدعاء دالة لتحديث حالة التطبيق عندما يتغير الـ URL
+if st.query_params != query_params:
+    st.rerun()
 
 # ==========================================
 # 4. الدوال المساعدة
@@ -339,14 +422,14 @@ if not sys_settings: sys_settings = {}
 
 def format_status(date_val, section_name):
     try:
-        if pd.isnull(date_val) or str(date_val).strip() == "" or str(date_val) == "None" or str(date_val) == "لا يوجد": return "لا يوجد"
+        if pd.isnull(date_val) or str(date_val).strip() == "" or str(date_val) == "None" or str(date_val) == "لا يوجد": return "<div class='status-badge status-none'>لا يوجد</div>"
         days = (pd.to_datetime(date_val).date() - date.today()).days
         w = sys_settings.get(section_name, {}).get("warning_days", 30)
         d = sys_settings.get(section_name, {}).get("danger_days", 0)
-        if days <= d: return f"🔴 حرج ({abs(days)} يوم)"
-        elif days <= w: return f"🟡 تحذير ({days} يوم)"
-        else: return f"🟢 ساري ({days} يوم)"
-    except: return "خطأ"
+        if days <= d: return f"<div class='status-badge status-danger'>حرج ({abs(days)} يوم)</div>"
+        elif days <= w: return f"<div class='status-badge status-warning'>تحذير ({days} يوم)</div>"
+        else: return f"<div class='status-badge status-success'>ساري ({days} يوم)</div>"
+    except: return "<div class='status-badge status-none'>خطأ</div>"
 
 def custom_date_picker(label_prefix, default_date=None, key_suffix=""):
     st.markdown(f"<div style='font-size:14px; font-weight:800; color:#1B2559; margin-bottom:8px; text-align:right;'>{label_prefix}</div>", unsafe_allow_html=True)
@@ -507,9 +590,8 @@ def to_pdf_html_with_dashboard(df, title, g_total=None, g_paid=None, g_rem=None,
     return html_content.encode('utf-8')
 
 # ==========================================
-# 5. الواجهة الرئيسية
+# 5. الواجهة الرئيسية والتوجيه
 # ==========================================
-current_nav = st.session_state.current_nav
 
 if current_nav == "dashboard":
     render_top_navbar("لوحة القيادة 📊", "نظرة عامة على التنبيهات وحالة النظام")
@@ -621,7 +703,7 @@ elif current_nav == "payroll":
             requests.post(f"{API_URL}/payroll/{p_year}/{p_month}/sync", json={"owner_id": UID, "records": save_data})
             st.success("تم الحساب والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
     with c_print:
-        if not edited_df.empty: st.download_button("🖨️ تصدير PDF", to_pdf_html_basic(edited_df[cols], f"كشف الرواتب - {p_month} {p_year}"), f"payroll_{p_year}_{p_month}.html", mime="text/html", use_container_width=True)
+        if not edited_df.empty: st.download_button("🖨️️ تصدير PDF", to_pdf_html_basic(edited_df[cols], f"كشف الرواتب - {p_month} {p_year}"), f"payroll_{p_year}_{p_month}.html", mime="text/html", use_container_width=True)
 
 elif current_nav == "loans":
     render_top_navbar("حركة وسلف", "إدارة حركات سلف الموظفين")
@@ -1013,7 +1095,7 @@ elif current_nav in ["employees", "cars", "visas", "rents", "subs"]:
     endpoint = current_nav
     if endpoint == "subs": endpoint = "subscriptions" 
     
-    render_top_navbar(f"إدارة {selected_sub}", "إدارة السجلات بتصميم احترافي متكامل")
+    render_top_navbar(f"إدارة {selected_sub}", "إضافة، تعديل سريع للبيانات، وإدارة السجلات بسهولة")
     render_delete_notification(endpoint)
     
     raw_data = fetch_data(f"{endpoint}/{UID}")
@@ -1093,7 +1175,7 @@ elif current_nav in ["employees", "cars", "visas", "rents", "subs"]:
                 df = df.sort_values(by='_temp_date', ascending=True, na_position='last').drop(columns=['_temp_date'])
 
         if not df.empty:
-            st.markdown("<h4 style='color:#1E293B; font-weight:800; text-align:right;'>جدول عرض البيانات (احترافي):</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='color:#1E293B; margin-top:20px; font-weight:800; text-align:right;'>جدول عرض البيانات (احترافي):</h4>", unsafe_allow_html=True)
             
             # عرض الجدول الملون الاحترافي
             if selected_sub == "الموظفين":
@@ -1122,7 +1204,12 @@ elif current_nav in ["employees", "cars", "visas", "rents", "subs"]:
                 html_table += "</tbody></table></div>"
                 st.markdown(html_table, unsafe_allow_html=True)
 
+            # --- هنا تم التأكد من عدم تجاوز المتغير df عند طلب تصدير PDF ---
             st.markdown("<hr style='border:1px dashed #E2E8F0; margin: 25px 0;'>", unsafe_allow_html=True)
+            c_exp_pdf, c_space = st.columns([1, 4])
+            with c_exp_pdf:
+                st.download_button("🖨️️ طباعة الجدول (PDF)", to_pdf_html_basic(df, f"تقرير - {selected_sub}"), f"{selected_sub}.html", mime="text/html", use_container_width=True)
+
             st.markdown("<h4 style='color:#1E293B; font-weight:800; text-align:right;'>أداة التحرير السريع (يمكنك تعديل القيم مباشرة من الجدول أدناه):</h4>", unsafe_allow_html=True)
             
             # جدول التعديل (Editor) 
