@@ -23,7 +23,7 @@ except ImportError:
     HAS_HIJRI = False
 
 # ==========================================
-# 1. الإعدادات والـ CSS الاحترافي (إخفاء كل عيوب النظام)
+# 1. الإعدادات والـ CSS
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="collapsed")
 API_URL = "https://ak-erp-system.onrender.com"
@@ -31,148 +31,141 @@ API_URL = "https://ak-erp-system.onrender.com"
 cookie_manager = stx.CookieManager(key="ak_erp_cookie_manager")
 
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;900&display=swap');
-    
-    /* 1. الإعدادات الأساسية والاتجاه (RTL) */
-    .stApp, html, body { 
-        direction: rtl !important; 
-        text-align: right !important; 
-        font-family: 'Cairo', sans-serif !important; 
-        background-color: #F4F7FE !important; 
-    }
-    
-    div[data-testid="stHorizontalBlock"] { flex-direction: row-reverse !important; }
-    
-    .stMarkdown, h1, h2, h3, h4, h5, h6, label, input, textarea, select { 
-        text-align: right !important; 
-        direction: rtl !important; 
-        color: #1B2559 !important; 
-    }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;900&display=swap');
 
-    /* ========================================= */
-    /* 2. الإخفاء الجذري لكل علامات Streamlit المزعجة */
-    /* ========================================= */
-    header[data-testid="stHeader"] { display: none !important; } /* إخفاء الهيدر العلوي */
-    [data-testid="stToolbar"] { display: none !important; }
-    [data-testid="manage-app-button"] { display: none !important; } /* إخفاء زر Manage App */
-    .stAppDeployButton { display: none !important; } 
-    .viewerBadge_container__1QSob { display: none !important; } /* إخفاء الشريط السفلي للـ Cloud */
-    #MainMenu { display: none !important; }
-    footer { display: none !important; }
-    [data-testid="collapsedControl"] { display: none !important; } /* إخفاء سهم القائمة الجانبية للأبد */
+/* 1. الإعدادات الأساسية والاتجاه (RTL) */
+.stApp, html, body { 
+    direction: rtl !important; 
+    text-align: right !important; 
+    font-family: 'Cairo', sans-serif !important; 
+    background-color: #F4F7FE !important; 
+}
 
-    /* استغلال مساحة الشاشة بالكامل بدون هوامش مبالغ فيها */
-    .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 1rem !important;
-        max-width: 98% !important; 
-    }
+div[data-testid="stHorizontalBlock"] { flex-direction: row-reverse !important; }
 
-    /* ========================================= */
-    /* 3. تصميم الشريط العلوي الاحترافي (Hover Dropdown) */
-    /* ========================================= */
-    .ak-navbar {
-        background: linear-gradient(90deg, #1E293B 0%, #0F172A 100%);
-        border-radius: 12px;
-        display: flex;
-        direction: rtl; /* من اليمين لليسار */
-        padding: 0 15px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        margin-bottom: 25px;
-        align-items: center;
-    }
-    .ak-logo {
-        color: #FFFFFF;
-        font-family: 'Tajawal', sans-serif;
-        font-size: 24px;
-        font-weight: 900;
-        padding: 15px 20px;
-        background-color: #4318FF;
-        border-radius: 12px;
-        margin-left: 20px;
-        letter-spacing: 1px;
-    }
-    .ak-nav-item {
-        position: relative;
-        padding: 20px 15px;
-    }
-    .ak-nav-item a {
-        color: #F8FAFC;
-        text-decoration: none;
-        font-family: 'Cairo', sans-serif;
-        font-weight: 700;
-        font-size: 15px;
-        transition: all 0.3s ease;
-    }
-    .ak-nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-    }
-    .ak-nav-item:hover a {
-        color: #FFFFFF;
-    }
-    
-    /* القائمة المنسدلة عند مرور الماوس (Hover) */
-    .ak-dropdown {
-        display: none; /* مخفية افتراضيا */
-        position: absolute;
-        top: 100%;
-        right: 0;
-        background-color: #FFFFFF;
-        min-width: 220px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        border-radius: 12px;
-        z-index: 99999;
-        border: 1px solid #E2E8F0;
-        overflow: hidden;
-        padding: 5px 0;
-    }
-    .ak-nav-item:hover .ak-dropdown {
-        display: flex; /* إظهار عند المرور */
-        flex-direction: column;
-    }
-    .ak-dropdown a {
-        color: #1E293B !important;
-        padding: 12px 20px;
-        font-size: 14px;
-        text-align: right;
-        transition: background 0.2s;
-    }
-    .ak-dropdown a:hover {
-        background-color: #F4F7FE;
-        color: #4318FF !important;
-        font-weight: 800;
-    }
+.stMarkdown, h1, h2, h3, h4, h5, h6, label, input, textarea, select { 
+    text-align: right !important; 
+    direction: rtl !important; 
+    color: #1B2559 !important; 
+}
 
-    /* ========================================= */
-    /* 4. تنسيقات البطاقات والجداول للتقارير */
-    /* ========================================= */
-    .erp-card { background: #FFFFFF; border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
-    .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px; direction: rtl; border: 1px solid #E2E8F0; }
-    .top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 24px; }
-    .top-navbar-titles p { margin: 0; color: #64748B; font-size: 14px; font-weight: 600; margin-top: 4px; }
-    .top-navbar-date { background: #F4F7FE; color: #4318FF; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; direction: rtl;}
+/* 2. الإخفاء الجذري لكل علامات Streamlit المزعجة */
+header[data-testid="stHeader"] { display: none !important; }
+[data-testid="stToolbar"] { display: none !important; }
+[data-testid="manage-app-button"] { display: none !important; }
+.stAppDeployButton { display: none !important; } 
+.viewerBadge_container__1QSob { display: none !important; }
+#MainMenu { display: none !important; }
+footer { display: none !important; }
+[data-testid="collapsedControl"] { display: none !important; }
 
-    .summary-card { background: #FFFFFF; padding: 25px; border-radius: 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; border-bottom: 4px solid #4318FF; border: 1px solid #E2E8F0;}
-    .summary-card h3 { margin: 0; font-size: 14px; color: #64748B; font-family: 'Cairo'; font-weight: 700;}
-    .summary-card h2 { margin: 10px 0 0 0; font-size: 28px; font-weight: 800; color: #1B2559; font-family: 'Tajawal';}
-    .summary-card.danger { border-bottom-color: #EE5D50; }
-    .summary-card.danger h2 { color: #EE5D50; }
+/* 3. تقليل المساحات العلوية */
+.block-container {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    max-width: 98% !important; 
+}
 
-    .stButton>button { border-radius: 10px !important; font-weight: 800 !important; font-family: 'Cairo', sans-serif !important; transition: all 0.3s ease !important; }
-    button[data-testid="baseButton-primary"] { background: linear-gradient(135deg, #4318FF 0%, #3B82F6 100%) !important; color: white !important; border: none !important; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.2) !important; }
-    button[data-testid="baseButton-primary"]:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 24, 255, 0.4) !important; }
-    
-    .status-badge { padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 800; display: inline-block; text-align: center;}
-    .status-danger { background-color: #FEE2E2; color: #EE5D50; }
+/* 4. تصميم الشريط العلوي الاحترافي */
+.ak-navbar {
+    background: linear-gradient(90deg, #1E293B 0%, #0F172A 100%);
+    border-radius: 12px;
+    display: flex;
+    direction: rtl; 
+    padding: 0 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+    align-items: center;
+}
+.ak-logo {
+    color: #FFFFFF;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    padding: 15px 20px;
+    background-color: #4318FF;
+    border-radius: 12px;
+    margin-left: 20px;
+    letter-spacing: 1px;
+}
+.ak-nav-item {
+    position: relative;
+    padding: 20px 15px;
+}
+.ak-nav-item a {
+    color: #F8FAFC;
+    text-decoration: none;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+.ak-nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+.ak-nav-item:hover a {
+    color: #FFFFFF;
+}
+
+/* القائمة المنسدلة */
+.ak-dropdown {
+    display: none; 
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #FFFFFF;
+    min-width: 220px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    border-radius: 12px;
+    z-index: 99999;
+    border: 1px solid #E2E8F0;
+    overflow: hidden;
+    padding: 5px 0;
+}
+.ak-nav-item:hover .ak-dropdown {
+    display: flex; 
+    flex-direction: column;
+}
+.ak-dropdown a {
+    color: #1E293B !important;
+    padding: 12px 20px;
+    font-size: 14px;
+    text-align: right;
+    transition: background 0.2s;
+}
+.ak-dropdown a:hover {
+    background-color: #F4F7FE;
+    color: #4318FF !important;
+    font-weight: 800;
+}
+
+/* 5. تنسيقات البطاقات والجداول */
+.erp-card { background: #FFFFFF; border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
+.top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px; direction: rtl; border: 1px solid #E2E8F0; }
+.top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 24px; }
+.top-navbar-titles p { margin: 0; color: #64748B; font-size: 14px; font-weight: 600; margin-top: 4px; }
+.top-navbar-date { background: #F4F7FE; color: #4318FF; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; direction: rtl;}
+
+.summary-card { background: #FFFFFF; padding: 25px; border-radius: 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; border-bottom: 4px solid #4318FF; border: 1px solid #E2E8F0;}
+.summary-card h3 { margin: 0; font-size: 14px; color: #64748B; font-family: 'Cairo'; font-weight: 700;}
+.summary-card h2 { margin: 10px 0 0 0; font-size: 28px; font-weight: 800; color: #1B2559; font-family: 'Tajawal';}
+.summary-card.danger { border-bottom-color: #EE5D50; }
+.summary-card.danger h2 { color: #EE5D50; }
+
+.stButton>button { border-radius: 10px !important; font-weight: 800 !important; font-family: 'Cairo', sans-serif !important; transition: all 0.3s ease !important; }
+button[data-testid="baseButton-primary"] { background: linear-gradient(135deg, #4318FF 0%, #3B82F6 100%) !important; color: white !important; border: none !important; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.2) !important; }
+button[data-testid="baseButton-primary"]:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 24, 255, 0.4) !important; }
+
+.status-badge { padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 800; display: inline-block; text-align: center; white-space: nowrap;}
+.status-danger { background-color: #FEE2E2; color: #EE5D50; }
     .status-warning { background-color: #FEF3C7; color: #D97706; }
     .status-success { background-color: #E0F2FE; color: #0284C7; } 
     .status-none { background-color: #F1F5F9; color: #64748B; }
 
     div[data-testid="stDataFrame"] { direction: rtl !important; width: 100% !important;}
     
-    /* تصميم شبكة التنبيهات */
     .alerts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; margin-top: 15px; direction: rtl; }
     .alert-card-compact { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: transform 0.2s ease, box-shadow 0.2s ease; }
     .alert-card-compact:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
@@ -185,7 +178,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. إدارة حالة تسجيل الدخول واستعادة كلمة المرور
+# 2. إدارة حالة تسجيل الدخول
 # ==========================================
 saved_user_id = cookie_manager.get("ak_erp_user_id")
 saved_user_name = cookie_manager.get("ak_erp_user_name")
@@ -205,7 +198,6 @@ if "reset_step" not in st.session_state:
     st.session_state.reset_step = 0
 
 if st.session_state["user_id"] is None:
-    # شاشة تسجيل الدخول في المنتصف
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<br><br>", unsafe_allow_html=True)
@@ -308,9 +300,8 @@ if st.session_state["user_id"] is None:
     st.stop()
 
 # ==========================================
-# 3. بناء الشريط العلوي الاحترافي HTML/CSS (Hover Menu)
+# 3. الشريط العلوي HTML/CSS 
 # ==========================================
-# قراءة قيمة التوجيه من الرابط
 query_params = st.query_params
 current_nav = query_params.get("nav", "dashboard")
 
@@ -326,50 +317,49 @@ if current_nav == "logout":
 
 user_name_display = str(st.session_state.get("user_name", ""))
 
-# رسم الشريط العلوي
 st.markdown(f"""
-    <div class="ak-navbar">
-        <div class="ak-logo">A.K</div>
-        <div class="ak-nav-item"><a href="?nav=dashboard">📊 لوحة القيادة</a></div>
-        
-        <div class="ak-nav-item">
-            <a href="#">📁 المتابعة الشاملة ⏷</a>
-            <div class="ak-dropdown">
-                <a href="?nav=employees">الموظفين</a>
-                <a href="?nav=cars">السيارات</a>
-                <a href="?nav=visas">التأشيرات</a>
-                <a href="?nav=rents">عقود الإيجار</a>
-                <a href="?nav=subs">الاشتراكات العامة</a>
-            </div>
+<div class="ak-navbar">
+    <div class="ak-logo">A.K</div>
+    <div class="ak-nav-item"><a href="?nav=dashboard">📊 لوحة القيادة</a></div>
+    
+    <div class="ak-nav-item">
+        <a href="#">📁 المتابعة الشاملة ⏷</a>
+        <div class="ak-dropdown">
+            <a href="?nav=employees">الموظفين</a>
+            <a href="?nav=cars">السيارات</a>
+            <a href="?nav=visas">التأشيرات</a>
+            <a href="?nav=rents">عقود الإيجار</a>
+            <a href="?nav=subs">الاشتراكات العامة</a>
         </div>
-        
-        <div class="ak-nav-item">
-            <a href="#">💰 نظام الرواتب ⏷</a>
-            <div class="ak-dropdown">
-                <a href="?nav=payroll">كشف الرواتب</a>
-                <a href="?nav=loans">حركة وسلف</a>
-                <a href="?nav=support">راتب مساند</a>
-                <a href="?nav=annual">التقرير السنوي</a>
-            </div>
-        </div>
-        
-        <div class="ak-nav-item"><a href="?nav=installments">💳 إدارة الأقساط</a></div>
-        
-        <div class="ak-nav-item">
-            <a href="#">⚙️ إعدادات وجداول ⏷</a>
-            <div class="ak-dropdown">
-                <a href="?nav=manager">بيانات المدير</a>
-                <a href="?nav=workers">بيانات العمال</a>
-                <a href="?nav=extra">جداول إضافية</a>
-                <a href="?nav=calendar">محول التاريخ</a>
-                <a href="?nav=settings">الإعدادات</a>
-            </div>
-        </div>
-        
-        <div style="flex-grow: 1;"></div>
-        <div class="ak-nav-item" style="color:#64748B; font-size:13px; font-weight:700;">{user_name_display}</div>
-        <div class="ak-nav-item"><a href="?nav=logout" style="color:#EE5D50;">🚪 خروج</a></div>
     </div>
+    
+    <div class="ak-nav-item">
+        <a href="#">💰 نظام الرواتب ⏷</a>
+        <div class="ak-dropdown">
+            <a href="?nav=payroll">كشف الرواتب</a>
+            <a href="?nav=loans">حركة وسلف</a>
+            <a href="?nav=support">راتب مساند</a>
+            <a href="?nav=annual">التقرير السنوي</a>
+        </div>
+    </div>
+    
+    <div class="ak-nav-item"><a href="?nav=installments">💳 إدارة الأقساط</a></div>
+    
+    <div class="ak-nav-item">
+        <a href="#">⚙️ إعدادات وجداول ⏷</a>
+        <div class="ak-dropdown">
+            <a href="?nav=manager">بيانات المدير</a>
+            <a href="?nav=workers">بيانات العمال</a>
+            <a href="?nav=extra">جداول إضافية</a>
+            <a href="?nav=calendar">محول التاريخ</a>
+            <a href="?nav=settings">الإعدادات</a>
+        </div>
+    </div>
+    
+    <div style="flex-grow: 1;"></div>
+    <div class="ak-nav-item" style="color:#64748B; font-size:13px; font-weight:700;">{user_name_display}</div>
+    <div class="ak-nav-item"><a href="?nav=logout" style="color:#EE5D50;">🚪 خروج</a></div>
+</div>
 """, unsafe_allow_html=True)
 
 # ==========================================
@@ -499,7 +489,7 @@ def render_top_navbar(title, subtitle):
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 5. التوجيه وعرض الواجهة الرئيسية (التقارير الاحترافية)
+# 5. الواجهة الرئيسية والتوجيه
 # ==========================================
 
 if current_nav == "dashboard":
@@ -835,7 +825,7 @@ elif current_nav in ["manager", "workers", "extra"]:
                     clean_export_df = edited_dynamic_df.replace({np.nan: "", None: ""}).astype(str)
                     st.download_button("📊 تصدير Excel", to_excel(clean_export_df[columns_list], active_page['title']), f"{active_page['title']}.xlsx", use_container_width=True, key=f"exp_{active_page_id}")
                 with c_del:
-                    if st.button("🗑️️ حذف الزر بالكامل", key=f"del_{active_page_id}"):
+                    if st.button("🗑 حذف الزر بالكامل", key=f"del_{active_page_id}"):
                         requests.delete(f"{API_URL}/{db_endpoint}/{active_page_id}/{UID}")
                         st.session_state[f"active_{db_endpoint}"] = None; st.rerun()
 
@@ -876,7 +866,7 @@ elif current_nav == "installments":
                 with c3: st.markdown(f"<div class='summary-card'><h3>إجمالي المبالغ المتبقية</h3><h2>{total_rem:,.2f}</h2></div>", unsafe_allow_html=True)
                 with c4: st.markdown(f"<div class='summary-card danger'><h3 style='color:#EE5D50;'>إجمالي المبالغ المتأخرة</h3><h2>{late_amt:,.2f}</h2></div>", unsafe_allow_html=True)
                 
-                st.markdown("<h4 style='color:#1E293B; font-weight:800; text-align:right; margin-top:20px; margin-bottom:15px;'>الجدول التفصيلي للأقساط (قم بالتعديل واضغط حفظ)</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='color:#1E293B; font-weight:800; text-align:right; margin-top:20px; margin-bottom:15px;'>الجدول التفصيلي للأقساط (قم بالتعديل أدناه واضغط حفظ)</h4>", unsafe_allow_html=True)
                 df_edit = df_pay.copy().rename(columns={"installment_number": "القسط (م)", "amount_due": "مبلغ القسط", "due_date": "تاريخ القسط", "paid_amount": "المبلغ المدفوع", "payment_date": "تاريخ الدفع", "notes": "ملاحظات"})
                 cols_order = ["القسط (م)", "تاريخ القسط", "مبلغ القسط", "المبلغ المدفوع", "تاريخ الدفع", "المتبقي من القسط", "حالة القسط", "ملاحظات"]
                 
@@ -918,7 +908,7 @@ elif current_nav == "installments":
         with col1:
             if st.button("➕ إضافة عقد قسط جديد", type="primary", use_container_width=True): st.session_state[f"show_add_{endpoint}"] = not st.session_state.get(f"show_add_{endpoint}", False)
         with col2:
-            if raw_data: st.download_button("📊 تصدير Excel", to_excel(prepare_export_df(pd.DataFrame(raw_data), selected_sub), selected_sub), f"{selected_sub}.xlsx", use_container_width=True)
+            if raw_data: st.download_button("📊 تصدير Excel", to_excel(pd.DataFrame(raw_data), selected_sub), f"{selected_sub}.xlsx", use_container_width=True)
         with col_search: search_q = st.text_input("🔍", placeholder="بحث في العقود باسم العميل...", label_visibility="collapsed")
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -960,11 +950,10 @@ elif current_nav == "installments":
             else: st.info("لا توجد نتائج للبحث.")
 
 elif current_nav in ["employees", "cars", "visas", "rents", "subs"]:
-    # التوجيه الشامل الاحترافي مع Data Editor المباشر
     mapped_subs = {"employees": "الموظفين", "cars": "السيارات", "visas": "التأشيرات", "rents": "عقود الإيجار", "subs": "الاشتراكات العامة"}
     selected_sub = mapped_subs[current_nav]
     endpoint = current_nav
-    if endpoint == "subs": endpoint = "subscriptions" # API Fix
+    if endpoint == "subs": endpoint = "subscriptions" 
     
     render_top_navbar(f"إدارة {selected_sub}", "إضافة، تعديل سريع للبيانات، وإدارة السجلات بسهولة")
     render_delete_notification(endpoint)
@@ -1031,7 +1020,6 @@ elif current_nav in ["employees", "cars", "visas", "rents", "subs"]:
         
         st.markdown("<h4 style='color:#1E293B; margin-top:20px; font-weight:800; text-align:right;'>جدول البيانات والمتابعة (يمكنك تعديل القيم مباشرة من الجدول أدناه):</h4>", unsafe_allow_html=True)
         
-        # تجهيز عرض الجدول بشكل احترافي مع إمكانية التعديل
         if selected_sub == "الموظفين":
             display_df = df[["id", "name", "iqama_number", "sponsorship", "iqama_expiry", "health_insurance_expiry", "passport_expiry"]].copy()
             display_df.columns = ["م", "الاسم", "رقم الإقامة", "الكفالة", "انتهاء الإقامة", "انتهاء التأمين", "انتهاء الجواز"]
@@ -1053,7 +1041,6 @@ elif current_nav in ["employees", "cars", "visas", "rents", "subs"]:
             display_df.columns = ["م", "الاشتراك", "الرقم", "الانتهاء", "ملاحظات"]
             edited_df = st.data_editor(display_df[::-1], use_container_width=True, hide_index=True, key=f"tbl_sub")
         
-        # أزرار الحفظ السريع للجدول المباشر
         st.info("💡 يمكنك ضغط حفظ لتطبيق التعديلات التي أجريتها في الجدول مباشرة، أو اختيار 'حذف' للتخلص من سجل.")
         c_save, c_del, c_id = st.columns([2, 1, 1])
         with c_id: del_id = st.number_input("أدخل رقم (م) للحذف", min_value=0, step=1, value=0)
@@ -1068,14 +1055,9 @@ elif current_nav in ["employees", "cars", "visas", "rents", "subs"]:
             if st.button("💾 حفظ الجدول بالكامل", type="primary", use_container_width=True):
                 for _, r in edited_df.iterrows():
                     rid = r["م"]
-                    if selected_sub == "الموظفين":
-                        requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "name": str(r["الاسم"]), "iqama_number": str(r["رقم الإقامة"]), "sponsorship": str(r["الكفالة"]), "iqama_expiry": str(r["انتهاء الإقامة"]), "health_insurance_expiry": str(r["انتهاء التأمين"]), "passport_expiry": str(r["انتهاء الجواز"])})
-                    elif selected_sub == "السيارات":
-                        requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "car_name": str(r["السيارة"]), "plate_number": str(r["اللوحة"]), "registration_number": str(r["الاستمارة"]), "registration_expiry": str(r["انتهاء الاستمارة"]), "insurance_expiry": str(r["انتهاء التامين"])})
-                    elif selected_sub == "التأشيرات":
-                        requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "employee_name": str(r["الاسم"]), "visa_number": str(r["رقم التأشيرة"]), "visa_duration_months": str(r["المدة(أشهر)"]), "visa_duration_days": str(r["المدة(أيام)"]), "extension_count": int(r["التمديدات"] or 0), "travel_date": str(r["تاريخ السفر"]), "expiry_date": str(r["تاريخ الانتهاء"])})
-                    elif selected_sub == "عقود الإيجار":
-                        requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "tenant_name": str(r["المستأجر"]), "apartment_number": str(r["الشقة"]), "contract_number": str(r["رقم العقد"]), "payment_amount": str(r["المبلغ"]), "contract_start_date": str(r["بداية العقد"]), "contract_expiry": str(r["الانتهاء"]), "next_payment_date": str(r["الدفعة القادمة"])})
-                    elif selected_sub == "الاشتراكات العامة":
-                        requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "service_name": str(r["الاشتراك"]), "subscription_number": str(r["الرقم"]), "notes": str(r["ملاحظات"]), "subscription_expiry": str(r["الانتهاء"])})
+                    if selected_sub == "الموظفين": requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "name": str(r["الاسم"]), "iqama_number": str(r["رقم الإقامة"]), "sponsorship": str(r["الكفالة"]), "iqama_expiry": str(r["انتهاء الإقامة"]), "health_insurance_expiry": str(r["انتهاء التأمين"]), "passport_expiry": str(r["انتهاء الجواز"])})
+                    elif selected_sub == "السيارات": requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "car_name": str(r["السيارة"]), "plate_number": str(r["اللوحة"]), "registration_number": str(r["الاستمارة"]), "registration_expiry": str(r["انتهاء الاستمارة"]), "insurance_expiry": str(r["انتهاء التامين"])})
+                    elif selected_sub == "التأشيرات": requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "employee_name": str(r["الاسم"]), "visa_number": str(r["رقم التأشيرة"]), "visa_duration_months": str(r["المدة(أشهر)"]), "visa_duration_days": str(r["المدة(أيام)"]), "extension_count": int(r["التمديدات"] or 0), "travel_date": str(r["تاريخ السفر"]), "expiry_date": str(r["تاريخ الانتهاء"])})
+                    elif selected_sub == "عقود الإيجار": requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "tenant_name": str(r["المستأجر"]), "apartment_number": str(r["الشقة"]), "contract_number": str(r["رقم العقد"]), "payment_amount": str(r["المبلغ"]), "contract_start_date": str(r["بداية العقد"]), "contract_expiry": str(r["الانتهاء"]), "next_payment_date": str(r["الدفعة القادمة"])})
+                    elif selected_sub == "الاشتراكات العامة": requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "service_name": str(r["الاشتراك"]), "subscription_number": str(r["الرقم"]), "notes": str(r["ملاحظات"]), "subscription_expiry": str(r["الانتهاء"])})
                 st.success("تم الحفظ بنجاح!"); time.sleep(0.5); st.rerun()
