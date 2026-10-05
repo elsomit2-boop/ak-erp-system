@@ -23,34 +23,35 @@ except ImportError:
     HAS_HIJRI = False
 
 # ==========================================
-# 1. الإعدادات والـ CSS
+# 1. الإعدادات والـ CSS الاحترافي (إخفاء كل عيوب النظام)
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="collapsed")
 API_URL = "https://ak-erp-system.onrender.com"
 
 cookie_manager = stx.CookieManager(key="ak_erp_cookie_manager")
 
+# ملاحظة هامة: يجب أن يبدأ كود الـ HTML والـ CSS بدون مسافات بادئة لتجنب تحوله إلى نص
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;900&display=swap');
 
-/* 1. الإعدادات الأساسية والاتجاه (RTL) */
+/* الإعدادات الأساسية والاتجاه (RTL) */
 .stApp, html, body { 
-    direction: rtl !important; 
-    text-align: right !important; 
-    font-family: 'Cairo', sans-serif !important; 
-    background-color: #F4F7FE !important; 
+direction: rtl !important; 
+text-align: right !important; 
+font-family: 'Cairo', sans-serif !important; 
+background-color: #F4F7FE !important; 
 }
 
 div[data-testid="stHorizontalBlock"] { flex-direction: row-reverse !important; }
 
 .stMarkdown, h1, h2, h3, h4, h5, h6, label, input, textarea, select { 
-    text-align: right !important; 
-    direction: rtl !important; 
-    color: #1B2559 !important; 
+text-align: right !important; 
+direction: rtl !important; 
+color: #1B2559 !important; 
 }
 
-/* 2. الإخفاء الجذري لكل علامات Streamlit المزعجة */
+/* الإخفاء الجذري لكل علامات Streamlit المزعجة */
 header[data-testid="stHeader"] { display: none !important; }
 [data-testid="stToolbar"] { display: none !important; }
 [data-testid="manage-app-button"] { display: none !important; }
@@ -58,90 +59,96 @@ header[data-testid="stHeader"] { display: none !important; }
 .viewerBadge_container__1QSob { display: none !important; }
 #MainMenu { display: none !important; }
 footer { display: none !important; }
-[data-testid="collapsedControl"] { display: none !important; }
+[data-testid="collapsedControl"] { display: none !important; } 
 
-/* 3. تقليل المساحات العلوية */
+/* استغلال مساحة الشاشة بالكامل بدون هوامش مبالغ فيها */
 .block-container {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-    max-width: 98% !important; 
+padding-top: 1rem !important;
+padding-bottom: 1rem !important;
+max-width: 98% !important; 
 }
 
-/* 4. تصميم الشريط العلوي الاحترافي */
+/* تصميم الشريط العلوي الاحترافي (Hover Dropdown) من اليمين لليسار */
 .ak-navbar {
-    background: linear-gradient(90deg, #1E293B 0%, #0F172A 100%);
-    border-radius: 12px;
-    display: flex;
-    direction: rtl; 
-    padding: 0 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    margin-bottom: 25px;
-    align-items: center;
+background: linear-gradient(90deg, #1E293B 0%, #0F172A 100%);
+border-radius: 12px;
+display: flex;
+direction: rtl; 
+padding: 0 15px;
+box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+margin-bottom: 25px;
+align-items: center;
+z-index: 999999;
+position: relative;
 }
 .ak-logo {
-    color: #FFFFFF;
-    font-family: 'Tajawal', sans-serif;
-    font-size: 24px;
-    font-weight: 900;
-    padding: 15px 20px;
-    background-color: #4318FF;
-    border-radius: 12px;
-    margin-left: 20px;
-    letter-spacing: 1px;
+color: #FFFFFF;
+font-family: 'Tajawal', sans-serif;
+font-size: 22px;
+font-weight: 900;
+padding: 10px 20px;
+background-color: #4318FF;
+border-radius: 10px;
+margin-left: 20px;
+letter-spacing: 1px;
 }
 .ak-nav-item {
-    position: relative;
-    padding: 20px 15px;
+position: relative;
+padding: 20px 15px;
+cursor: pointer;
 }
-.ak-nav-item a {
-    color: #F8FAFC;
-    text-decoration: none;
-    font-family: 'Cairo', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    transition: all 0.3s ease;
+.ak-nav-item > a {
+color: #F8FAFC;
+text-decoration: none;
+font-family: 'Cairo', sans-serif;
+font-weight: 700;
+font-size: 15px;
+transition: all 0.3s ease;
+display: block;
 }
 .ak-nav-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+background-color: rgba(255, 255, 255, 0.1);
+border-radius: 8px;
 }
-.ak-nav-item:hover a {
-    color: #FFFFFF;
+.ak-nav-item:hover > a {
+color: #FFFFFF;
 }
 
-/* القائمة المنسدلة */
+/* القائمة المنسدلة عند مرور الماوس (Hover) */
 .ak-dropdown {
-    display: none; 
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: #FFFFFF;
-    min-width: 220px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    border-radius: 12px;
-    z-index: 99999;
-    border: 1px solid #E2E8F0;
-    overflow: hidden;
-    padding: 5px 0;
+display: none; 
+position: absolute;
+top: 100%;
+right: 0;
+background-color: #FFFFFF;
+min-width: 220px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+border-radius: 12px;
+z-index: 999999;
+border: 1px solid #E2E8F0;
+overflow: hidden;
+padding: 5px 0;
+flex-direction: column;
 }
 .ak-nav-item:hover .ak-dropdown {
-    display: flex; 
-    flex-direction: column;
+display: flex; 
 }
 .ak-dropdown a {
-    color: #1E293B !important;
-    padding: 12px 20px;
-    font-size: 14px;
-    text-align: right;
-    transition: background 0.2s;
+color: #1E293B !important;
+padding: 12px 20px;
+font-size: 14px;
+text-align: right;
+transition: background 0.2s;
+text-decoration: none;
+display: block;
 }
 .ak-dropdown a:hover {
-    background-color: #F4F7FE;
-    color: #4318FF !important;
-    font-weight: 800;
+background-color: #F4F7FE;
+color: #4318FF !important;
+font-weight: 800;
 }
 
-/* 5. تنسيقات البطاقات والجداول */
+/* تنسيقات البطاقات والجداول للتقارير */
 .erp-card { background: #FFFFFF; border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
 .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px; direction: rtl; border: 1px solid #E2E8F0; }
 .top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 24px; }
@@ -154,31 +161,38 @@ footer { display: none !important; }
 .summary-card.danger { border-bottom-color: #EE5D50; }
 .summary-card.danger h2 { color: #EE5D50; }
 
+.modern-table-wrapper { width: 100%; overflow-x: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; background: white; border: 1px solid #E2E8F0;}
+.modern-table { width: 100%; border-collapse: collapse; text-align: center; direction: rtl; font-family: 'Cairo';}
+.modern-table th { background-color: #F8FAFC; color: #1B2559; font-weight: 800; font-size: 14px; padding: 16px 12px; border-bottom: 2px solid #E2E8F0; text-transform: uppercase; white-space: nowrap; }
+.modern-table td { padding: 14px 12px; color: #475569; font-weight: 700; font-size: 14px; border-bottom: 1px solid #E2E8F0; vertical-align: middle; white-space: nowrap; transition: background 0.2s; }
+.modern-table tbody tr:hover td { background-color: #F1F5F9; }
+
 .stButton>button { border-radius: 10px !important; font-weight: 800 !important; font-family: 'Cairo', sans-serif !important; transition: all 0.3s ease !important; }
 button[data-testid="baseButton-primary"] { background: linear-gradient(135deg, #4318FF 0%, #3B82F6 100%) !important; color: white !important; border: none !important; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.2) !important; }
 button[data-testid="baseButton-primary"]:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 24, 255, 0.4) !important; }
 
 .status-badge { padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 800; display: inline-block; text-align: center; white-space: nowrap;}
 .status-danger { background-color: #FEE2E2; color: #EE5D50; }
-    .status-warning { background-color: #FEF3C7; color: #D97706; }
-    .status-success { background-color: #E0F2FE; color: #0284C7; } 
-    .status-none { background-color: #F1F5F9; color: #64748B; }
+.status-warning { background-color: #FEF3C7; color: #D97706; }
+.status-success { background-color: #E0F2FE; color: #0284C7; } 
+.status-none { background-color: #F1F5F9; color: #64748B; }
 
-    div[data-testid="stDataFrame"] { direction: rtl !important; width: 100% !important;}
-    
-    .alerts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; margin-top: 15px; direction: rtl; }
-    .alert-card-compact { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    .alert-card-compact:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-    .alert-icon-box { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-    .alert-text-box { display: flex; flex-direction: column; gap: 4px; }
-    .alert-title-text { color: #1B2559; font-size: 13px; font-weight: 700; line-height: 1.5; }
-    .alert-date-text { color: #64748B; font-size: 12px; font-weight: 600; }
-    .alert-date-text span { font-weight: 800; }
-    </style>
+div[data-testid="stDataFrame"] { direction: rtl !important; width: 100% !important;}
+
+/* تصميم شبكة التنبيهات */
+.alerts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; margin-top: 15px; direction: rtl; }
+.alert-card-compact { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.alert-card-compact:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+.alert-icon-box { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.alert-text-box { display: flex; flex-direction: column; gap: 4px; }
+.alert-title-text { color: #1B2559; font-size: 13px; font-weight: 700; line-height: 1.5; }
+.alert-date-text { color: #64748B; font-size: 12px; font-weight: 600; }
+.alert-date-text span { font-weight: 800; }
+</style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. إدارة حالة تسجيل الدخول
+# 2. إدارة حالة تسجيل الدخول واستعادة كلمة المرور
 # ==========================================
 saved_user_id = cookie_manager.get("ak_erp_user_id")
 saved_user_name = cookie_manager.get("ak_erp_user_name")
@@ -198,6 +212,7 @@ if "reset_step" not in st.session_state:
     st.session_state.reset_step = 0
 
 if st.session_state["user_id"] is None:
+    # شاشة تسجيل الدخول في المنتصف
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<br><br>", unsafe_allow_html=True)
@@ -300,7 +315,7 @@ if st.session_state["user_id"] is None:
     st.stop()
 
 # ==========================================
-# 3. الشريط العلوي HTML/CSS 
+# 3. الشريط العلوي HTML/CSS الخالي من المسافات
 # ==========================================
 query_params = st.query_params
 current_nav = query_params.get("nav", "dashboard")
@@ -317,48 +332,44 @@ if current_nav == "logout":
 
 user_name_display = str(st.session_state.get("user_name", ""))
 
+# الـ HTML المدمج يبدأ مباشرة لتجنب Code Block في Markdown
 st.markdown(f"""
 <div class="ak-navbar">
-    <div class="ak-logo">A.K</div>
-    <div class="ak-nav-item"><a href="?nav=dashboard">📊 لوحة القيادة</a></div>
-    
-    <div class="ak-nav-item">
-        <a href="#">📁 المتابعة الشاملة ⏷</a>
-        <div class="ak-dropdown">
-            <a href="?nav=employees">الموظفين</a>
-            <a href="?nav=cars">السيارات</a>
-            <a href="?nav=visas">التأشيرات</a>
-            <a href="?nav=rents">عقود الإيجار</a>
-            <a href="?nav=subs">الاشتراكات العامة</a>
-        </div>
-    </div>
-    
-    <div class="ak-nav-item">
-        <a href="#">💰 نظام الرواتب ⏷</a>
-        <div class="ak-dropdown">
-            <a href="?nav=payroll">كشف الرواتب</a>
-            <a href="?nav=loans">حركة وسلف</a>
-            <a href="?nav=support">راتب مساند</a>
-            <a href="?nav=annual">التقرير السنوي</a>
-        </div>
-    </div>
-    
-    <div class="ak-nav-item"><a href="?nav=installments">💳 إدارة الأقساط</a></div>
-    
-    <div class="ak-nav-item">
-        <a href="#">⚙️ إعدادات وجداول ⏷</a>
-        <div class="ak-dropdown">
-            <a href="?nav=manager">بيانات المدير</a>
-            <a href="?nav=workers">بيانات العمال</a>
-            <a href="?nav=extra">جداول إضافية</a>
-            <a href="?nav=calendar">محول التاريخ</a>
-            <a href="?nav=settings">الإعدادات</a>
-        </div>
-    </div>
-    
-    <div style="flex-grow: 1;"></div>
-    <div class="ak-nav-item" style="color:#64748B; font-size:13px; font-weight:700;">{user_name_display}</div>
-    <div class="ak-nav-item"><a href="?nav=logout" style="color:#EE5D50;">🚪 خروج</a></div>
+<div class="ak-logo">A.K</div>
+<div class="ak-nav-item"><a href="/?nav=dashboard">📊 لوحة القيادة</a></div>
+<div class="ak-nav-item">
+<a href="#">📁 المتابعة الشاملة ⏷</a>
+<div class="ak-dropdown">
+<a href="/?nav=employees">الموظفين</a>
+<a href="/?nav=cars">السيارات</a>
+<a href="/?nav=visas">التأشيرات</a>
+<a href="/?nav=rents">عقود الإيجار</a>
+<a href="/?nav=subs">الاشتراكات العامة</a>
+</div>
+</div>
+<div class="ak-nav-item">
+<a href="#">💰 نظام الرواتب ⏷</a>
+<div class="ak-dropdown">
+<a href="/?nav=payroll">كشف الرواتب</a>
+<a href="/?nav=loans">حركة وسلف</a>
+<a href="/?nav=support">راتب مساند</a>
+<a href="/?nav=annual">التقرير السنوي</a>
+</div>
+</div>
+<div class="ak-nav-item"><a href="/?nav=installments">💳 إدارة الأقساط</a></div>
+<div class="ak-nav-item">
+<a href="#">⚙️ إعدادات وجداول ⏷</a>
+<div class="ak-dropdown">
+<a href="/?nav=manager">بيانات المدير</a>
+<a href="/?nav=workers">بيانات العمال</a>
+<a href="/?nav=extra">جداول إضافية</a>
+<a href="/?nav=calendar">محول التاريخ</a>
+<a href="/?nav=settings">الإعدادات</a>
+</div>
+</div>
+<div style="flex-grow: 1;"></div>
+<div class="ak-nav-item" style="color:#64748B; font-size:13px; font-weight:700;">{user_name_display} :المساحة السحابية</div>
+<div class="ak-nav-item"><a href="/?nav=logout" style="color:#EE5D50;">🚪 خروج</a></div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -568,7 +579,7 @@ elif current_nav == "payroll":
     for col in cols:
         if col not in df_pay.columns: df_pay[col] = ""
         
-    st.markdown("<h4 style='color:#1E293B; font-weight:800; margin-bottom:15px;'>قم بإدخال البيانات واضغط حفظ ليتم الحساب التلقائي للاستقطاعات والصافي:</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 style='color:#1E293B; font-weight:800; margin-bottom:15px;'>البيانات والتعديل السريع:</h4>", unsafe_allow_html=True)
     
     edited_df = st.data_editor(
         df_pay[cols[::-1]], 
