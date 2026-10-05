@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_option_menu import option_menu
 import requests
 import pandas as pd
 import io
@@ -24,7 +23,7 @@ except ImportError:
     HAS_HIJRI = False
 
 # ==========================================
-# 1. الإعدادات والـ CSS المتقدم (إخفاء كل علامات Streamlit)
+# 1. الإعدادات والـ CSS الاحترافي (إخفاء كل عيوب النظام)
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="collapsed")
 API_URL = "https://ak-erp-system.onrender.com"
@@ -43,30 +42,112 @@ st.markdown("""
         background-color: #F4F7FE !important; 
     }
     
-    /* 2. الإخفاء الجذري لكل عناصر Streamlit المزعجة (GitHub, Share, Manage App, etc.) */
-    header[data-testid="stHeader"] { display: none !important; }
-    [data-testid="stToolbar"] { display: none !important; }
-    [data-testid="manage-app-button"] { display: none !important; }
-    #MainMenu { display: none !important; }
-    footer { display: none !important; }
-    .stDeployButton { display: none !important; }
-    [data-testid="collapsedControl"] { display: none !important; } /* إخفاء سهم القائمة الجانبية للأبد */
+    div[data-testid="stHorizontalBlock"] { flex-direction: row-reverse !important; }
     
-    /* 3. تقليل المساحات العلوية الفارغة الضخمة */
-    .block-container {
-        padding-top: 1.5rem !important;
-        padding-bottom: 1rem !important;
-        max-width: 98% !important; /* استغلال مساحة الشاشة بالكامل */
-    }
-    
-    /* 4. توحيد اتجاه النصوص والألوان */
     .stMarkdown, h1, h2, h3, h4, h5, h6, label, input, textarea, select { 
         text-align: right !important; 
         direction: rtl !important; 
         color: #1B2559 !important; 
     }
 
-    /* 5. تنسيقات البطاقات والجداول */
+    /* ========================================= */
+    /* 2. الإخفاء الجذري لكل علامات Streamlit المزعجة */
+    /* ========================================= */
+    header[data-testid="stHeader"] { display: none !important; } /* إخفاء الهيدر العلوي */
+    [data-testid="stToolbar"] { display: none !important; }
+    [data-testid="manage-app-button"] { display: none !important; } /* إخفاء زر Manage App */
+    .stAppDeployButton { display: none !important; } 
+    .viewerBadge_container__1QSob { display: none !important; } /* إخفاء الشريط السفلي للـ Cloud */
+    #MainMenu { display: none !important; }
+    footer { display: none !important; }
+    [data-testid="collapsedControl"] { display: none !important; } /* إخفاء سهم القائمة الجانبية للأبد */
+
+    /* استغلال مساحة الشاشة بالكامل بدون هوامش مبالغ فيها */
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+        max-width: 98% !important; 
+    }
+
+    /* ========================================= */
+    /* 3. تصميم الشريط العلوي الاحترافي (Hover Dropdown) */
+    /* ========================================= */
+    .ak-navbar {
+        background: linear-gradient(90deg, #1E293B 0%, #0F172A 100%);
+        border-radius: 12px;
+        display: flex;
+        direction: rtl; /* من اليمين لليسار */
+        padding: 0 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+        align-items: center;
+    }
+    .ak-logo {
+        color: #FFFFFF;
+        font-family: 'Tajawal', sans-serif;
+        font-size: 24px;
+        font-weight: 900;
+        padding: 15px 20px;
+        background-color: #4318FF;
+        border-radius: 12px;
+        margin-left: 20px;
+        letter-spacing: 1px;
+    }
+    .ak-nav-item {
+        position: relative;
+        padding: 20px 15px;
+    }
+    .ak-nav-item a {
+        color: #F8FAFC;
+        text-decoration: none;
+        font-family: 'Cairo', sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+    .ak-nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+    }
+    .ak-nav-item:hover a {
+        color: #FFFFFF;
+    }
+    
+    /* القائمة المنسدلة عند مرور الماوس (Hover) */
+    .ak-dropdown {
+        display: none; /* مخفية افتراضيا */
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: #FFFFFF;
+        min-width: 220px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border-radius: 12px;
+        z-index: 99999;
+        border: 1px solid #E2E8F0;
+        overflow: hidden;
+        padding: 5px 0;
+    }
+    .ak-nav-item:hover .ak-dropdown {
+        display: flex; /* إظهار عند المرور */
+        flex-direction: column;
+    }
+    .ak-dropdown a {
+        color: #1E293B !important;
+        padding: 12px 20px;
+        font-size: 14px;
+        text-align: right;
+        transition: background 0.2s;
+    }
+    .ak-dropdown a:hover {
+        background-color: #F4F7FE;
+        color: #4318FF !important;
+        font-weight: 800;
+    }
+
+    /* ========================================= */
+    /* 4. تنسيقات البطاقات والجداول للتقارير */
+    /* ========================================= */
     .erp-card { background: #FFFFFF; border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
     .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px; direction: rtl; border: 1px solid #E2E8F0; }
     .top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 24px; }
@@ -79,18 +160,11 @@ st.markdown("""
     .summary-card.danger { border-bottom-color: #EE5D50; }
     .summary-card.danger h2 { color: #EE5D50; }
 
-    /* 6. استغلال عرض الشاشة في الجداول (Reports) بشكل احترافي */
-    .modern-table-wrapper { width: 100%; overflow-x: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; background: white; border: 1px solid #E2E8F0;}
-    .modern-table { width: 100%; border-collapse: collapse; text-align: center; direction: rtl; font-family: 'Cairo';}
-    .modern-table th { background-color: #F8FAFC; color: #1B2559; font-weight: 800; font-size: 14px; padding: 16px 12px; border-bottom: 2px solid #E2E8F0; text-transform: uppercase; white-space: nowrap; }
-    .modern-table td { padding: 14px 12px; color: #475569; font-weight: 700; font-size: 14px; border-bottom: 1px solid #E2E8F0; vertical-align: middle; white-space: nowrap; transition: background 0.2s; }
-    .modern-table tbody tr:hover td { background-color: #F1F5F9; }
-
     .stButton>button { border-radius: 10px !important; font-weight: 800 !important; font-family: 'Cairo', sans-serif !important; transition: all 0.3s ease !important; }
     button[data-testid="baseButton-primary"] { background: linear-gradient(135deg, #4318FF 0%, #3B82F6 100%) !important; color: white !important; border: none !important; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.2) !important; }
     button[data-testid="baseButton-primary"]:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 24, 255, 0.4) !important; }
     
-    .status-badge { padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 800; display: inline-block; text-align: center; white-space: nowrap;}
+    .status-badge { padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 800; display: inline-block; text-align: center;}
     .status-danger { background-color: #FEE2E2; color: #EE5D50; }
     .status-warning { background-color: #FEF3C7; color: #D97706; }
     .status-success { background-color: #E0F2FE; color: #0284C7; } 
@@ -98,29 +172,10 @@ st.markdown("""
 
     div[data-testid="stDataFrame"] { direction: rtl !important; width: 100% !important;}
     
-    /* 7. تصميم شبكة التنبيهات */
-    .alerts-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-        gap: 15px;
-        margin-top: 15px;
-        direction: rtl;
-    }
-    .alert-card-compact {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 16px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .alert-card-compact:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    }
+    /* تصميم شبكة التنبيهات */
+    .alerts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; margin-top: 15px; direction: rtl; }
+    .alert-card-compact { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .alert-card-compact:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
     .alert-icon-box { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
     .alert-text-box { display: flex; flex-direction: column; gap: 4px; }
     .alert-title-text { color: #1B2559; font-size: 13px; font-weight: 700; line-height: 1.5; }
@@ -130,7 +185,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. إدارة حالة تسجيل الدخول والكوكيز باستقرار تام
+# 2. إدارة حالة تسجيل الدخول واستعادة كلمة المرور
 # ==========================================
 saved_user_id = cookie_manager.get("ak_erp_user_id")
 saved_user_name = cookie_manager.get("ak_erp_user_name")
@@ -150,6 +205,7 @@ if "reset_step" not in st.session_state:
     st.session_state.reset_step = 0
 
 if st.session_state["user_id"] is None:
+    # شاشة تسجيل الدخول في المنتصف
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<br><br>", unsafe_allow_html=True)
@@ -171,7 +227,7 @@ if st.session_state["user_id"] is None:
             new_email = st.text_input("البريد الإلكتروني")
             new_password = st.text_input("كلمة المرور", type="password")
             
-            if st.button("تسجيل الحساب", use_container_width=True):
+            if st.button("تسجيل الحساب", use_container_width=True, type="primary"):
                 data = {"full_name": new_company, "phone": new_phone, "email": new_email.strip(), "password": new_password}
                 try:
                     response = requests.post(f"{API_URL}/register", json=data)
@@ -185,7 +241,7 @@ if st.session_state["user_id"] is None:
                 login_password = st.text_input("كلمة المرور", type="password")
                 remember_me = st.checkbox("تذكرني (البقاء مسجلاً للدخول)")
                 
-                if st.button("دخول", use_container_width=True):
+                if st.button("دخول", use_container_width=True, type="primary"):
                     data = {"email": login_email, "password": login_password}
                     try:
                         response = requests.post(f"{API_URL}/login", json=data)
@@ -214,7 +270,7 @@ if st.session_state["user_id"] is None:
                 reset_email = st.text_input("البريد الإلكتروني المسجل", key="reset_email_input").strip()
                 col1, col2 = st.columns(2)
                 with col1:
-                    if st.button("إرسال الرمز", use_container_width=True):
+                    if st.button("إرسال الرمز", use_container_width=True, type="primary"):
                         try:
                             response = requests.post(f"{API_URL}/forgot-password", json={"email": reset_email})
                             if response.status_code == 200:
@@ -234,7 +290,7 @@ if st.session_state["user_id"] is None:
                 confirm_pass = st.text_input("تأكيد كلمة المرور", type="password")
                 col1, col2 = st.columns(2)
                 with col1:
-                    if st.button("تغيير كلمة المرور", use_container_width=True):
+                    if st.button("تغيير كلمة المرور", use_container_width=True, type="primary"):
                         if new_pass != confirm_pass: st.error("كلمتا المرور غير متطابقتين")
                         elif not otp_code: st.error("الرجاء إدخال رمز التحقق")
                         else:
@@ -252,7 +308,72 @@ if st.session_state["user_id"] is None:
     st.stop()
 
 # ==========================================
-# 3. الدوال المساعدة
+# 3. بناء الشريط العلوي الاحترافي HTML/CSS (Hover Menu)
+# ==========================================
+# قراءة قيمة التوجيه من الرابط
+query_params = st.query_params
+current_nav = query_params.get("nav", "dashboard")
+
+if current_nav == "logout":
+    st.session_state["user_id"] = None
+    st.session_state["user_name"] = ""
+    try:
+        cookie_manager.delete("ak_erp_user_id")
+        cookie_manager.delete("ak_erp_user_name")
+    except: pass
+    st.query_params.clear()
+    st.rerun()
+
+user_name_display = str(st.session_state.get("user_name", ""))
+
+# رسم الشريط العلوي
+st.markdown(f"""
+    <div class="ak-navbar">
+        <div class="ak-logo">A.K</div>
+        <div class="ak-nav-item"><a href="?nav=dashboard">📊 لوحة القيادة</a></div>
+        
+        <div class="ak-nav-item">
+            <a href="#">📁 المتابعة الشاملة ⏷</a>
+            <div class="ak-dropdown">
+                <a href="?nav=employees">الموظفين</a>
+                <a href="?nav=cars">السيارات</a>
+                <a href="?nav=visas">التأشيرات</a>
+                <a href="?nav=rents">عقود الإيجار</a>
+                <a href="?nav=subs">الاشتراكات العامة</a>
+            </div>
+        </div>
+        
+        <div class="ak-nav-item">
+            <a href="#">💰 نظام الرواتب ⏷</a>
+            <div class="ak-dropdown">
+                <a href="?nav=payroll">كشف الرواتب</a>
+                <a href="?nav=loans">حركة وسلف</a>
+                <a href="?nav=support">راتب مساند</a>
+                <a href="?nav=annual">التقرير السنوي</a>
+            </div>
+        </div>
+        
+        <div class="ak-nav-item"><a href="?nav=installments">💳 إدارة الأقساط</a></div>
+        
+        <div class="ak-nav-item">
+            <a href="#">⚙️ إعدادات وجداول ⏷</a>
+            <div class="ak-dropdown">
+                <a href="?nav=manager">بيانات المدير</a>
+                <a href="?nav=workers">بيانات العمال</a>
+                <a href="?nav=extra">جداول إضافية</a>
+                <a href="?nav=calendar">محول التاريخ</a>
+                <a href="?nav=settings">الإعدادات</a>
+            </div>
+        </div>
+        
+        <div style="flex-grow: 1;"></div>
+        <div class="ak-nav-item" style="color:#64748B; font-size:13px; font-weight:700;">{user_name_display}</div>
+        <div class="ak-nav-item"><a href="?nav=logout" style="color:#EE5D50;">🚪 خروج</a></div>
+    </div>
+""", unsafe_allow_html=True)
+
+# ==========================================
+# 4. الدوال المساعدة
 # ==========================================
 UID = st.session_state["user_id"]
 
@@ -286,14 +407,14 @@ if not sys_settings: sys_settings = {}
 
 def format_status(date_val, section_name):
     try:
-        if pd.isnull(date_val) or str(date_val).strip() == "" or str(date_val) == "None" or str(date_val) == "لا يوجد": return "<div class='status-badge status-none'>لا يوجد</div>"
+        if pd.isnull(date_val) or str(date_val).strip() == "" or str(date_val) == "None" or str(date_val) == "لا يوجد": return "لا يوجد"
         days = (pd.to_datetime(date_val).date() - date.today()).days
         w = sys_settings.get(section_name, {}).get("warning_days", 30)
         d = sys_settings.get(section_name, {}).get("danger_days", 0)
-        if days <= d: return f"<div class='status-badge status-danger'>حرج ({abs(days)} يوم)</div>"
-        elif days <= w: return f"<div class='status-badge status-warning'>تحذير ({days} يوم)</div>"
-        else: return f"<div class='status-badge status-success'>ساري ({days} يوم)</div>"
-    except: return "<div class='status-badge status-none'>خطأ</div>"
+        if days <= d: return f"🔴 حرج ({abs(days)} يوم)"
+        elif days <= w: return f"🟡 تحذير ({days} يوم)"
+        else: return f"🟢 ساري ({days} يوم)"
+    except: return "خطأ"
 
 def custom_date_picker(label_prefix, default_date=None, key_suffix=""):
     st.markdown(f"<div style='font-size:14px; font-weight:800; color:#1B2559; margin-bottom:8px; text-align:right;'>{label_prefix}</div>", unsafe_allow_html=True)
@@ -334,43 +455,6 @@ def calculate_visa_expiry(travel_date, months, days, extensions):
         from datetime import timedelta
         return travel_date + timedelta(days=(total_months * 30) + d)
 
-def prepare_export_df(df, selected_sub):
-    if df.empty: return df
-    export_df = df.copy()
-    def c_days(date_val):
-        if pd.isnull(date_val) or str(date_val).strip() in ["", "None", "لا يوجد"]: return "لا يوجد"
-        try: return str((pd.to_datetime(date_val).date() - date.today()).days)
-        except: return "لا يوجد"
-    def c_val(val):
-        if pd.isnull(val) or str(val) in ["None", ""] or str(val).strip() == "": return "لا يوجد"
-        return str(val)
-    for col in export_df.columns: export_df[col] = export_df[col].apply(c_val)
-
-    if selected_sub == "الموظفين":
-        export_df["أيام متبقية (إقامة)"] = export_df["iqama_expiry"].apply(c_days)
-        export_df["أيام متبقية (تأمين)"] = export_df["health_insurance_expiry"].apply(c_days)
-        export_df["أيام متبقية (جواز)"] = export_df["passport_expiry"].apply(c_days)
-        export_df = export_df.rename(columns={"id": "م", "name": "اسم الموظف", "iqama_number": "رقم الإقامة", "iqama_expiry": "تاريخ الانتهاء", "health_insurance_expiry": "انتهاء التأمين", "sponsorship": "الكفالة", "passport_expiry": "انتهاء الجواز"})
-        return export_df[["م", "اسم الموظف", "رقم الإقامة", "تاريخ الانتهاء", "أيام متبقية (إقامة)", "انتهاء التأمين", "أيام متبقية (تأمين)", "الكفالة", "انتهاء الجواز", "أيام متبقية (جواز)"]]
-    elif selected_sub == "السيارات":
-        export_df["ايام متبقية"] = export_df["registration_expiry"].apply(c_days)
-        export_df["ايام متبقية "] = export_df["insurance_expiry"].apply(c_days)
-        export_df = export_df.rename(columns={"id": "م", "car_name": "اسم السيارة", "plate_number": "رقم اللوحة", "registration_number": "رقم الاستمارة", "registration_expiry": "تاريخ انتهاء الاستمارة", "insurance_expiry": "تاريخ انتهاء التامين"})
-        return export_df[["م", "اسم السيارة", "رقم اللوحة", "رقم الاستمارة", "تاريخ انتهاء الاستمارة", "ايام متبقية", "تاريخ انتهاء التامين", "ايام متبقية "]]
-    elif selected_sub == "التأشيرات":
-        export_df["الايام المتبقية"] = export_df["expiry_date"].apply(c_days)
-        export_df = export_df.rename(columns={"id": "م", "employee_name": "الاسم", "visa_number": "رقم التاشيرة", "travel_date": "تاريخ السفر", "visa_duration_months": "مدة التاشيرة بالاشهر", "visa_duration_days": "مدة التاشيرة بالايام", "extension_count": "عدد التمديدات", "expiry_date": "تاريخ انتهاء التاشيرة", "notes": "ملاحظات"})
-        return export_df[["م", "الاسم", "رقم التاشيرة", "تاريخ السفر", "مدة التاشيرة بالاشهر", "مدة التاشيرة بالايام", "عدد التمديدات", "تاريخ انتهاء التاشيرة", "الايام المتبقية", "ملاحظات"]]
-    elif selected_sub == "عقود الإيجار":
-        export_df["الايام المتبقية"] = export_df["contract_expiry"].apply(c_days)
-        export_df = export_df.rename(columns={"id": "م", "tenant_name": "اسم المستاجر", "apartment_number": "رقم الشقة", "contract_number": "رقم العقد", "contract_start_date": "تاريخ بداية العقد", "contract_duration": "مدة العقد", "contract_expiry": "تاريخ انتهاء العقد", "next_payment_date": "تاريخ الدفعة القادمة", "payment_amount": "مبلغ الدفعة", "payment_period_months": "فترة الدفع بالشهر", "annual_rent": "مبلغ الايجار السنوي"})
-        return export_df[["م", "اسم المستاجر", "رقم الشقة", "رقم العقد", "تاريخ بداية العقد", "مدة العقد", "تاريخ انتهاء العقد", "الايام المتبقية", "تاريخ الدفعة القادمة", "مبلغ الدفعة", "فترة الدفع بالشهر", "مبلغ الايجار السنوي"]]
-    elif selected_sub == "الاشتراكات العامة":
-        export_df["ايام متبقية"] = export_df["subscription_expiry"].apply(c_days)
-        export_df = export_df.rename(columns={"id": "م", "service_name": "اسم الاشتراك او الترخيص", "subscription_number": "الرقم", "subscription_expiry": "تاريخ الانتهاء", "notes": "ملاحظات"})
-        return export_df[["م", "اسم الاشتراك او الترخيص", "الرقم", "تاريخ الانتهاء", "ايام متبقية", "ملاحظات"]]
-    return export_df
-
 def to_excel(df, sheet_name="البيانات"):
     df_clean = df.replace({np.nan: "", None: ""}).astype(str)
     output = io.BytesIO()
@@ -387,138 +471,6 @@ def to_excel(df, sheet_name="البيانات"):
             except: column_len = 15
             worksheet.set_column(col_num, col_num, column_len, cell_format)
     return output.getvalue()
-
-def to_pdf_html_basic(df, title):
-    h_date = get_hijri_date_str()
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head><meta charset="UTF-8"><title>تقرير - A.K ERP</title>
-    <style>@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap'); body {{ font-family: 'Cairo', sans-serif; padding: 20px; direction: rtl; text-align:right;}} .header {{ text-align: center; margin-bottom: 20px; }} table {{ width: 100%; border-collapse: collapse; margin-top: 15px; text-align: center; direction:rtl;}} th, td {{ padding: 12px; border: 1px solid #E9EDF7; }} th {{ background-color: #1E293B !important; color: #FFFFFF !important; font-weight: bold; -webkit-print-color-adjust: exact; color-adjust: exact; }} tr:nth-child(even) {{ background-color: #F8FAFC !important; -webkit-print-color-adjust: exact; color-adjust: exact; }} .print-btn {{ padding: 10px 20px; background: #2563EB; color: white; border: none; border-radius: 6px; cursor: pointer; display: block; margin: auto; }} @media print {{ .no-print {{ display: none !important; }} }}</style>
-    </head><body>
-    <button onclick="window.print()" class="print-btn no-print">🖨️️ للطباعة</button>
-    <div class="header"><h2 style="color:#4318FF;">A.K ERP System</h2><h3>{title}</h3><p>الميلادي: {date.today().strftime('%Y-%m-%d')} | الهجري: {h_date}هـ</p></div>
-    {df.to_html(index=False, classes='modern-table', border=0)}
-    </body></html>"""
-    return html_content.encode('utf-8')
-
-def to_pdf_html_with_dashboard(df, title, g_total=None, g_paid=None, g_rem=None, g_late=None):
-    h_date = get_hijri_date_str()
-    dashboard_html = ""
-    if g_total is not None:
-        dashboard_html = f"""
-        <div style="display:flex; justify-content:space-around; background:#F8FAFC; padding:15px; border-radius:10px; border:1px solid #E2E8F0; margin-bottom:20px;">
-            <div style="text-align:center;"><b>إجمالي مبلغ التقسيط</b><br><span style="color:#1B2559; font-size:18px;">{g_total:,.2f}</span></div>
-            <div style="text-align:center;"><b>إجمالي المبلغ المسدد</b><br><span style="color:#0284C7; font-size:18px;">{g_paid:,.2f}</span></div>
-            <div style="text-align:center;"><b>إجمالي المبالغ المتبقية</b><br><span style="color:#D97706; font-size:18px;">{g_rem:,.2f}</span></div>
-            <div style="text-align:center;"><b>إجمالي المبالغ المتأخرة</b><br><span style="color:#EE5D50; font-size:18px;">{g_late:,.2f}</span></div>
-        </div>
-        """
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head><meta charset="UTF-8"><title>تقرير أقساط - A.K ERP</title>
-    <style>@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap'); body {{ font-family: 'Cairo', sans-serif; padding: 20px; direction: rtl; text-align:right;}} .header {{ text-align: center; margin-bottom: 20px; }} table {{ width: 100%; border-collapse: collapse; margin-top: 15px; text-align: center; direction:rtl;}} th, td {{ padding: 12px; border: 1px solid #E9EDF7; }} th {{ background-color: #1E293B !important; color: #FFFFFF !important; font-weight: bold; -webkit-print-color-adjust: exact; color-adjust: exact; }} tr:nth-child(even) {{ background-color: #F8FAFC !important; -webkit-print-color-adjust: exact; color-adjust: exact; }} .print-btn {{ padding: 10px 20px; background: #2563EB; color: white; border: none; border-radius: 6px; cursor: pointer; display: block; margin: auto; }} @media print {{ .no-print {{ display: none !important; }} }}</style>
-    </head><body>
-    <button onclick="window.print()" class="print-btn no-print">🖨️ للطباعة</button>
-    <div class="header"><h2 style="color:#4318FF;">A.K ERP System</h2><h3>{title}</h3><p>الميلادي: {date.today().strftime('%Y-%m-%d')} | الهجري: {h_date}هـ</p></div>
-    {dashboard_html}
-    {df.to_html(index=False, classes='modern-table', border=0)}
-    </body></html>"""
-    return html_content.encode('utf-8')
-
-# ==========================================
-# 4. بناء الشريط العلوي المزدوج (البديل الذهبي للقائمة الجانبية)
-# ==========================================
-# ترويسة النظام العلوية
-user_name_display = str(st.session_state.get("user_name", "")) or ""
-st.markdown(f"""
-    <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 15px 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #E2E8F0; direction: rtl;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <div style="background: linear-gradient(135deg, #4318FF, #3B82F6); padding: 10px 20px; border-radius: 12px; color: white; font-weight: 900; font-size: 24px; letter-spacing: 1px;">A.K</div>
-            <div>
-                <h2 style="margin: 0; color: #0F172A; font-family: 'Cairo'; font-weight: 800; font-size: 20px;">ERP SYSTEM</h2>
-                <p style="margin: 0; color: #64748B; font-size: 13px; font-weight: 700;">المساحة السحابية: {user_name_display}</p>
-            </div>
-        </div>
-    </div>
-""", unsafe_allow_html=True)
-
-# إدارة حالة التنقل
-if "main_nav" not in st.session_state: st.session_state.main_nav = "لوحة القيادة"
-if "sub_nav" not in st.session_state: st.session_state.sub_nav = ""
-
-# القائمة الأفقية الرئيسية (RTL)
-main_opts = ["لوحة القيادة", "المتابعة الشاملة", "نظام الرواتب", "إدارة الأقساط", "إعدادات وجداول", "محول التاريخ", "تسجيل الخروج"]
-main_icons = ["speedometer2", "folder-fill", "cash-stack", "credit-card-fill", "gear-fill", "calendar3", "box-arrow-right"]
-
-# نعكس الترتيب برمجياً لكي يظهر من اليمين لليسار بشكل سليم في الشاشة
-selected_main = option_menu(
-    menu_title=None,
-    options=main_opts[::-1],
-    icons=main_icons[::-1],
-    default_index=main_opts[::-1].index(st.session_state.main_nav if st.session_state.main_nav in main_opts else "لوحة القيادة"),
-    orientation="horizontal",
-    styles={
-        "container": {"padding": "0!important", "background-color": "#FFFFFF", "border-radius": "12px", "box-shadow": "0 4px 10px rgba(0,0,0,0.02)", "margin-bottom": "10px", "border": "1px solid #E2E8F0"},
-        "icon": {"color": "#4318FF", "font-size": "16px"}, 
-        "nav-link": {"font-size": "14px", "font-family": "Cairo", "font-weight": "700", "color": "#1B2559", "margin": "0 2px"},
-        "nav-link-selected": {"background-color": "#4318FF", "color": "white", "font-weight": "800"},
-    }
-)
-
-if selected_main != st.session_state.main_nav:
-    st.session_state.main_nav = selected_main
-    if selected_main == "المتابعة الشاملة": st.session_state.sub_nav = "الموظفين"
-    elif selected_main == "نظام الرواتب": st.session_state.sub_nav = "كشف الرواتب"
-    elif selected_main == "إعدادات وجداول": st.session_state.sub_nav = "بيانات المدير"
-    else: st.session_state.sub_nav = ""
-    st.rerun()
-
-# القوائم الفرعية المنسدلة أسفل القائمة الرئيسية
-if st.session_state.main_nav == "المتابعة الشاملة":
-    sub_opts = ["الموظفين", "السيارات", "التأشيرات", "عقود الإيجار", "الاشتراكات العامة"]
-    sub_icons = ["person-fill", "car-front-fill", "file-earmark-text-fill", "house-door-fill", "card-checklist"]
-    selected_sub = option_menu(
-        menu_title=None, options=sub_opts[::-1], icons=sub_icons[::-1], default_index=sub_opts[::-1].index(st.session_state.sub_nav if st.session_state.sub_nav in sub_opts else "الموظفين"), orientation="horizontal",
-        styles={"container": {"padding": "0!important", "background-color": "#F8FAFC", "border-radius": "10px", "margin-bottom": "20px"}, "icon": {"color": "#3B82F6", "font-size": "13px"}, "nav-link": {"font-size": "13px", "font-family": "Cairo", "font-weight": "700", "color": "#475569", "margin": "0"}, "nav-link-selected": {"background-color": "#3B82F6", "color": "white"}}
-    )
-    if selected_sub != st.session_state.sub_nav:
-        st.session_state.sub_nav = selected_sub; st.rerun()
-
-elif st.session_state.main_nav == "نظام الرواتب":
-    sub_opts = ["كشف الرواتب", "حركة وسلف", "راتب مساند", "التقرير السنوي"]
-    sub_icons = ["file-spreadsheet-fill", "wallet-fill", "piggy-bank-fill", "bar-chart-fill"]
-    selected_sub = option_menu(
-        menu_title=None, options=sub_opts[::-1], icons=sub_icons[::-1], default_index=sub_opts[::-1].index(st.session_state.sub_nav if st.session_state.sub_nav in sub_opts else "كشف الرواتب"), orientation="horizontal",
-        styles={"container": {"padding": "0!important", "background-color": "#F8FAFC", "border-radius": "10px", "margin-bottom": "20px"}, "icon": {"color": "#3B82F6", "font-size": "13px"}, "nav-link": {"font-size": "13px", "font-family": "Cairo", "font-weight": "700", "color": "#475569", "margin": "0"}, "nav-link-selected": {"background-color": "#3B82F6", "color": "white"}}
-    )
-    if selected_sub != st.session_state.sub_nav:
-        st.session_state.sub_nav = selected_sub; st.rerun()
-
-elif st.session_state.main_nav == "إعدادات وجداول":
-    sub_opts = ["بيانات المدير", "بيانات العمال", "جداول إضافية", "الإعدادات"]
-    sub_icons = ["person-badge-fill", "people-fill", "clipboard-data-fill", "gear-fill"]
-    selected_sub = option_menu(
-        menu_title=None, options=sub_opts[::-1], icons=sub_icons[::-1], default_index=sub_opts[::-1].index(st.session_state.sub_nav if st.session_state.sub_nav in sub_opts else "بيانات المدير"), orientation="horizontal",
-        styles={"container": {"padding": "0!important", "background-color": "#F8FAFC", "border-radius": "10px", "margin-bottom": "20px"}, "icon": {"color": "#3B82F6", "font-size": "13px"}, "nav-link": {"font-size": "13px", "font-family": "Cairo", "font-weight": "700", "color": "#475569", "margin": "0"}, "nav-link-selected": {"background-color": "#3B82F6", "color": "white"}}
-    )
-    if selected_sub != st.session_state.sub_nav:
-        st.session_state.sub_nav = selected_sub; st.rerun()
-
-if st.session_state.main_nav == "تسجيل الخروج":
-    st.session_state["user_id"] = None
-    st.session_state["user_name"] = ""
-    try: cookie_manager.delete("ak_erp_user_id"); cookie_manager.delete("ak_erp_user_name")
-    except: pass
-    st.rerun()
-
-# توجيه المتغيرات لتعمل مع النظام الأصلي بسلاسة
-main_menu = st.session_state.main_nav
-selected_sub = st.session_state.sub_nav
-
-if main_menu == "إعدادات وجداول": main_menu = selected_sub
-if main_menu in ["المتابعة الشاملة", "نظام الرواتب"]: main_menu = selected_sub
 
 def render_delete_notification(endpoint_name):
     if 'pending_delete' in st.session_state and st.session_state['pending_delete']['endpoint'] == endpoint_name:
@@ -547,10 +499,10 @@ def render_top_navbar(title, subtitle):
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 6. التوجيه وعرض الواجهة الرئيسية بالكامل
+# 5. التوجيه وعرض الواجهة الرئيسية (التقارير الاحترافية)
 # ==========================================
 
-if main_menu == "لوحة القيادة":
+if current_nav == "dashboard":
     render_top_navbar("لوحة القيادة 📊", "نظرة عامة على التنبيهات وحالة النظام")
     data = fetch_data(f"api/daily-report/{UID}")
     alerts = data.get("التفاصيل", []) if isinstance(data, dict) else []
@@ -585,7 +537,7 @@ if main_menu == "لوحة القيادة":
     else:
         st.success("🎉 لا توجد أي تنبيهات حالياً. كل الأمور ممتازة!")
 
-elif main_menu == "محول التاريخ":
+elif current_nav == "calendar":
     render_top_navbar("محول التاريخ 🔄", "تحويل دقيق ومباشر بين التاريخ الميلادي والهجري")
     if not HAS_HIJRI: st.error("مكتبة التحويل غير مثبتة.")
     else:
@@ -611,7 +563,7 @@ elif main_menu == "محول التاريخ":
                 except OverflowError: st.error("تاريخ هجري غير صحيح.")
         st.markdown("</div>", unsafe_allow_html=True)
 
-elif main_menu == "كشف الرواتب":
+elif current_nav == "payroll":
     render_top_navbar("كشف الرواتب", "حسابات دقيقة وتفاعلية مرنة")
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
     c_y, c_m = st.columns([1, 2])
@@ -646,23 +598,19 @@ elif main_menu == "كشف الرواتب":
         }
     )
     
-    c_save, c_print = st.columns([2, 1])
-    with c_save:
-        if st.button("💾 تجميع وحساب وحفظ كشف الرواتب", type="primary", use_container_width=True):
-            work_df = edited_df[cols].copy()
-            for c in ["متأخر ٥", "متأخر ٦", "متأخر ٧", "متأخر ٨", "راتب الشهر", "السلف", "قيمة الغياب", "مدد", "مساند", "استلم"]:
-                work_df[c] = pd.to_numeric(work_df[c], errors='coerce').fillna(0)
-            work_df["إجمالي الاستقطاعات"] = work_df["السلف"] + work_df["قيمة الغياب"] + work_df["مدد"] + work_df["مساند"]
-            work_df["الصافي"] = work_df["راتب الشهر"] - work_df["إجمالي الاستقطاعات"]
-            work_df["المتبقي للترحيل"] = work_df["الصافي"] - work_df["استلم"]
-            
-            save_data = work_df.replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
-            requests.post(f"{API_URL}/payroll/{p_year}/{p_month}/sync", json={"owner_id": UID, "records": save_data})
-            st.success("تم الحساب والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
-    with c_print:
-            st.download_button("🖨 تصدير PDF", to_pdf_html_basic(edited_df[cols], f"كشف الرواتب - {p_month} {p_year}"), f"payroll_{p_year}_{p_month}.html", mime="text/html", use_container_width=True)
+    if st.button("💾 تجميع وحساب وحفظ كشف الرواتب", type="primary", use_container_width=True):
+        work_df = edited_df[cols].copy()
+        for c in ["متأخر ٥", "متأخر ٦", "متأخر ٧", "متأخر ٨", "راتب الشهر", "السلف", "قيمة الغياب", "مدد", "مساند", "استلم"]:
+            work_df[c] = pd.to_numeric(work_df[c], errors='coerce').fillna(0)
+        work_df["إجمالي الاستقطاعات"] = work_df["السلف"] + work_df["قيمة الغياب"] + work_df["مدد"] + work_df["مساند"]
+        work_df["الصافي"] = work_df["راتب الشهر"] - work_df["إجمالي الاستقطاعات"]
+        work_df["المتبقي للترحيل"] = work_df["الصافي"] - work_df["استلم"]
+        
+        save_data = work_df.replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
+        requests.post(f"{API_URL}/payroll/{p_year}/{p_month}/sync", json={"owner_id": UID, "records": save_data})
+        st.success("تم الحساب والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
 
-elif main_menu == "حركة وسلف":
+elif current_nav == "loans":
     render_top_navbar("حركة وسلف", "إدارة حركات سلف الموظفين")
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
     c_y, c_e = st.columns([1, 2])
@@ -692,16 +640,13 @@ elif main_menu == "حركة وسلف":
         
         st.markdown(f"<div style='text-align:left; font-size:18px; font-weight:bold; color:{'#059669' if net>=0 else '#DC2626'}; padding:10px;'>الصافي الكلي: {net:,.2f}</div>", unsafe_allow_html=True)
         
-        c_s, c_p = st.columns([2, 1])
-        with c_s:
-            if st.button("💾 حفظ السجل", type="primary", use_container_width=True):
-                save_data = edited_loans[cols].replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
-                requests.post(f"{API_URL}/loans/{l_emp}/{l_year}/sync", json={"owner_id": UID, "records": save_data})
-                st.success("تم الحفظ!"); time.sleep(0.5); st.rerun()
-        with c_p: st.download_button("🖨️ تصدير PDF", to_pdf_html_basic(edited_loans[cols], f"بيان حركة وسلف - {l_emp} ({l_year})"), f"loan_{l_emp}_{l_year}.html", mime="text/html", use_container_width=True)
+        if st.button("💾 حفظ السجل", type="primary", use_container_width=True):
+            save_data = edited_loans[cols].replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
+            requests.post(f"{API_URL}/loans/{l_emp}/{l_year}/sync", json={"owner_id": UID, "records": save_data})
+            st.success("تم الحفظ!"); time.sleep(0.5); st.rerun()
     else: st.info("الرجاء إدخال اسم الموظف لبدء الإدخال.")
 
-elif main_menu == "راتب مساند":
+elif current_nav == "support":
     render_top_navbar("راتب مساند", "إدارة الرواتب المساندة")
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
     s_year = st.number_input("السنة:", min_value=2000, value=date.today().year, key="sy")
@@ -725,19 +670,16 @@ elif main_menu == "راتب مساند":
             "استلم": st.column_config.NumberColumn(format="%.2f"),
         }
     )
-    c_s, c_p = st.columns([2, 1])
-    with c_s:
-        if st.button("💾 تجميع وحساب وحفظ", type="primary", use_container_width=True):
-            work_df = edited_supp[cols].copy()
-            work_df["الراتب"] = pd.to_numeric(work_df["الراتب"], errors='coerce').fillna(0)
-            work_df["استلم"] = pd.to_numeric(work_df["استلم"], errors='coerce').fillna(0)
-            work_df["الصافي"] = work_df["الراتب"] - work_df["استلم"]
-            save_data = work_df.replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
-            requests.post(f"{API_URL}/support_salary/{s_year}/sync", json={"owner_id": UID, "records": save_data})
-            st.success("تم الحساب والحفظ!"); time.sleep(0.5); st.rerun()
-    with c_p: st.download_button("🖨️ PDF", to_pdf_html_basic(edited_supp[cols], f"راتب مساند ({s_year})"), f"supp_{s_year}.html", mime="text/html", use_container_width=True)
+    if st.button("💾 تجميع وحساب وحفظ", type="primary", use_container_width=True):
+        work_df = edited_supp[cols].copy()
+        work_df["الراتب"] = pd.to_numeric(work_df["الراتب"], errors='coerce').fillna(0)
+        work_df["استلم"] = pd.to_numeric(work_df["استلم"], errors='coerce').fillna(0)
+        work_df["الصافي"] = work_df["الراتب"] - work_df["استلم"]
+        save_data = work_df.replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
+        requests.post(f"{API_URL}/support_salary/{s_year}/sync", json={"owner_id": UID, "records": save_data})
+        st.success("تم الحساب والحفظ!"); time.sleep(0.5); st.rerun()
 
-elif main_menu == "التقرير السنوي":
+elif current_nav == "annual":
     render_top_navbar("التقرير السنوي", "التقرير السنوي المجمع للموظفين")
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
     c_y, c_e = st.columns([1, 2])
@@ -770,24 +712,134 @@ elif main_menu == "التقرير السنوي":
             }
         )
         
-        c_s, c_p = st.columns([2, 1])
-        with c_s:
-            if st.button("💾 تجميع وحساب التقرير", type="primary", use_container_width=True):
-                work_df = edited_ann[cols].copy()
-                for c in ["الراتب المستحق", "الإضافي", "السلف", "إجمالي الاستقطاعات-كجدول", "إجمالي الاستقطاعات-المسحوبات", "استلم"]:
-                    work_df[c] = pd.to_numeric(work_df[c], errors='coerce').fillna(0)
-                
-                work_df["إجمالي الاستحقاقات"] = work_df["الراتب المستحق"] + work_df["الإضافي"]
-                work_df["الصافي"] = work_df["إجمالي الاستحقاقات"] - work_df["السلف"] - work_df["إجمالي الاستقطاعات-كجدول"] - work_df["إجمالي الاستقطاعات-المسحوبات"]
-                work_df["المتبقي للترحيل"] = work_df["الصافي"] - work_df["استلم"]
-                
-                save_data = work_df.replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
-                requests.post(f"{API_URL}/annual_report/{a_emp}/{a_year}/sync", json={"owner_id": UID, "records": save_data})
-                st.success("تم التجميع والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
-        with c_p: st.download_button("🖨️ PDF", to_pdf_html_basic(edited_ann[cols], f"التقرير السنوي - {a_emp} ({a_year})"), f"ann_{a_emp}_{a_year}.html", mime="text/html", use_container_width=True)
+        if st.button("💾 تجميع وحساب التقرير", type="primary", use_container_width=True):
+            work_df = edited_ann[cols].copy()
+            for c in ["الراتب المستحق", "الإضافي", "السلف", "إجمالي الاستقطاعات-كجدول", "إجمالي الاستقطاعات-المسحوبات", "استلم"]:
+                work_df[c] = pd.to_numeric(work_df[c], errors='coerce').fillna(0)
+            
+            work_df["إجمالي الاستحقاقات"] = work_df["الراتب المستحق"] + work_df["الإضافي"]
+            work_df["الصافي"] = work_df["إجمالي الاستحقاقات"] - work_df["السلف"] - work_df["إجمالي الاستقطاعات-كجدول"] - work_df["إجمالي الاستقطاعات-المسحوبات"]
+            work_df["المتبقي للترحيل"] = work_df["الصافي"] - work_df["استلم"]
+            
+            save_data = work_df.replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
+            requests.post(f"{API_URL}/annual_report/{a_emp}/{a_year}/sync", json={"owner_id": UID, "records": save_data})
+            st.success("تم التجميع والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
     else: st.info("يرجى إدخال اسم الموظف للعرض.")
 
-elif main_menu == "إدارة الأقساط":
+elif current_nav == "settings":
+    render_top_navbar("إعدادات النظام ⚙", "التحكم في التنبيهات والألوان والنسخ الاحتياطي")
+    
+    st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#4318FF; font-family:Cairo; font-weight:800; margin-bottom:15px;'>🛡️ النسخة الاحتياطية السحابية</h3>", unsafe_allow_html=True)
+    st.info("💡 يمكنك تحميل نسخة احتياطية كاملة من بيانات شركتك (كافة الجداول والأقسام) والاحتفاظ بها محلياً.")
+    if st.button("📥 إنشاء وتحميل نسخة احتياطية (JSON)", type="primary"):
+        res = requests.get(f"{API_URL}/api/backup/{UID}")
+        if res.status_code == 200:
+            st.download_button("⬇ اضغط هنا للتحميل الآن", data=json.dumps(res.json(), ensure_ascii=False, indent=4), file_name=f"AK_ERP_Backup_{date.today()}.json", mime="application/json")
+        else: st.error("حدث خطأ أثناء جلب النسخة.")
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#4318FF; font-family:Cairo; font-weight:800; margin-bottom:15px;'>🔔 إعدادات التنبيهات</h3>", unsafe_allow_html=True)
+    sections = ["الموظفين", "السيارات", "التأشيرات", "عقود الإيجار", "الاشتراكات العامة", "الأقساط"]
+    for sec in sections:
+        st.markdown(f"<h5 style='color:#1B2559; font-family:Cairo; font-weight:800; margin-top:15px;'>{sec}</h5>", unsafe_allow_html=True)
+        current_warn = sys_settings.get(sec, {}).get("warning_days", 30)
+        current_danger = sys_settings.get(sec, {}).get("danger_days", 0)
+        c1, c2, c3 = st.columns([1, 1, 2])
+        with c1: warn = st.number_input(f"أيام التحذير (أصفر 🟡) - {sec}", value=current_warn, key=f"w_{sec}")
+        with c2: danger = st.number_input(f"أيام الحرج (أحمر 🔴) - {sec}", value=current_danger, key=f"d_{sec}")
+        with c3:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button(f"💾 حفظ الإعدادات لـ {sec}", key=f"btn_{sec}"):
+                requests.put(f"{API_URL}/settings/{sec}", json={"owner_id": UID, "warning_days": warn, "danger_days": danger})
+                st.success("تم الحفظ بنجاح!"); time.sleep(1); st.rerun()
+        st.markdown("<hr style='border:1px solid #E9EDF7;'>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+elif current_nav in ["manager", "workers", "extra"]:
+    icon_n = "💼" if current_nav == "manager" else "👷" if current_nav == "workers" else "📋"
+    ar_title = "بيانات المدير" if current_nav == "manager" else "بيانات العمال" if current_nav == "workers" else "جداول إضافية"
+    db_endpoint = "manager_pages" if current_nav == "manager" else "custom_pages" if current_nav == "workers" else "extra_pages"
+    rec_endpoint = "manager_records" if current_nav == "manager" else "custom_records" if current_nav == "workers" else "extra_records"
+    
+    render_top_navbar(f"{ar_title} {icon_n}", "إدارة الجداول المخصصة بشكل حر")
+    pages_data = fetch_data(f"{db_endpoint}/{UID}")
+    
+    st.markdown("<div class='erp-card' style='padding: 15px 20px;'>", unsafe_allow_html=True)
+    if st.button("➕ إنشاء زر وجدول جديد", type="primary", key=f"btn_add_{db_endpoint}"): st.session_state[f"show_add_{db_endpoint}"] = not st.session_state.get(f"show_add_{db_endpoint}", False)
+        
+    if st.session_state.get(f"show_add_{db_endpoint}", False):
+        st.markdown("<div style='margin-top:15px; padding:20px; border-radius:12px; background:#F4F7FE; border:1px solid #E9EDF7;'>", unsafe_allow_html=True)
+        c_title, c_cols = st.columns(2)
+        with c_title: page_title = st.text_input("اسم الزر", key=f"new_title_{db_endpoint}")
+        with c_cols: page_columns = st.text_input("رؤوس الأعمدة (مفصولة بفاصلة)", key=f"new_cols_{db_endpoint}")
+        if st.button("💾 حفظ وإنشاء الجدول", type="primary", key=f"save_{db_endpoint}"):
+            if page_title and page_columns:
+                cols_list = [c.strip() for c in page_columns.replace('،', ',').split(',') if c.strip()]
+                requests.post(f"{API_URL}/{db_endpoint}/", json={"owner_id": UID, "title": page_title, "columns_data": json.dumps(cols_list)})
+                st.session_state[f"show_add_{db_endpoint}"] = False; st.rerun()
+            else: st.warning("الرجاء تعبئة جميع الحقول.")
+        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    if pages_data:
+        st.markdown("<h4 style='color:#64748B; margin-top:10px; margin-bottom:15px; font-family:Cairo; font-weight:800;'>الوصول السريع للجداول:</h4>", unsafe_allow_html=True)
+        cols = st.columns(min(len(pages_data), 5))
+        for i, page in enumerate(pages_data):
+            col_idx = i % 5
+            if i > 0 and col_idx == 0: cols = st.columns(5)
+            with cols[col_idx]:
+                is_active = st.session_state.get(f"active_{db_endpoint}") == page["id"]
+                btn_type = "primary" if is_active else "secondary"
+                if st.button(f"📁 {page['title']}", key=f"btn_{db_endpoint}_{page['id']}", use_container_width=True, type=btn_type):
+                    st.session_state[f"active_{db_endpoint}"] = page["id"]; st.rerun()
+                    
+        active_page_id = st.session_state.get(f"active_{db_endpoint}")
+        if active_page_id:
+            active_page = next((p for p in pages_data if p["id"] == active_page_id), None)
+            if active_page:
+                st.markdown("<hr style='border:1px solid #E9EDF7; margin: 25px 0;'>", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='color:#1B2559; font-family:Cairo; font-weight:800; margin-bottom:20px; text-align:right;'>جدول: {active_page['title']}</h3>", unsafe_allow_html=True)
+                
+                try: columns_list = json.loads(active_page['columns_data'])
+                except: columns_list = ["الاسم"]
+                
+                all_records = fetch_data(f"{rec_endpoint}/{UID}")
+                page_records = [r for r in all_records if r.get("page_id") == active_page_id]
+                parsed_records = []
+                for pr in page_records:
+                    try: data_dict = json.loads(pr['record_data']); parsed_records.append(data_dict)
+                    except: pass
+                    
+                df_dynamic = pd.DataFrame(parsed_records)
+                for col in columns_list:
+                    if col not in df_dynamic.columns: df_dynamic[col] = ""
+                if not df_dynamic.empty: df_dynamic = df_dynamic[columns_list]
+                else: df_dynamic = pd.DataFrame(columns=columns_list)
+                
+                st.markdown("<h4 style='color:#1E293B; font-weight:800; margin-top:10px; margin-bottom:15px;'>أداة التحرير والمتابعة:</h4>", unsafe_allow_html=True)
+                display_columns = columns_list[::-1]
+                df_to_edit = df_dynamic[display_columns]
+                
+                edited_dynamic_df = st.data_editor(df_to_edit, num_rows="dynamic", use_container_width=True, hide_index=True, key=f"dyn_edit_{active_page_id}")
+                
+                c_del, c_exp, c_save = st.columns([1, 1.5, 3])
+                with c_save:
+                    if st.button("💾 حفظ التعديلات", type="primary", use_container_width=True, key=f"save_dyn_{active_page_id}"):
+                        clean_df = edited_dynamic_df.replace({np.nan: "", None: ""}).astype(str)
+                        save_data = clean_df.to_dict(orient="records")
+                        requests.post(f"{API_URL}/{db_endpoint}/{active_page_id}/sync", json={"owner_id": UID, "records": save_data})
+                        st.success("تم الحفظ بنجاح!"); time.sleep(0.5); st.rerun()
+                with c_exp:
+                    clean_export_df = edited_dynamic_df.replace({np.nan: "", None: ""}).astype(str)
+                    st.download_button("📊 تصدير Excel", to_excel(clean_export_df[columns_list], active_page['title']), f"{active_page['title']}.xlsx", use_container_width=True, key=f"exp_{active_page_id}")
+                with c_del:
+                    if st.button("🗑️️ حذف الزر بالكامل", key=f"del_{active_page_id}"):
+                        requests.delete(f"{API_URL}/{db_endpoint}/{active_page_id}/{UID}")
+                        st.session_state[f"active_{db_endpoint}"] = None; st.rerun()
+
+elif current_nav == "installments":
     render_top_navbar("إدارة الأقساط 💰", "المتابعة المالية الذكية وجدولة الدفعات")
     endpoint = "installments"; selected_sub = "إدارة الأقساط"; raw_data = fetch_data(f"{endpoint}/{UID}")
     render_delete_notification(endpoint); manage_id = st.session_state.get("manage_installment_id", None)
@@ -824,7 +876,7 @@ elif main_menu == "إدارة الأقساط":
                 with c3: st.markdown(f"<div class='summary-card'><h3>إجمالي المبالغ المتبقية</h3><h2>{total_rem:,.2f}</h2></div>", unsafe_allow_html=True)
                 with c4: st.markdown(f"<div class='summary-card danger'><h3 style='color:#EE5D50;'>إجمالي المبالغ المتأخرة</h3><h2>{late_amt:,.2f}</h2></div>", unsafe_allow_html=True)
                 
-                st.markdown("<h4 style='color:#1E293B; font-weight:800; text-align:right; margin-top:20px; margin-bottom:15px;'>الجدول التفصيلي للأقساط (قم بالتعديل أدناه واضغط حفظ)</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='color:#1E293B; font-weight:800; text-align:right; margin-top:20px; margin-bottom:15px;'>الجدول التفصيلي للأقساط (قم بالتعديل واضغط حفظ)</h4>", unsafe_allow_html=True)
                 df_edit = df_pay.copy().rename(columns={"installment_number": "القسط (م)", "amount_due": "مبلغ القسط", "due_date": "تاريخ القسط", "paid_amount": "المبلغ المدفوع", "payment_date": "تاريخ الدفع", "notes": "ملاحظات"})
                 cols_order = ["القسط (م)", "تاريخ القسط", "مبلغ القسط", "المبلغ المدفوع", "تاريخ الدفع", "المتبقي من القسط", "حالة القسط", "ملاحظات"]
                 
@@ -833,14 +885,12 @@ elif main_menu == "إدارة الأقساط":
                     column_config={"القسط (م)": st.column_config.NumberColumn(disabled=True), "مبلغ القسط": st.column_config.NumberColumn(disabled=True, format="%.2f"), "تاريخ القسط": st.column_config.TextColumn(disabled=True), "المتبقي من القسط": st.column_config.NumberColumn(disabled=True, format="%.2f"), "حالة القسط": st.column_config.TextColumn(disabled=True), "المبلغ المدفوع": st.column_config.NumberColumn(required=True, default=0.0, format="%.2f")},
                     hide_index=True, use_container_width=True, key=f"editor_inst_data_{manage_id}" 
                 )
-                c_exp, c_save = st.columns([4, 1])
-                with c_save:
-                    if st.button("💾 حفظ التحديثات", type="primary", use_container_width=True):
-                        updated_payments = []
-                        for idx, row in edited_df.iterrows(): updated_payments.append({"installment_number": row["القسط (م)"], "due_date": row["تاريخ القسط"], "amount_due": float(row["مبلغ القسط"]), "paid_amount": float(row["المبلغ المدفوع"]), "payment_date": str(row["تاريخ الدفع"]) if pd.notnull(row["تاريخ الدفع"]) else "", "notes": str(row["ملاحظات"]) if pd.notnull(row["ملاحظات"]) else ""})
-                        requests.put(f"{API_URL}/{endpoint}/{manage_id}", json={"owner_id": UID, "payments_data": json.dumps(updated_payments)})
-                        st.success("تم التحديث بنجاح"); time.sleep(0.5); st.rerun()
-                with c_exp: st.download_button("🖨️ طباعة جدول الأقساط PDF", to_pdf_html_with_dashboard(edited_df[cols_order], f"تقرير أقساط العميل: {item['client_name']}", total_inst, total_paid, total_rem, late_amt), f"installments_{manage_id}.html", mime="text/html")
+                
+                if st.button("💾 حفظ التحديثات", type="primary", use_container_width=True):
+                    updated_payments = []
+                    for idx, row in edited_df.iterrows(): updated_payments.append({"installment_number": row["القسط (م)"], "due_date": row["تاريخ القسط"], "amount_due": float(row["مبلغ القسط"]), "paid_amount": float(row["المبلغ المدفوع"]), "payment_date": str(row["تاريخ الدفع"]) if pd.notnull(row["تاريخ الدفع"]) else "", "notes": str(row["ملاحظات"]) if pd.notnull(row["ملاحظات"]) else ""})
+                    requests.put(f"{API_URL}/{endpoint}/{manage_id}", json={"owner_id": UID, "payments_data": json.dumps(updated_payments)})
+                    st.success("تم التحديث بنجاح"); time.sleep(0.5); st.rerun()
     else:
         g_total = g_paid = g_rem = g_late = 0.0
         if raw_data:
@@ -864,14 +914,12 @@ elif main_menu == "إدارة الأقساط":
         """, unsafe_allow_html=True)
 
         st.markdown("<div class='erp-card' style='padding: 15px 20px;'>", unsafe_allow_html=True)
-        col_search, col3, col2, col1 = st.columns([3, 1.2, 1, 1.5])
+        col_search, col2, col1 = st.columns([3, 1, 1.5])
         with col1:
             if st.button("➕ إضافة عقد قسط جديد", type="primary", use_container_width=True): st.session_state[f"show_add_{endpoint}"] = not st.session_state.get(f"show_add_{endpoint}", False)
         with col2:
             if raw_data: st.download_button("📊 تصدير Excel", to_excel(prepare_export_df(pd.DataFrame(raw_data), selected_sub), selected_sub), f"{selected_sub}.xlsx", use_container_width=True)
-        with col3:
-            if raw_data: st.download_button("🖨️ تصدير PDF", to_pdf_html_with_dashboard(prepare_export_df(pd.DataFrame(raw_data), selected_sub), "تقرير كافة الأقساط"), f"{selected_sub}_تقرير.html", mime="text/html", use_container_width=True)
-        with col_search: search_q = st.text_input("🔍", placeholder="بحث في العقود...", label_visibility="collapsed")
+        with col_search: search_q = st.text_input("🔍", placeholder="بحث في العقود باسم العميل...", label_visibility="collapsed")
         st.markdown("</div>", unsafe_allow_html=True)
 
         if st.session_state.get(f"show_add_{endpoint}", False):
@@ -900,67 +948,37 @@ elif main_menu == "إدارة الأقساط":
             df = pd.DataFrame(raw_data)
             if search_q: df = df[df.apply(lambda row: row.astype(str).str.contains(search_q, case=False).any(), axis=1)]
             if not df.empty:
-                html_table = "<div class='modern-table-wrapper'><table class='modern-table'><thead><tr>"
-                headers = ["م", "اسم العميل", "العنوان", "المبلغ الإجمالي", "المدفوع مقدم", "عدد الأقساط", "القسط القادم", "الإجراءات"]
-                for h in headers: html_table += f"<th>{h}</th>"
-                html_table += "</tr></thead><tbody>"
-                for _, row in df.iterrows():
-                    try: p_data = json.loads(row['payments_data'])
-                    except: p_data = []
-                    next_due = "<div class='status-badge status-success'>مكتمل</div>"
-                    for p in p_data:
-                        a_due = round(float(p.get("amount_due", 0)), 2)
-                        a_paid = round(float(p.get("paid_amount", 0)), 2)
-                        if a_paid < a_due and p.get("due_date"):
-                            d_val = p.get("due_date")
-                            days = (date.fromisoformat(d_val) - date.today()).days
-                            if days < 0: next_due = f"<div class='status-badge status-danger'>متأخر<br>({d_val})</div>"
-                            elif days <= 30: next_due = f"<div class='status-badge status-warning'>قريب<br>({d_val})</div>"
-                            else: next_due = f"<div class='status-badge status-none'>{d_val}</div>"
-                            break
-                    html_table += f"<tr><td>{row['id']}</td><td><b>{display_clean(row.get('client_name'))}</b></td><td>{display_clean(row.get('title'))}</td><td>{row.get('total_amount'):,.2f}</td><td>{row.get('advance_payment'):,.2f}</td><td>{row.get('installments_count')}</td><td>{next_due}</td><td><span style='color:#A3AED0; font-size:12px; font-weight:700;'>إدارة بالأسفل</span></td></tr>"
-                html_table += "</tbody></table></div>"
-                st.markdown(html_table, unsafe_allow_html=True)
-                
-                st.markdown("<h4 style='color:#1E293B; font-weight:800; margin-top:25px; margin-bottom:15px; text-align:right;'>إدارة العقود السريعة</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='color:#1E293B; margin-top:20px; font-weight:800; text-align:right;'>سجل العقود:</h4>", unsafe_allow_html=True)
                 for _, row in df.iterrows():
                     with st.container():
                         c_del, c_manage, c_name = st.columns([1, 1, 4])
-                        with c_name: st.markdown(f"<div style='padding:10px 15px; background:#FFFFFF; border-radius:8px; border:1px solid #E9EDF7; text-align:right; font-weight:700; color:#1E293B;'>عقد م: <b>{row['id']}</b> | {display_clean(row.get('client_name'))}</div>", unsafe_allow_html=True)
+                        with c_name: st.markdown(f"<div style='padding:10px 15px; background:#FFFFFF; border-radius:8px; border:1px solid #E9EDF7; text-align:right; font-weight:700; color:#1E293B;'>عقد م: <b>{row['id']}</b> | العميل: {display_clean(row.get('client_name'))}</div>", unsafe_allow_html=True)
                         with c_manage:
                             if st.button("📊 إدارة الأقساط", key=f"manage_inst_{row['id']}", use_container_width=True): st.session_state["manage_installment_id"] = row['id']; st.rerun()
                         with c_del:
                             if st.button("🗑️ حذف", key=f"del_inst_{row['id']}", use_container_width=True): st.session_state['pending_delete'] = {'endpoint': endpoint, 'id': row['id'], 'time': time.time()}; st.rerun()
             else: st.info("لا توجد نتائج للبحث.")
-        else: st.info("لم يتم تسجيل عقود أقساط.")
 
-elif main_menu in ["الموظفين", "السيارات", "التأشيرات", "عقود الإيجار", "الاشتراكات العامة"]:
-    selected_sub = main_menu
-    render_top_navbar(f"إدارة {selected_sub}", "إضافة، تعديل، وإدارة السجلات بسهولة")
-    endpoint = ""
-    if selected_sub == "الموظفين": endpoint = "employees"
-    elif selected_sub == "السيارات": endpoint = "vehicles"
-    elif selected_sub == "التأشيرات": endpoint = "visas"
-    elif selected_sub == "عقود الإيجار": endpoint = "rents"
-    elif selected_sub == "الاشتراكات العامة": endpoint = "subscriptions"
+elif current_nav in ["employees", "cars", "visas", "rents", "subs"]:
+    # التوجيه الشامل الاحترافي مع Data Editor المباشر
+    mapped_subs = {"employees": "الموظفين", "cars": "السيارات", "visas": "التأشيرات", "rents": "عقود الإيجار", "subs": "الاشتراكات العامة"}
+    selected_sub = mapped_subs[current_nav]
+    endpoint = current_nav
+    if endpoint == "subs": endpoint = "subscriptions" # API Fix
     
+    render_top_navbar(f"إدارة {selected_sub}", "إضافة، تعديل سريع للبيانات، وإدارة السجلات بسهولة")
     render_delete_notification(endpoint)
-    df = pd.DataFrame()
+    
     raw_data = fetch_data(f"{endpoint}/{UID}")
-    if raw_data:
-        df = pd.DataFrame(raw_data)
-        for col in df.columns:
-            if 'expiry' in col or 'date' in col: df[col] = pd.to_datetime(df[col]).dt.strftime('%Y-%m-%d')
-
+    df = pd.DataFrame(raw_data) if raw_data else pd.DataFrame()
+    
     st.markdown("<div class='erp-card' style='padding: 15px 20px;'>", unsafe_allow_html=True)
-    col_search, col3, col2, col1 = st.columns([3, 1.2, 1, 1.5])
+    col_search, col2, col1 = st.columns([3, 1, 1.5])
     with col1:
-        if st.button("➕ إضافة سجل جديد", type="primary", use_container_width=True): st.session_state[f"show_add_{endpoint}"] = not st.session_state.get(f"show_add_{endpoint}", False); st.session_state[f"edit_id_{endpoint}"] = None
+        if st.button("➕ إضافة سجل جديد", type="primary", use_container_width=True): st.session_state[f"show_add_{endpoint}"] = not st.session_state.get(f"show_add_{endpoint}", False)
     with col2:
         if not df.empty: st.download_button("📊 تصدير Excel", to_excel(prepare_export_df(df, selected_sub), selected_sub), f"{selected_sub}.xlsx", use_container_width=True)
-    with col3:
-        if not df.empty: st.download_button("🖨 تصدير PDF", to_pdf_html_basic(prepare_export_df(df, selected_sub), f"تقرير - {selected_sub}"), f"{selected_sub}_تقرير.html", mime="text/html", use_container_width=True)
-    with col_search: search_q = st.text_input("🔍", placeholder="بحث في السجلات...", label_visibility="collapsed")
+    with col_search: search_q = st.text_input("🔍", placeholder="بحث ذكي في جميع الحقول...", label_visibility="collapsed")
     st.markdown("</div>", unsafe_allow_html=True)
 
     if st.session_state.get(f"show_add_{endpoint}", False):
@@ -1008,115 +1026,56 @@ elif main_menu in ["الموظفين", "السيارات", "التأشيرات",
                 st.session_state[f"show_add_{endpoint}"] = False; st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-    edit_id = st.session_state.get(f"edit_id_{endpoint}", None)
-    if edit_id is not None:
-        item_to_edit = next((item for item in raw_data if item["id"] == edit_id), None)
-        if item_to_edit:
-            st.markdown("<div class='erp-card' style='border-top: 4px solid #F59E0B;'>", unsafe_allow_html=True)
-            st.markdown(f"<h4 style='color:#1E293B; margin-bottom:20px; font-family:Cairo;'>✏️ تعديل السجل رقم ({edit_id})</h4>", unsafe_allow_html=True)
-            if selected_sub == "الموظفين":
-                c2, c1 = st.columns(2)
-                with c1: name = st.text_input("اسم الموظف", value=clean_none(item_to_edit.get("name")), key=f"edit_emp_n_{edit_id}"); iq_num = st.text_input("رقم الإقامة", value=clean_none(item_to_edit.get("iqama_number")), key=f"edit_emp_iq_{edit_id}"); sponsorship = st.text_input("الكفالة", value=clean_none(item_to_edit.get("sponsorship")), key=f"edit_emp_sp_{edit_id}")
-                with c2: iq_exp = custom_date_picker("تاريخ انتهاء الإقامة", default_date=item_to_edit.get("iqama_expiry"), key_suffix=f"edit_iq_d_{edit_id}"); ins_exp = custom_date_picker("تاريخ انتهاء التأمين", default_date=item_to_edit.get("health_insurance_expiry"), key_suffix=f"edit_ins_d_{edit_id}"); pass_exp = custom_date_picker("تاريخ انتهاء الجواز", default_date=item_to_edit.get("passport_expiry"), key_suffix=f"edit_pass_d_{edit_id}")
-                if st.button("حفظ التعديلات", type="primary", key=f"btn_save_emp_{edit_id}"):
-                    requests.put(f"{API_URL}/{endpoint}/{edit_id}", json={"owner_id": UID, "name": name, "iqama_number": iq_num, "sponsorship": sponsorship, "iqama_expiry": str(iq_exp) if iq_exp else None, "health_insurance_expiry": str(ins_exp) if ins_exp else None, "passport_expiry": str(pass_exp) if pass_exp else None})
-                    st.session_state[f"edit_id_{endpoint}"] = None; st.rerun()
-            elif selected_sub == "السيارات":
-                c2, c1 = st.columns(2)
-                with c1: car_name = st.text_input("اسم السيارة", value=clean_none(item_to_edit.get("car_name")), key=f"edit_veh_n_{edit_id}"); plate = st.text_input("رقم اللوحة", value=clean_none(item_to_edit.get("plate_number")), key=f"edit_veh_p_{edit_id}"); reg_num = st.text_input("رقم الاستمارة", value=clean_none(item_to_edit.get("registration_number")), key=f"edit_veh_r_{edit_id}")
-                with c2: reg_exp = custom_date_picker("تاريخ انتهاء الاستمارة", default_date=item_to_edit.get("registration_expiry"), key_suffix=f"edit_reg_d_{edit_id}"); ins_exp = custom_date_picker("تاريخ انتهاء التأمين", default_date=item_to_edit.get("insurance_expiry"), key_suffix=f"edit_ins_d_{edit_id}")
-                if st.button("حفظ التعديلات", type="primary", key=f"btn_save_veh_{edit_id}"):
-                    requests.put(f"{API_URL}/{endpoint}/{edit_id}", json={"owner_id": UID, "car_name": car_name, "plate_number": plate, "registration_number": reg_num, "registration_expiry": str(reg_exp) if reg_exp else None, "insurance_expiry": str(ins_exp) if ins_exp else None})
-                    st.session_state[f"edit_id_{endpoint}"] = None; st.rerun()
-            elif selected_sub == "التأشيرات":
-                c2, c1 = st.columns(2)
-                with c1: emp = st.text_input("الاسم", value=clean_none(item_to_edit.get("employee_name")), key=f"edit_visa_e_{edit_id}"); visa_num = st.text_input("رقم التأشيرة", value=clean_none(item_to_edit.get("visa_number")), key=f"edit_visa_n_{edit_id}"); travel_d = custom_date_picker("تاريخ السفر", default_date=item_to_edit.get("travel_date"), key_suffix=f"edit_trav_d_{edit_id}")
-                with c2: v_dur_m = st.text_input("مدة التأشيرة بالاشهر", value=clean_none(item_to_edit.get("visa_duration_months")), key=f"edit_visa_m_{edit_id}"); v_dur_d = st.text_input("مدة التأشيرة بالايام", value=clean_none(item_to_edit.get("visa_duration_days")), key=f"edit_visa_d_{edit_id}"); ext_count = st.number_input("عدد مرات التمديد", min_value=0, value=int(item_to_edit.get("extension_count") or 0), key=f"edit_visa_ext_{edit_id}")
-                exp_date = calculate_visa_expiry(travel_d, v_dur_m, v_dur_d, ext_count)
-                notes = st.text_area("ملاحظات", value=clean_none(item_to_edit.get("notes")), key=f"edit_visa_notes_{edit_id}")
-                if st.button("حفظ التعديلات", type="primary", key=f"btn_save_visa_{edit_id}"):
-                    requests.put(f"{API_URL}/{endpoint}/{edit_id}", json={"owner_id": UID, "employee_name": emp, "visa_number": visa_num, "visa_duration_months": str(v_dur_m), "visa_duration_days": str(v_dur_d), "extension_count": ext_count, "notes": notes, "travel_date": str(travel_d) if travel_d else None, "expiry_date": str(exp_date) if exp_date else None})
-                    st.session_state[f"edit_id_{endpoint}"] = None; st.rerun()
-            elif selected_sub == "عقود الإيجار":
-                c3, c2, c1 = st.columns(3)
-                with c1: tenant = st.text_input("اسم المستاجر", value=clean_none(item_to_edit.get("tenant_name")), key=f"edit_rent_t_{edit_id}"); apt_num = st.text_input("رقم الشقة", value=clean_none(item_to_edit.get("apartment_number")), key=f"edit_rent_a_{edit_id}"); contract_num = st.text_input("رقم العقد", value=clean_none(item_to_edit.get("contract_number")), key=f"edit_rent_c_{edit_id}"); duration = st.text_input("مدة العقد", value=clean_none(item_to_edit.get("contract_duration")), key=f"edit_rent_dur_{edit_id}")
-                with c2: start_d = custom_date_picker("تاريخ بداية العقد", default_date=item_to_edit.get("contract_start_date"), key_suffix=f"edit_rent_start_{edit_id}"); exp = custom_date_picker("تاريخ انتهاء العقد", default_date=item_to_edit.get("contract_expiry"), key_suffix=f"edit_rent_exp_{edit_id}"); next_pay = custom_date_picker("تاريخ الدفعة القادمة", default_date=item_to_edit.get("next_payment_date"), key_suffix=f"edit_rent_next_{edit_id}")
-                with c3: pay_amt = st.text_input("مبلغ الدفعة", value=clean_none(item_to_edit.get("payment_amount")), key=f"edit_rent_amt_{edit_id}"); period_m = st.text_input("فترة الدفع بالشهر", value=clean_none(item_to_edit.get("payment_period_months")), key=f"edit_rent_per_{edit_id}"); ann_rent = st.text_input("مبلغ الايجار السنوي", value=clean_none(item_to_edit.get("annual_rent")), key=f"edit_rent_ann_{edit_id}")
-                if st.button("حفظ التعديلات", type="primary", key=f"btn_save_rent_{edit_id}"):
-                    requests.put(f"{API_URL}/{endpoint}/{edit_id}", json={"owner_id": UID, "tenant_name": tenant, "apartment_number": apt_num, "contract_number": contract_num, "contract_duration": duration, "payment_amount": pay_amt, "payment_period_months": period_m, "annual_rent": ann_rent, "contract_start_date": str(start_d) if start_d else None, "contract_expiry": str(exp) if exp else None, "next_payment_date": str(next_pay) if next_pay else None})
-                    st.session_state[f"edit_id_{endpoint}"] = None; st.rerun()
-            elif selected_sub == "الاشتراكات العامة":
-                c2, c1 = st.columns(2)
-                with c1: srv = st.text_input("اسم الاشتراك او الترخيص", value=clean_none(item_to_edit.get("service_name")), key=f"edit_sub_s_{edit_id}"); sub_num = st.text_input("الرقم", value=clean_none(item_to_edit.get("subscription_number")), key=f"edit_sub_n_{edit_id}")
-                with c2: exp = custom_date_picker("تاريخ الانتهاء", default_date=item_to_edit.get("subscription_expiry"), key_suffix=f"edit_sub_exp_{edit_id}")
-                notes = st.text_area("ملاحظات", value=clean_none(item_to_edit.get("notes")), key=f"edit_sub_notes_{edit_id}")
-                if st.button("حفظ التعديلات", type="primary", key=f"btn_save_sub_{edit_id}"):
-                    requests.put(f"{API_URL}/{endpoint}/{edit_id}", json={"owner_id": UID, "service_name": srv, "subscription_number": sub_num, "notes": notes, "subscription_expiry": str(exp) if exp else None})
-                    st.session_state[f"edit_id_{endpoint}"] = None; st.rerun()
-            if st.button("❌ إلغاء التعديل", key=f"btn_cancel_{edit_id}"): st.session_state[f"edit_id_{endpoint}"] = None; st.rerun()
-            st.markdown("</div>", unsafe_allow_html=True)
-
     if not df.empty:
         if search_q: df = df[df.apply(lambda row: row.astype(str).str.contains(search_q, case=False).any(), axis=1)]
         
+        st.markdown("<h4 style='color:#1E293B; margin-top:20px; font-weight:800; text-align:right;'>جدول البيانات والمتابعة (يمكنك تعديل القيم مباشرة من الجدول أدناه):</h4>", unsafe_allow_html=True)
+        
+        # تجهيز عرض الجدول بشكل احترافي مع إمكانية التعديل
         if selected_sub == "الموظفين":
-            html_table = "<div class='modern-table-wrapper'><table class='modern-table'><thead><tr>"
-            headers = ["م", "اسم الموظف", "رقم الإقامة", "تاريخ الانتهاء", "الحالة", "انتهاء التأمين", "الحالة", "الكفالة", "انتهاء الجواز", "الحالة"]
-            for h in headers: html_table += f"<th>{h}</th>"
-            html_table += "</tr></thead><tbody>"
-            for _, row in df.iterrows():
-                html_table += f"<tr><td>{row['id']}</td><td><b>{display_clean(row.get('name'))}</b></td><td>{display_clean(row.get('iqama_number'))}</td><td>{display_clean(row.get('iqama_expiry'))}</td><td>{format_status(row.get('iqama_expiry'), 'الموظفين')}</td><td>{display_clean(row.get('health_insurance_expiry'))}</td><td>{format_status(row.get('health_insurance_expiry'), 'الموظفين')}</td><td>{display_clean(row.get('sponsorship'))}</td><td>{display_clean(row.get('passport_expiry'))}</td><td>{format_status(row.get('passport_expiry'), 'الموظفين')}</td></tr>"
-            html_table += "</tbody></table></div>"
-            st.markdown(html_table, unsafe_allow_html=True)
-
+            display_df = df[["id", "name", "iqama_number", "sponsorship", "iqama_expiry", "health_insurance_expiry", "passport_expiry"]].copy()
+            display_df.columns = ["م", "الاسم", "رقم الإقامة", "الكفالة", "انتهاء الإقامة", "انتهاء التأمين", "انتهاء الجواز"]
+            edited_df = st.data_editor(display_df[::-1], use_container_width=True, hide_index=True, key=f"tbl_emp")
         elif selected_sub == "السيارات":
-            html_table = "<div class='modern-table-wrapper'><table class='modern-table'><thead><tr>"
-            headers = ["م", "اسم السيارة", "رقم اللوحة", "رقم الاستمارة", "تاريخ الاستمارة", "الحالة", "انتهاء التامين", "الحالة"]
-            for h in headers: html_table += f"<th>{h}</th>"
-            html_table += "</tr></thead><tbody>"
-            for _, row in df.iterrows():
-                html_table += f"<tr><td>{row['id']}</td><td><b>{display_clean(row.get('car_name'))}</b></td><td>{display_clean(row.get('plate_number'))}</td><td>{display_clean(row.get('registration_number'))}</td><td>{display_clean(row.get('registration_expiry'))}</td><td>{format_status(row.get('registration_expiry'), 'السيارات')}</td><td>{display_clean(row.get('insurance_expiry'))}</td><td>{format_status(row.get('insurance_expiry'), 'السيارات')}</td></tr>"
-            html_table += "</tbody></table></div>"
-            st.markdown(html_table, unsafe_allow_html=True)
-
+            display_df = df[["id", "car_name", "plate_number", "registration_number", "registration_expiry", "insurance_expiry"]].copy()
+            display_df.columns = ["م", "السيارة", "اللوحة", "الاستمارة", "انتهاء الاستمارة", "انتهاء التامين"]
+            edited_df = st.data_editor(display_df[::-1], use_container_width=True, hide_index=True, key=f"tbl_car")
         elif selected_sub == "التأشيرات":
-            html_table = "<div class='modern-table-wrapper'><table class='modern-table'><thead><tr>"
-            headers = ["م", "الاسم", "رقم التاشيرة", "تاريخ السفر", "مدة (أشهر)", "مدة (أيام)", "تمديدات", "الانتهاء", "الحالة", "ملاحظات"]
-            for h in headers: html_table += f"<th>{h}</th>"
-            html_table += "</tr></thead><tbody>"
-            for _, row in df.iterrows():
-                html_table += f"<tr><td>{row['id']}</td><td><b>{display_clean(row.get('employee_name'))}</b></td><td>{display_clean(row.get('visa_number'))}</td><td>{display_clean(row.get('travel_date'))}</td><td>{display_clean(row.get('visa_duration_months'))}</td><td>{display_clean(row.get('visa_duration_days'))}</td><td>{display_clean(row.get('extension_count'))}</td><td>{display_clean(row.get('expiry_date'))}</td><td>{format_status(row.get('expiry_date'), 'التأشيرات')}</td><td>{display_clean(row.get('notes'))}</td></tr>"
-            html_table += "</tbody></table></div>"
-            st.markdown(html_table, unsafe_allow_html=True)
-
+            display_df = df[["id", "employee_name", "visa_number", "travel_date", "visa_duration_months", "visa_duration_days", "extension_count", "expiry_date"]].copy()
+            display_df.columns = ["م", "الاسم", "رقم التأشيرة", "تاريخ السفر", "المدة(أشهر)", "المدة(أيام)", "التمديدات", "تاريخ الانتهاء"]
+            edited_df = st.data_editor(display_df[::-1], use_container_width=True, hide_index=True, key=f"tbl_visa")
         elif selected_sub == "عقود الإيجار":
-            html_table = "<div class='modern-table-wrapper'><table class='modern-table'><thead><tr>"
-            headers = ["م", "المستاجر", "الشقة", "العقد", "بداية العقد", "المدة", "الانتهاء", "الحالة", "الدفعة القادمة", "المبلغ", "فترة", "ايجار سنوي"]
-            for h in headers: html_table += f"<th>{h}</th>"
-            html_table += "</tr></thead><tbody>"
-            for _, row in df.iterrows():
-                html_table += f"<tr><td>{row['id']}</td><td><b>{display_clean(row.get('tenant_name'))}</b></td><td>{display_clean(row.get('apartment_number'))}</td><td>{display_clean(row.get('contract_number'))}</td><td>{display_clean(row.get('contract_start_date'))}</td><td>{display_clean(row.get('contract_duration'))}</td><td>{display_clean(row.get('contract_expiry'))}</td><td>{format_status(row.get('contract_expiry'), 'عقود الإيجار')}</td><td>{display_clean(row.get('next_payment_date'))}</td><td>{display_clean(row.get('payment_amount'))}</td><td>{display_clean(row.get('payment_period_months'))}</td><td>{display_clean(row.get('annual_rent'))}</td></tr>"
-            html_table += "</tbody></table></div>"
-            st.markdown(html_table, unsafe_allow_html=True)
-
+            display_df = df[["id", "tenant_name", "apartment_number", "contract_number", "contract_start_date", "contract_expiry", "next_payment_date", "payment_amount"]].copy()
+            display_df.columns = ["م", "المستأجر", "الشقة", "رقم العقد", "بداية العقد", "الانتهاء", "الدفعة القادمة", "المبلغ"]
+            edited_df = st.data_editor(display_df[::-1], use_container_width=True, hide_index=True, key=f"tbl_rent")
         elif selected_sub == "الاشتراكات العامة":
-            html_table = "<div class='modern-table-wrapper'><table class='modern-table'><thead><tr>"
-            headers = ["م", "اسم الاشتراك او الترخيص", "الرقم", "الانتهاء", "الحالة", "ملاحظات"]
-            for h in headers: html_table += f"<th>{h}</th>"
-            html_table += "</tr></thead><tbody>"
-            for _, row in df.iterrows():
-                html_table += f"<tr><td>{row['id']}</td><td><b>{display_clean(row.get('service_name'))}</b></td><td>{display_clean(row.get('subscription_number'))}</td><td>{display_clean(row.get('subscription_expiry'))}</td><td>{format_status(row.get('subscription_expiry'), 'الاشتراكات العامة')}</td><td>{display_clean(row.get('notes'))}</td></tr>"
-            html_table += "</tbody></table></div>"
-            st.markdown(html_table, unsafe_allow_html=True)
-
-        # إدارة السجلات للجميع
-        st.markdown("<h4 style='color:#1E293B; margin-top:10px; font-weight:800; text-align:right;'>أدوات التعديل والحذف:</h4>", unsafe_allow_html=True)
-        for _, row in df.iterrows():
-            with st.container():
-                c_del, c_edit, c_name = st.columns([1, 1, 4])
-                item_name = display_clean(row.get('name') or row.get('car_name') or row.get('employee_name') or row.get('tenant_name') or row.get('service_name'))
-                with c_name: st.markdown(f"<div style='padding:10px 15px; background:#FFFFFF; border-radius:8px; border:1px solid #E9EDF7; text-align:right; font-weight:700; color:#1E293B;'>م: <b>{row['id']}</b> | {item_name}</div>", unsafe_allow_html=True)
-                with c_edit:
-                    if st.button("✏️ تعديل", key=f"e_{row['id']}", use_container_width=True): st.session_state[f"edit_id_{endpoint}"] = row['id']; st.rerun()
-                with c_del:
-                    if st.button("🗑️ حذف", key=f"d_{row['id']}", use_container_width=True): st.session_state['pending_delete'] = {'endpoint': endpoint, 'id': row['id'], 'time': time.time()}; st.rerun()
+            display_df = df[["id", "service_name", "subscription_number", "subscription_expiry", "notes"]].copy()
+            display_df.columns = ["م", "الاشتراك", "الرقم", "الانتهاء", "ملاحظات"]
+            edited_df = st.data_editor(display_df[::-1], use_container_width=True, hide_index=True, key=f"tbl_sub")
+        
+        # أزرار الحفظ السريع للجدول المباشر
+        st.info("💡 يمكنك ضغط حفظ لتطبيق التعديلات التي أجريتها في الجدول مباشرة، أو اختيار 'حذف' للتخلص من سجل.")
+        c_save, c_del, c_id = st.columns([2, 1, 1])
+        with c_id: del_id = st.number_input("أدخل رقم (م) للحذف", min_value=0, step=1, value=0)
+        with c_del:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("🗑️ تأكيد الحذف", use_container_width=True):
+                if del_id > 0:
+                    requests.delete(f"{API_URL}/{endpoint}/{del_id}/{UID}")
+                    st.success("تم الحذف بنجاح!"); time.sleep(0.5); st.rerun()
+        with c_save:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("💾 حفظ الجدول بالكامل", type="primary", use_container_width=True):
+                for _, r in edited_df.iterrows():
+                    rid = r["م"]
+                    if selected_sub == "الموظفين":
+                        requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "name": str(r["الاسم"]), "iqama_number": str(r["رقم الإقامة"]), "sponsorship": str(r["الكفالة"]), "iqama_expiry": str(r["انتهاء الإقامة"]), "health_insurance_expiry": str(r["انتهاء التأمين"]), "passport_expiry": str(r["انتهاء الجواز"])})
+                    elif selected_sub == "السيارات":
+                        requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "car_name": str(r["السيارة"]), "plate_number": str(r["اللوحة"]), "registration_number": str(r["الاستمارة"]), "registration_expiry": str(r["انتهاء الاستمارة"]), "insurance_expiry": str(r["انتهاء التامين"])})
+                    elif selected_sub == "التأشيرات":
+                        requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "employee_name": str(r["الاسم"]), "visa_number": str(r["رقم التأشيرة"]), "visa_duration_months": str(r["المدة(أشهر)"]), "visa_duration_days": str(r["المدة(أيام)"]), "extension_count": int(r["التمديدات"] or 0), "travel_date": str(r["تاريخ السفر"]), "expiry_date": str(r["تاريخ الانتهاء"])})
+                    elif selected_sub == "عقود الإيجار":
+                        requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "tenant_name": str(r["المستأجر"]), "apartment_number": str(r["الشقة"]), "contract_number": str(r["رقم العقد"]), "payment_amount": str(r["المبلغ"]), "contract_start_date": str(r["بداية العقد"]), "contract_expiry": str(r["الانتهاء"]), "next_payment_date": str(r["الدفعة القادمة"])})
+                    elif selected_sub == "الاشتراكات العامة":
+                        requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "service_name": str(r["الاشتراك"]), "subscription_number": str(r["الرقم"]), "notes": str(r["ملاحظات"]), "subscription_expiry": str(r["الانتهاء"])})
+                st.success("تم الحفظ بنجاح!"); time.sleep(0.5); st.rerun()
