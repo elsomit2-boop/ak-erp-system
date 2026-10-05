@@ -24,12 +24,13 @@ except ImportError:
     HAS_HIJRI = False
 
 # ==========================================
-# 1. الإعدادات والـ CSS
+# 1. الإعدادات والـ CSS (بدون أي قوائم جانبية)
 # ==========================================
-st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
+# تم إغلاق القائمة الجانبية افتراضياً لتوفير مساحة كاملة للشريط العلوي
+st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="collapsed")
 API_URL = "https://ak-erp-system.onrender.com"
 
-# تهيئة مدير الكوكيز بالطريقة المباشرة
+# تهيئة مدير الكوكيز
 cookie_manager = stx.CookieManager(key="ak_erp_cookie_manager")
 
 st.markdown("""
@@ -54,59 +55,13 @@ st.markdown("""
         color: #1B2559 !important; 
     }
 
-    /* 4. إخفاء العناصر غير المرغوب فيها */
+    /* 4. إخفاء العناصر غير المرغوب فيها (ومنها زر القائمة الجانبية) */
     header[data-testid="stHeader"] { background-color: transparent !important; direction: ltr !important; }
     .stDeployButton {display: none !important;}
     #MainMenu, footer {display:none !important;}
+    [data-testid="collapsedControl"] {display: none !important;} /* إخفاء سهم القائمة الجانبية للأبد */
 
-    /* 5. تصميم القائمة الجانبية المستقر */
-    section[data-testid="stSidebar"] { 
-        background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important; 
-        border-right: none !important;
-        border-left: none !important; 
-    }
-    
-    section[data-testid="stSidebar"][aria-expanded="true"] {
-        border-left: 1px solid #E2E8F0 !important;
-    }
-    
-    /* 💡 إخفاء عنوان قائمة Option Menu 💡 */
-    .nav-title {
-       display: none !important;
-    }
-
-    /* 💡 منع النصوص من الالتفاف عامودياً أثناء إغلاق القائمة لتجنب التشوه 💡 */
-    [data-testid="stSidebar"] p, 
-    [data-testid="stSidebar"] span, 
-    [data-testid="stSidebar"] label, 
-    [data-testid="stSidebar"] h1, 
-    [data-testid="stSidebar"] h2 {
-        white-space: nowrap !important;
-    }
-    
-    [data-testid="stSidebarUserContent"] {
-        direction: rtl !important;
-        text-align: right !important;
-    }
-    
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] p {
-        color: #0F172A !important;
-    }
-    
-    [data-testid="stSidebar"] hr { 
-        border-color: #E2E8F0 !important; 
-    }
-
-    button[data-testid="stSidebarCollapseButton"] {
-        background-color: #FFFFFF !important;
-        border-radius: 50% !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
-        border: 1px solid #E2E8F0 !important;
-        color: #1B2559 !important;
-        direction: ltr !important; 
-    }
-
-    /* 6. باقي تنسيقات النظام */
+    /* 5. تنسيقات البطاقات والجداول */
     .erp-card { background: #FFFFFF; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
     .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; direction: rtl; border: 1px solid #E2E8F0; }
     .top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 26px; }
@@ -139,7 +94,7 @@ st.markdown("""
     div[data-baseweb="popover"] { z-index: 999999 !important; }
     div[data-baseweb="calendar"] { padding-top: 10px !important; direction: ltr !important; } 
     
-    /* تصميم شبكة التنبيهات */
+    /* 6. تصميم شبكة التنبيهات */
     .alerts-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
@@ -195,7 +150,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. إدارة حالة تسجيل الدخول والكوكيز واستعادة كلمة المرور
+# 2. إدارة حالة تسجيل الدخول والكوكيز 
 # ==========================================
 saved_user_id = cookie_manager.get("ak_erp_user_id")
 saved_user_name = cookie_manager.get("ak_erp_user_name")
@@ -215,123 +170,134 @@ if "reset_step" not in st.session_state:
     st.session_state.reset_step = 0
 
 if st.session_state["user_id"] is None:
-    st.sidebar.title("نظام A.K (ERP)")
-    auth_choice = st.sidebar.radio("بوابة الدخول", ["تسجيل الدخول", "إنشاء حساب جديد كلياً"])
-    
-    if auth_choice == "إنشاء حساب جديد كلياً":
-        st.subheader("تسجيل حساب شركة جديد")
-        new_company = st.text_input("اسم الشركة")
-        new_phone = st.text_input("رقم الجوال")
-        new_email = st.text_input("البريد الإلكتروني")
-        new_password = st.text_input("كلمة المرور", type="password")
+    # شاشة تسجيل الدخول في المنتصف
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="background: linear-gradient(135deg, #4318FF, #3B82F6); display:inline-block; padding:20px; border-radius:20px; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.4);">
+                <h1 style="color: #FFFFFF; margin:0; font-size:3rem; line-height:1;">A.K</h1>
+            </div>
+            <h2 style="color: #0F172A; font-family:'Cairo'; font-weight:800; margin-top:15px;">ERP SYSTEM</h2>
+        </div>
+        """, unsafe_allow_html=True)
         
-        if st.button("تسجيل الحساب"):
-            data = {
-                "full_name": new_company,
-                "phone": new_phone,
-                "email": new_email.strip(),
-                "password": new_password
-            }
-            try:
-                response = requests.post(f"{API_URL}/register", json=data)
-                if response.status_code == 200:
-                    st.success("تم تسجيل الحساب بنجاح! يمكنك الانتقال لتسجيل الدخول.")
-                else:
-                    error_msg = response.json().get("detail", "حدث خطأ أثناء التسجيل")
-                    st.error(error_msg)
-            except requests.exceptions.ConnectionError:
-                st.error("فشل الاتصال بالسيرفر. يرجى التأكد من تشغيل السيرفر الخلفي.")
-
-    elif auth_choice == "تسجيل الدخول":
-        st.subheader("تسجيل الدخول إلى حسابك")
+        auth_choice = st.radio("خيارات الدخول", ["تسجيل الدخول", "إنشاء حساب جديد كلياً"], horizontal=True)
         
-        if st.session_state.reset_step == 0:
-            login_email = st.text_input("البريد الإلكتروني").strip()
-            login_password = st.text_input("كلمة المرور", type="password")
-            remember_me = st.checkbox("تذكرني (البقاء مسجلاً للدخول)")
+        if auth_choice == "إنشاء حساب جديد كلياً":
+            st.subheader("تسجيل حساب شركة جديد")
+            new_company = st.text_input("اسم الشركة")
+            new_phone = st.text_input("رقم الجوال")
+            new_email = st.text_input("البريد الإلكتروني")
+            new_password = st.text_input("كلمة المرور", type="password")
             
-            if st.button("دخول"):
-                data = {"email": login_email, "password": login_password}
+            if st.button("تسجيل الحساب", use_container_width=True):
+                data = {
+                    "full_name": new_company,
+                    "phone": new_phone,
+                    "email": new_email.strip(),
+                    "password": new_password
+                }
                 try:
-                    response = requests.post(f"{API_URL}/login", json=data)
+                    response = requests.post(f"{API_URL}/register", json=data)
                     if response.status_code == 200:
-                        res_data = response.json()
-                        st.session_state["user_id"] = res_data.get("id", 1) 
-                        fetched_name = res_data.get("name")
-                        st.session_state["user_name"] = str(fetched_name) if fetched_name else login_email
-                        
-                        if remember_me:
-                            expire_date = datetime.datetime.now() + datetime.timedelta(days=30)
-                            cookie_manager.set("ak_erp_user_id", str(st.session_state["user_id"]), expires_at=expire_date)
-                            cookie_manager.set("ak_erp_user_name", st.session_state["user_name"], expires_at=expire_date)
-                            
-                        st.success("تم تسجيل الدخول بنجاح!")
-                        time.sleep(1)
-                        st.rerun()
+                        st.success("تم تسجيل الحساب بنجاح! يمكنك الانتقال لتسجيل الدخول.")
                     else:
-                        st.error("البريد الإلكتروني أو كلمة المرور غير صحيحة")
+                        error_msg = response.json().get("detail", "حدث خطأ أثناء التسجيل")
+                        st.error(error_msg)
                 except requests.exceptions.ConnectionError:
-                    st.error("فشل الاتصال بالسيرفر.")
-            
-            st.markdown("---")
-            if st.button("نسيت كلمة المرور؟"):
-                st.session_state.reset_step = 1
-                st.rerun()
+                    st.error("فشل الاتصال بالسيرفر. يرجى التأكد من تشغيل السيرفر الخلفي.")
 
-        elif st.session_state.reset_step == 1:
-            st.info("أدخل بريدك الإلكتروني المسجل لإرسال رمز التحقق (OTP)")
-            reset_email = st.text_input("البريد الإلكتروني المسجل", key="reset_email_input").strip()
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("إرسال الرمز"):
+        elif auth_choice == "تسجيل الدخول":
+            
+            if st.session_state.reset_step == 0:
+                login_email = st.text_input("البريد الإلكتروني").strip()
+                login_password = st.text_input("كلمة المرور", type="password")
+                remember_me = st.checkbox("تذكرني (البقاء مسجلاً للدخول)")
+                
+                if st.button("دخول", use_container_width=True):
+                    data = {"email": login_email, "password": login_password}
                     try:
-                        response = requests.post(f"{API_URL}/forgot-password", json={"email": reset_email})
+                        response = requests.post(f"{API_URL}/login", json=data)
                         if response.status_code == 200:
-                            st.success("تم إرسال الرمز إلى بريدك بنجاح.")
-                            st.session_state.reset_email = reset_email
-                            st.session_state.reset_step = 2
+                            res_data = response.json()
+                            st.session_state["user_id"] = res_data.get("id", 1) 
+                            fetched_name = res_data.get("name")
+                            st.session_state["user_name"] = str(fetched_name) if fetched_name else login_email
+                            
+                            if remember_me:
+                                expire_date = datetime.datetime.now() + datetime.timedelta(days=30)
+                                cookie_manager.set("ak_erp_user_id", str(st.session_state["user_id"]), expires_at=expire_date)
+                                cookie_manager.set("ak_erp_user_name", st.session_state["user_name"], expires_at=expire_date)
+                                
+                            st.success("تم تسجيل الدخول بنجاح!")
+                            time.sleep(1)
                             st.rerun()
                         else:
-                            st.error("البريد الإلكتروني غير مسجل في النظام.")
+                            st.error("البريد الإلكتروني أو كلمة المرور غير صحيحة")
                     except requests.exceptions.ConnectionError:
                         st.error("فشل الاتصال بالسيرفر.")
-            with col2:
-                if st.button("العودة لتسجيل الدخول"):
-                    st.session_state.reset_step = 0
+                
+                st.markdown("---")
+                if st.button("نسيت كلمة المرور؟", use_container_width=True):
+                    st.session_state.reset_step = 1
                     st.rerun()
 
-        elif st.session_state.reset_step == 2:
-            st.info(f"تم إرسال الرمز إلى: {st.session_state.reset_email}")
-            otp_code = st.text_input("رمز التحقق (OTP)")
-            new_pass = st.text_input("كلمة المرور الجديدة", type="password")
-            confirm_pass = st.text_input("تأكيد كلمة المرور", type="password")
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("تغيير كلمة المرور"):
-                    if new_pass != confirm_pass:
-                        st.error("كلمتا المرور غير متطابقتين")
-                    elif not otp_code:
-                        st.error("الرجاء إدخال رمز التحقق")
-                    else:
-                        data = {"email": st.session_state.reset_email, "otp": otp_code, "new_password": new_pass}
+            elif st.session_state.reset_step == 1:
+                st.info("أدخل بريدك الإلكتروني المسجل لإرسال رمز التحقق (OTP)")
+                reset_email = st.text_input("البريد الإلكتروني المسجل", key="reset_email_input").strip()
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("إرسال الرمز", use_container_width=True):
                         try:
-                            response = requests.post(f"{API_URL}/reset-password", json=data)
+                            response = requests.post(f"{API_URL}/forgot-password", json={"email": reset_email})
                             if response.status_code == 200:
-                                st.success("تم تغيير كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.")
-                                st.session_state.reset_step = 0
+                                st.success("تم إرسال الرمز إلى بريدك بنجاح.")
+                                st.session_state.reset_email = reset_email
+                                st.session_state.reset_step = 2
                                 st.rerun()
                             else:
-                                st.error(response.json().get("detail", "رمز التحقق غير صحيح أو منتهي الصلاحية"))
+                                st.error("البريد الإلكتروني غير مسجل في النظام.")
                         except requests.exceptions.ConnectionError:
                             st.error("فشل الاتصال بالسيرفر.")
-            with col2:
-                if st.button("إلغاء"):
-                    st.session_state.reset_step = 0
-                    st.rerun()
+                with col2:
+                    if st.button("العودة لتسجيل الدخول", use_container_width=True):
+                        st.session_state.reset_step = 0
+                        st.rerun()
+
+            elif st.session_state.reset_step == 2:
+                st.info(f"تم إرسال الرمز إلى: {st.session_state.reset_email}")
+                otp_code = st.text_input("رمز التحقق (OTP)")
+                new_pass = st.text_input("كلمة المرور الجديدة", type="password")
+                confirm_pass = st.text_input("تأكيد كلمة المرور", type="password")
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("تغيير كلمة المرور", use_container_width=True):
+                        if new_pass != confirm_pass:
+                            st.error("كلمتا المرور غير متطابقتين")
+                        elif not otp_code:
+                            st.error("الرجاء إدخال رمز التحقق")
+                        else:
+                            data = {"email": st.session_state.reset_email, "otp": otp_code, "new_password": new_pass}
+                            try:
+                                response = requests.post(f"{API_URL}/reset-password", json=data)
+                                if response.status_code == 200:
+                                    st.success("تم تغيير كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.")
+                                    st.session_state.reset_step = 0
+                                    st.rerun()
+                                else:
+                                    st.error(response.json().get("detail", "رمز التحقق غير صحيح أو منتهي الصلاحية"))
+                            except requests.exceptions.ConnectionError:
+                                st.error("فشل الاتصال بالسيرفر.")
+                with col2:
+                    if st.button("إلغاء", use_container_width=True):
+                        st.session_state.reset_step = 0
+                        st.rerun()
     st.stop()
 
 # ==========================================
-# 3. الدوال المساعدة
+# 3. الدوال المساعدة الأساسية
 # ==========================================
 UID = st.session_state["user_id"]
 
@@ -506,114 +472,116 @@ def to_pdf_html_with_dashboard(df, title, g_total=None, g_paid=None, g_rem=None,
     </body></html>"""
     return html_content.encode('utf-8')
 
-# ==========================================
-# 4. بناء القائمة الجانبية
-# ==========================================
-if "current_nav" not in st.session_state: st.session_state.current_nav = "لوحة القيادة"
-if "sub_expanded" not in st.session_state: st.session_state.sub_expanded = False
-if "payroll_expanded" not in st.session_state: st.session_state.payroll_expanded = False
 
-with st.sidebar:
-    user_name_display = str(st.session_state.get("user_name", ""))
-    st.markdown(f"""
-        <div style="text-align: center; padding: 20px 0 10px 0;">
-            <div style="background: linear-gradient(135deg, #4318FF, #3B82F6); display:inline-block; padding:15px; border-radius:15px; margin-bottom:10px; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.4);">
-                <h1 style="color: #FFFFFF; margin:0; font-size:2.5rem; line-height:1;">A.K</h1>
+# ==========================================
+# 4. بناء الشريط العلوي كبديل للقائمة الجانبية
+# ==========================================
+user_name_display = str(st.session_state.get("user_name", ""))
+
+# ترويسة النظام الأنيقة بالمنتصف
+st.markdown(f"""
+    <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 15px 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #E2E8F0; direction: rtl;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="background: linear-gradient(135deg, #4318FF, #3B82F6); padding: 10px 20px; border-radius: 12px; color: white; font-weight: 900; font-size: 24px; letter-spacing: 1px;">A.K</div>
+            <div>
+                <h2 style="margin: 0; color: #0F172A; font-family: 'Cairo'; font-weight: 800; font-size: 20px;">ERP SYSTEM</h2>
+                <p style="margin: 0; color: #64748B; font-size: 13px; font-weight: 700;">المساحة السحابية: {user_name_display}</p>
             </div>
-            <h2 style="color: #0F172A; font-family:'Cairo'; font-weight:800; margin:0; font-size: 1.6rem; letter-spacing: 1px;">ERP SYSTEM</h2>
-            <p style="color: #64748B; font-size:12px; margin-top:5px; font-weight:700;">المساحة السحابية: {user_name_display}</p>
-            <hr style="border-color: #E2E8F0; margin: 20px 10px 10px 10px;">
         </div>
-    """, unsafe_allow_html=True)
-    
-    menu_options = ["لوحة القيادة"]
-    menu_icons = ["house-fill"]
+        <div style="color: #64748B; font-weight: 700; font-size: 14px; text-align: left;">الإصدار المطور (الشريط العلوي) 🚀</div>
+    </div>
+""", unsafe_allow_html=True)
 
-    if st.session_state.sub_expanded:
-        menu_options.append("المتابعة الشاملة ⏷")
-        menu_icons.append("folder2-open")
-        menu_options.extend(["   🔹 الموظفين", "   🔹 السيارات", "   🔹 التأشيرات", "   🔹 عقود الإيجار", "   🔹 الاشتراكات العامة"])
-        menu_icons.extend(["dash", "dash", "dash", "dash", "dash"])
-    else:
-        menu_options.append("المتابعة الشاملة ⏴")
-        menu_icons.append("folder")
-        
-    if st.session_state.payroll_expanded:
-        menu_options.append("نظام الرواتب ⏷")
-        menu_icons.append("cash-stack")
-        menu_options.extend(["   🔹 كشف الرواتب", "   🔹 حركة وسلف", "   🔹 راتب مساند", "   🔹 التقرير السنوي"])
-        menu_icons.extend(["dash", "dash", "dash", "dash"])
-    else:
-        menu_options.append("نظام الرواتب ⏴")
-        menu_icons.append("cash-coin")
+# الشريط العلوي الرئيسي (بديل القائمة الجانبية)
+main_options = ["لوحة القيادة", "المتابعة الشاملة ⏷", "نظام الرواتب ⏷", "إدارة الأقساط", "إعدادات وجداول ⏷", "خروج"]
+main_icons = ["house-fill", "folder-fill", "cash-stack", "credit-card-fill", "gear-fill", "door-open-fill"]
 
-    menu_options.extend(["بيانات المدير", "بيانات العمال", "جداول إضافية", "إدارة الأقساط", "محول التاريخ", "الإعدادات"])
-    
-    # 🚨 تم تصحيح اسم أيقونة "محول التاريخ" هنا لتجنب انهيار مكتبة option_menu 🚨
-    menu_icons.extend(["person-badge-fill", "people-fill", "clipboard-data", "credit-card", "calendar3", "gear-fill"])
-    
-    try: def_idx = menu_options.index(st.session_state.current_nav)
-    except ValueError: def_idx = 0
+selected_main = option_menu(
+    menu_title=None,
+    options=main_options,
+    icons=main_icons,
+    default_index=0,
+    orientation="horizontal",
+    styles={
+        "container": {"padding": "0!important", "background-color": "#FFFFFF", "border-radius": "12px", "box-shadow": "0 4px 10px rgba(0,0,0,0.02)", "margin-bottom": "15px", "border": "1px solid #E2E8F0"},
+        "icon": {"color": "#4318FF", "font-size": "16px"}, 
+        "nav-link": {"font-size": "14px", "font-family": "Cairo", "font-weight": "700", "color": "#1B2559", "margin": "0 5px"},
+        "nav-link-selected": {"background-color": "#4318FF", "color": "white", "font-weight": "800"},
+    }
+)
 
-    selected_item = option_menu(
-        "القائمة الرئيسية", 
-        options=menu_options,
-        icons=menu_icons,
-        default_index=def_idx,
+# نظام التوجيه الذكي باستخدام المتغيرات القديمة لعدم تخريب الكود السفلي
+main_menu = selected_main
+selected_sub = None
+
+if selected_main == "خروج":
+    st.session_state["user_id"] = None
+    st.session_state["user_name"] = ""
+    try:
+        cookie_manager.delete("ak_erp_user_id")
+        cookie_manager.delete("ak_erp_user_name")
+    except: pass
+    st.rerun()
+
+elif selected_main == "المتابعة الشاملة ⏷":
+    main_menu = "المتابعة الشاملة"
+    sub_opts = ["الموظفين", "السيارات", "التأشيرات", "عقود الإيجار", "الاشتراكات العامة"]
+    sub_icons = ["person-fill", "car-front-fill", "file-earmark-text-fill", "house-door-fill", "card-checklist"]
+    selected_sub = option_menu(
+        menu_title=None,
+        options=sub_opts,
+        icons=sub_icons,
+        default_index=0,
+        orientation="horizontal",
         styles={
-            "container": {"background-color": "transparent", "padding": "0", "border": "none"},
-            "icon": {"color": "#3B82F6", "font-size": "18px"}, 
-            "nav-link": {
-                "color": "#0F172A", 
-                "font-size": "15px", 
-                "font-family": "Cairo", 
-                "font-weight": "700", 
-                "margin":"4px 0", 
-                "text-align": "right", 
-                "border-radius": "8px", 
-                "transition": "all 0.3s"
-            },
-            "nav-link-selected": {
-                "background-color": "#2563EB", 
-                "color": "#FFFFFF", 
-                "font-weight": "800"
-            }
+            "container": {"padding": "0!important", "background-color": "#F8FAFC", "border-radius": "10px", "margin-bottom": "25px", "border": "1px solid #E2E8F0"},
+            "icon": {"color": "#3B82F6", "font-size": "14px"},
+            "nav-link": {"font-size": "13px", "font-family": "Cairo", "font-weight": "700", "color": "#475569", "margin": "0"},
+            "nav-link-selected": {"background-color": "#3B82F6", "color": "white"},
         }
     )
 
-    st.markdown("<hr style='border-color: #E2E8F0; margin: 20px 10px;'>", unsafe_allow_html=True)
-    if st.button("🚪 تسجيل الخروج", use_container_width=True):
-        st.session_state["user_id"] = None
-        st.session_state["user_name"] = ""
-        try:
-            cookie_manager.delete("ak_erp_user_id")
-            cookie_manager.delete("ak_erp_user_name")
-        except:
-            pass
-        st.rerun()
-
-if selected_item and selected_item != st.session_state.current_nav:
-    if selected_item == "المتابعة الشاملة ⏴": st.session_state.sub_expanded = True; st.session_state.current_nav = "   🔹 الموظفين"
-    elif selected_item == "المتابعة الشاملة ⏷": st.session_state.sub_expanded = False; st.session_state.current_nav = "لوحة القيادة"
-    elif selected_item == "نظام الرواتب ⏴": st.session_state.payroll_expanded = True; st.session_state.current_nav = "   🔹 كشف الرواتب"
-    elif selected_item == "نظام الرواتب ⏷": st.session_state.payroll_expanded = False; st.session_state.current_nav = "لوحة القيادة"
-    else:
-        st.session_state.sub_expanded = "🔹" in selected_item and selected_item in ["   🔹 الموظفين", "   🔹 السيارات", "   🔹 التأشيرات", "   🔹 عقود الإيجار", "   🔹 الاشتراكات العامة"]
-        st.session_state.payroll_expanded = "🔹" in selected_item and selected_item in ["   🔹 كشف الرواتب", "   🔹 حركة وسلف", "   🔹 راتب مساند", "   🔹 التقرير السنوي"]
-        st.session_state.current_nav = selected_item
-    st.rerun()
-
-actual_selection = st.session_state.current_nav.replace("   🔹 ", "").replace(" ⏷", "").replace(" ⏴", "")
-main_menu = actual_selection
-selected_sub = None
-
-if actual_selection in ["الموظفين", "السيارات", "التأشيرات", "عقود الإيجار", "الاشتراكات العامة"]:
-    main_menu = "المتابعة الشاملة"
-    selected_sub = actual_selection
-elif actual_selection in ["كشف الرواتب", "حركة وسلف", "راتب مساند", "التقرير السنوي"]:
+elif selected_main == "نظام الرواتب ⏷":
     main_menu = "نظام الرواتب"
-    selected_sub = actual_selection
+    sub_opts = ["كشف الرواتب", "حركة وسلف", "راتب مساند", "التقرير السنوي"]
+    sub_icons = ["file-spreadsheet-fill", "wallet-fill", "piggy-bank-fill", "bar-chart-fill"]
+    selected_sub = option_menu(
+        menu_title=None,
+        options=sub_opts,
+        icons=sub_icons,
+        default_index=0,
+        orientation="horizontal",
+        styles={
+            "container": {"padding": "0!important", "background-color": "#F8FAFC", "border-radius": "10px", "margin-bottom": "25px", "border": "1px solid #E2E8F0"},
+            "icon": {"color": "#3B82F6", "font-size": "14px"},
+            "nav-link": {"font-size": "13px", "font-family": "Cairo", "font-weight": "700", "color": "#475569", "margin": "0"},
+            "nav-link-selected": {"background-color": "#3B82F6", "color": "white"},
+        }
+    )
 
+elif selected_main == "إعدادات وجداول ⏷":
+    sub_opts = ["بيانات المدير", "بيانات العمال", "جداول إضافية", "محول التاريخ", "الإعدادات"]
+    sub_icons = ["person-badge-fill", "people-fill", "clipboard-data-fill", "calendar3", "gear-fill"]
+    val = option_menu(
+        menu_title=None,
+        options=sub_opts,
+        icons=sub_icons,
+        default_index=0,
+        orientation="horizontal",
+        styles={
+            "container": {"padding": "0!important", "background-color": "#F8FAFC", "border-radius": "10px", "margin-bottom": "25px", "border": "1px solid #E2E8F0"},
+            "icon": {"color": "#3B82F6", "font-size": "14px"},
+            "nav-link": {"font-size": "13px", "font-family": "Cairo", "font-weight": "700", "color": "#475569", "margin": "0"},
+            "nav-link-selected": {"background-color": "#3B82F6", "color": "white"},
+        }
+    )
+    main_menu = val
+    selected_sub = None
+
+
+# ==========================================
+# 5. الدوال الوظيفية للمسح والتقارير
+# ==========================================
 def render_delete_notification(endpoint_name):
     if 'pending_delete' in st.session_state and st.session_state['pending_delete']['endpoint'] == endpoint_name:
         del_info = st.session_state['pending_delete']
@@ -640,6 +608,7 @@ def render_top_navbar(title, subtitle):
         </div>
     """, unsafe_allow_html=True)
 
+
 # ==========================================
 # 6. التوجيه وعرض الواجهة الرئيسية
 # ==========================================
@@ -665,7 +634,7 @@ if main_menu == "لوحة القيادة":
                 border_color = "#D97706"  
                 bg_color = "#FEF3C7"
                 text_color = "#D97706"
-                icon = "⚠️"
+                icon = "⚠️️"
             
             grid_html += f"""<div class="alert-card-compact" style="border-right: 5px solid {border_color};">
 <div class="alert-icon-box" style="background-color: {bg_color};">{icon}</div>
@@ -877,7 +846,7 @@ elif main_menu == "نظام الرواتب" and selected_sub:
                     save_data = work_df.replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
                     requests.post(f"{API_URL}/annual_report/{a_emp}/{a_year}/sync", json={"owner_id": UID, "records": save_data})
                     st.success("تم التجميع والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
-            with c_p: st.download_button("🖨️️ PDF", to_pdf_html_basic(edited_ann[cols], f"التقرير السنوي - {a_emp} ({a_year})"), f"ann_{a_emp}_{a_year}.html", mime="text/html", use_container_width=True)
+            with c_p: st.download_button("🖨️ PDF", to_pdf_html_basic(edited_ann[cols], f"التقرير السنوي - {a_emp} ({a_year})"), f"ann_{a_emp}_{a_year}.html", mime="text/html", use_container_width=True)
         else: st.info("يرجى إدخال اسم الموظف للعرض.")
 
 elif main_menu == "الإعدادات":
@@ -1311,7 +1280,7 @@ elif main_menu == "المتابعة الشاملة" and selected_sub:
                     c_del, c_edit, c_name = st.columns([1, 1, 4])
                     with c_name: st.markdown(f"<div style='padding:10px 15px; background:#FFFFFF; border-radius:8px; border:1px solid #E9EDF7; text-align:right; font-weight:700; color:#1E293B;'>سجل م: <b>{row['id']}</b> | {display_clean(row.get('car_name'))}</div>", unsafe_allow_html=True)
                     with c_edit:
-                        if st.button("✏️️ تعديل", key=f"e_{row['id']}", use_container_width=True): st.session_state[f"edit_id_{endpoint}"] = row['id']; st.rerun()
+                        if st.button("✏️ تعديل", key=f"e_{row['id']}", use_container_width=True): st.session_state[f"edit_id_{endpoint}"] = row['id']; st.rerun()
                     with c_del:
                         if st.button("🗑️ حذف", key=f"d_{row['id']}", use_container_width=True): st.session_state['pending_delete'] = {'endpoint': endpoint, 'id': row['id'], 'time': time.time()}; st.rerun()
 
