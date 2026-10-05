@@ -323,7 +323,7 @@ if st.session_state["user_id"] is None:
     st.stop()
 
 # ==========================================
-# 3. الدوال المساعدة
+# 3. بناء القائمة الجانبية بعد تسجيل الدخول (نظامك الأصلي كاملاً)
 # ==========================================
 UID = st.session_state["user_id"]
 
@@ -473,47 +473,21 @@ def to_pdf_html_basic(df, title):
     </body></html>"""
     return html_content.encode('utf-8')
 
-def to_pdf_html_with_dashboard(df, title, g_total=None, g_paid=None, g_rem=None, g_late=None):
-    h_date = get_hijri_date_str()
-    dashboard_html = ""
-    if g_total is not None:
-        dashboard_html = f"""
-        <div style="display:flex; justify-content:space-around; background:#F8FAFC; padding:15px; border-radius:10px; border:1px solid #E2E8F0; margin-bottom:20px;">
-            <div style="text-align:center;"><b>إجمالي مبلغ التقسيط</b><br><span style="color:#1B2559; font-size:18px;">{g_total:,.2f}</span></div>
-            <div style="text-align:center;"><b>إجمالي المبلغ المسدد</b><br><span style="color:#0284C7; font-size:18px;">{g_paid:,.2f}</span></div>
-            <div style="text-align:center;"><b>إجمالي المبالغ المتبقية</b><br><span style="color:#D97706; font-size:18px;">{g_rem:,.2f}</span></div>
-            <div style="text-align:center;"><b>إجمالي المبالغ المتأخرة</b><br><span style="color:#EE5D50; font-size:18px;">{g_late:,.2f}</span></div>
-        </div>
-        """
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head><meta charset="UTF-8"><title>تقرير أقساط - A.K ERP</title>
-    <style>@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap'); body {{ font-family: 'Cairo', sans-serif; padding: 20px; direction: rtl; text-align:right;}} .header {{ text-align: center; margin-bottom: 20px; }} table {{ width: 100%; border-collapse: collapse; margin-top: 15px; text-align: center; direction:rtl;}} th, td {{ padding: 12px; border: 1px solid #E9EDF7; }} th {{ background-color: #1E293B !important; color: #FFFFFF !important; font-weight: bold; -webkit-print-color-adjust: exact; color-adjust: exact; }} tr:nth-child(even) {{ background-color: #F8FAFC !important; -webkit-print-color-adjust: exact; color-adjust: exact; }} .print-btn {{ padding: 10px 20px; background: #2563EB; color: white; border: none; border-radius: 6px; cursor: pointer; display: block; margin: auto; }} @media print {{ .no-print {{ display: none !important; }} }}</style>
-    </head><body>
-    <button onclick="window.print()" class="print-btn no-print">🖨️ للطباعة</button>
-    <div class="header"><h2 style="color:#4318FF;">A.K ERP System</h2><h3>{title}</h3><p>الميلادي: {date.today().strftime('%Y-%m-%d')} | الهجري: {h_date}هـ</p></div>
-    {dashboard_html}
-    {df.to_html(index=False, classes='modern-table', border=0)}
-    </body></html>"""
-    return html_content.encode('utf-8')
-
 # ==========================================
-# 4. بناء القائمة الجانبية
+# 4. بناء القائمة الجانبية المحدثة للظهور الواضح
 # ==========================================
 if "current_nav" not in st.session_state: st.session_state.current_nav = "لوحة القيادة"
 if "sub_expanded" not in st.session_state: st.session_state.sub_expanded = False
 if "payroll_expanded" not in st.session_state: st.session_state.payroll_expanded = False
 
 with st.sidebar:
-    user_name_display = str(st.session_state.get("user_name", ""))
-    st.markdown(f"""
+    st.markdown("""
         <div style="text-align: center; padding: 20px 0 10px 0;">
             <div style="background: linear-gradient(135deg, #4318FF, #3B82F6); display:inline-block; padding:15px; border-radius:15px; margin-bottom:10px; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.4);">
                 <h1 style="color: #FFFFFF; margin:0; font-size:2.5rem; line-height:1;">A.K</h1>
             </div>
             <h2 style="color: #0F172A; font-family:'Cairo'; font-weight:800; margin:0; font-size: 1.6rem; letter-spacing: 1px;">ERP SYSTEM</h2>
-            <p style="color: #64748B; font-size:12px; margin-top:5px; font-weight:700;">المساحة السحابية: {user_name_display}</p>
+            <p style="color: #64748B; font-size:12px; margin-top:5px; font-weight:700;">المساحة السحابية: """+st.session_state["user_name"]+"""</p>
             <hr style="border-color: #E2E8F0; margin: 20px 10px 10px 10px;">
         </div>
     """, unsafe_allow_html=True)
@@ -575,11 +549,6 @@ with st.sidebar:
     if st.button("🚪 تسجيل الخروج", use_container_width=True):
         st.session_state["user_id"] = None
         st.session_state["user_name"] = ""
-        try:
-            cookie_manager.delete("ak_erp_user_id")
-            cookie_manager.delete("ak_erp_user_name")
-        except:
-            pass
         st.rerun()
 
 if selected_item != st.session_state.current_nav:
