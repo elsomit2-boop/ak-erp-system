@@ -29,7 +29,7 @@ except ImportError:
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
 
-# تهيئة مدير الكوكيز
+# تهيئة مدير الكوكيز بالطريقة المباشرة
 cookie_manager = stx.CookieManager(key="ak_erp_cookie_manager")
 
 st.markdown("""
@@ -70,6 +70,11 @@ st.markdown("""
         border-left: 1px solid #E2E8F0 !important;
     }
     
+    /* 💡 إخفاء عنوان قائمة Option Menu 💡 */
+    .nav-title {
+       display: none !important;
+    }
+
     /* 💡 منع النصوص من الالتفاف عامودياً أثناء إغلاق القائمة لتجنب التشوه 💡 */
     [data-testid="stSidebar"] p, 
     [data-testid="stSidebar"] span, 
@@ -551,7 +556,7 @@ with st.sidebar:
     except ValueError: def_idx = 0
 
     selected_item = option_menu(
-        None, 
+        "القائمة الرئيسية", 
         options=menu_options,
         icons=menu_icons,
         default_index=def_idx,
@@ -872,7 +877,7 @@ elif main_menu == "نظام الرواتب" and selected_sub:
                     save_data = work_df.replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
                     requests.post(f"{API_URL}/annual_report/{a_emp}/{a_year}/sync", json={"owner_id": UID, "records": save_data})
                     st.success("تم التجميع والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
-            with c_p: st.download_button("🖨️ PDF", to_pdf_html_basic(edited_ann[cols], f"التقرير السنوي - {a_emp} ({a_year})"), f"ann_{a_emp}_{a_year}.html", mime="text/html", use_container_width=True)
+            with c_p: st.download_button("🖨️️ PDF", to_pdf_html_basic(edited_ann[cols], f"التقرير السنوي - {a_emp} ({a_year})"), f"ann_{a_emp}_{a_year}.html", mime="text/html", use_container_width=True)
         else: st.info("يرجى إدخال اسم الموظف للعرض.")
 
 elif main_menu == "الإعدادات":
@@ -1306,7 +1311,7 @@ elif main_menu == "المتابعة الشاملة" and selected_sub:
                     c_del, c_edit, c_name = st.columns([1, 1, 4])
                     with c_name: st.markdown(f"<div style='padding:10px 15px; background:#FFFFFF; border-radius:8px; border:1px solid #E9EDF7; text-align:right; font-weight:700; color:#1E293B;'>سجل م: <b>{row['id']}</b> | {display_clean(row.get('car_name'))}</div>", unsafe_allow_html=True)
                     with c_edit:
-                        if st.button("✏️ تعديل", key=f"e_{row['id']}", use_container_width=True): st.session_state[f"edit_id_{endpoint}"] = row['id']; st.rerun()
+                        if st.button("✏️️ تعديل", key=f"e_{row['id']}", use_container_width=True): st.session_state[f"edit_id_{endpoint}"] = row['id']; st.rerun()
                     with c_del:
                         if st.button("🗑️ حذف", key=f"d_{row['id']}", use_container_width=True): st.session_state['pending_delete'] = {'endpoint': endpoint, 'id': row['id'], 'time': time.time()}; st.rerun()
 
