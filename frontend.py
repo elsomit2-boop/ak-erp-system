@@ -59,7 +59,7 @@ st.markdown("""
     .stDeployButton {display: none !important;}
     #MainMenu, footer {display:none !important;}
 
-    /* 5. تصميم القائمة الجانبية النظيف والمستقر */
+    /* 5. تصميم القائمة الجانبية المستقر */
     section[data-testid="stSidebar"] { 
         background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important; 
         border-right: none !important;
@@ -200,6 +200,7 @@ else:
 if "reset_step" not in st.session_state:
     st.session_state.reset_step = 0
 
+# شاشات الدخول
 if st.session_state["user_id"] is None:
     st.sidebar.title("نظام A.K (ERP)")
     auth_choice = st.sidebar.radio("بوابة الدخول", ["تسجيل الدخول", "إنشاء حساب جديد كلياً"])
@@ -539,7 +540,6 @@ with st.sidebar:
     try: def_idx = menu_options.index(st.session_state.current_nav)
     except ValueError: def_idx = 0
 
-    # القائمة تم إرجاعها للطريقة المستقرة تماماً لإظهارها بنجاح
     selected_item = option_menu(
         menu_title=None, 
         options=menu_options,
@@ -866,7 +866,7 @@ elif main_menu == "نظام الرواتب" and selected_sub:
         else: st.info("يرجى إدخال اسم الموظف للعرض.")
 
 elif main_menu == "الإعدادات":
-    render_top_navbar("إعدادات النظام ⚙️", "التحكم في التنبيهات والألوان والنسخ الاحتياطي")
+    render_top_navbar("إعدادات النظام ⚙️️", "التحكم في التنبيهات والألوان والنسخ الاحتياطي")
     
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
     st.markdown("<h3 style='color:#4318FF; font-family:Cairo; font-weight:800; margin-bottom:15px;'>🛡️ النسخة الاحتياطية السحابية</h3>", unsafe_allow_html=True)
@@ -874,7 +874,7 @@ elif main_menu == "الإعدادات":
     if st.button("📥 إنشاء وتحميل نسخة احتياطية (JSON)", type="primary"):
         res = requests.get(f"{API_URL}/api/backup/{UID}")
         if res.status_code == 200:
-            st.download_button("⬇️️ اضغط هنا للتحميل الآن", data=json.dumps(res.json(), ensure_ascii=False, indent=4), file_name=f"AK_ERP_Backup_{date.today()}.json", mime="application/json")
+            st.download_button("⬇ اضغط هنا للتحميل الآن", data=json.dumps(res.json(), ensure_ascii=False, indent=4), file_name=f"AK_ERP_Backup_{date.today()}.json", mime="application/json")
         else: st.error("حدث خطأ أثناء جلب النسخة.")
     st.markdown("</div>", unsafe_allow_html=True)
     
