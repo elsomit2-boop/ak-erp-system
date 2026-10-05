@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_option_menu import option_menu
 import requests
 import pandas as pd
 import io
@@ -24,88 +23,142 @@ except ImportError:
     HAS_HIJRI = False
 
 # ==========================================
-# 1. الإعدادات والـ CSS
+# 1. الإعدادات والـ CSS 
 # ==========================================
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="collapsed")
 API_URL = "https://ak-erp-system.onrender.com"
 
-# تهيئة مدير الكوكيز بالطريقة المباشرة
 cookie_manager = stx.CookieManager(key="ak_erp_cookie_manager")
 
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;900&display=swap');
-    
-    /* الإعدادات الأساسية والاتجاه (RTL) */
-    .stApp, html, body { 
-        direction: rtl !important; 
-        text-align: right !important; 
-        font-family: 'Cairo', sans-serif !important; 
-        background-color: #F4F7FE !important; 
-    }
-    
-    div[data-testid="stHorizontalBlock"] { flex-direction: row-reverse !important; }
-    
-    .stMarkdown, h1, h2, h3, h4, h5, h6, label, input, textarea, select { 
-        text-align: right !important; 
-        direction: rtl !important; 
-        color: #1B2559 !important; 
-    }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;900&display=swap');
 
-    /* إخفاء العناصر غير المرغوب فيها واستغلال المساحة */
-    header[data-testid="stHeader"] { display: none !important; }
-    [data-testid="stToolbar"] { display: none !important; }
-    [data-testid="manage-app-button"] { display: none !important; }
-    .stAppDeployButton { display: none !important; } 
-    .viewerBadge_container__1QSob { display: none !important; }
-    #MainMenu { display: none !important; }
-    footer { display: none !important; }
-    [data-testid="collapsedControl"] { display: none !important; }
-    
-    .block-container {
-        padding-top: 1.5rem !important;
-        padding-bottom: 1rem !important;
-        max-width: 98% !important; 
-    }
+/* 1. الإعدادات الأساسية والاتجاه (RTL) */
+.stApp, html, body { 
+    direction: rtl !important; 
+    text-align: right !important; 
+    font-family: 'Cairo', sans-serif !important; 
+    background-color: #F4F7FE !important; 
+}
 
-    /* تنسيقات البطاقات والتقارير */
-    .erp-card { background: #FFFFFF; border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
-    .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px; direction: rtl; border: 1px solid #E2E8F0; }
-    .top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 24px; }
-    .top-navbar-titles p { margin: 0; color: #64748B; font-size: 14px; font-weight: 600; margin-top: 4px; }
-    .top-navbar-date { background: #F4F7FE; color: #4318FF; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; direction: rtl;}
+div[data-testid="stHorizontalBlock"] { flex-direction: row-reverse !important; }
 
-    .summary-card { background: #FFFFFF; padding: 25px; border-radius: 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; border-bottom: 4px solid #4318FF; border: 1px solid #E2E8F0;}
-    .summary-card h3 { margin: 0; font-size: 14px; color: #64748B; font-family: 'Cairo'; font-weight: 700;}
-    .summary-card h2 { margin: 10px 0 0 0; font-size: 28px; font-weight: 800; color: #1B2559; font-family: 'Tajawal';}
-    .summary-card.danger { border-bottom-color: #EE5D50; }
-    .summary-card.danger h2 { color: #EE5D50; }
+.stMarkdown, h1, h2, h3, h4, h5, h6, label, input, textarea, select { 
+    text-align: right !important; 
+    direction: rtl !important; 
+    color: #1B2559 !important; 
+}
 
-    .stButton>button { border-radius: 10px !important; font-weight: 800 !important; font-family: 'Cairo', sans-serif !important; transition: all 0.3s ease !important; }
-    button[data-testid="baseButton-primary"] { background: linear-gradient(135deg, #4318FF 0%, #3B82F6 100%) !important; color: white !important; border: none !important; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.2) !important; }
-    button[data-testid="baseButton-primary"]:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 24, 255, 0.4) !important; }
-    
-    .status-badge { padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 800; display: inline-block; text-align: center; white-space: nowrap;}
-    .status-danger { background-color: #FEE2E2; color: #EE5D50; }
-    .status-warning { background-color: #FEF3C7; color: #D97706; }
-    .status-success { background-color: #E0F2FE; color: #0284C7; } 
-    .status-none { background-color: #F1F5F9; color: #64748B; }
+/* 2. الإخفاء الجذري لكل علامات Streamlit المزعجة */
+header[data-testid="stHeader"] { display: none !important; }
+[data-testid="stToolbar"] { display: none !important; }
+[data-testid="manage-app-button"] { display: none !important; }
+.stAppDeployButton { display: none !important; } 
+.viewerBadge_container__1QSob { display: none !important; }
+#MainMenu { display: none !important; }
+footer { display: none !important; }
+[data-testid="collapsedControl"] { display: none !important; }
 
-    div[data-testid="stDataFrame"] { direction: rtl !important; width: 100% !important;}
-    
-    .alerts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; margin-top: 15px; direction: rtl; }
-    .alert-card-compact { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    .alert-card-compact:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-    .alert-icon-box { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-    .alert-text-box { display: flex; flex-direction: column; gap: 4px; }
-    .alert-title-text { color: #1B2559; font-size: 13px; font-weight: 700; line-height: 1.5; }
-    .alert-date-text { color: #64748B; font-size: 12px; font-weight: 600; }
-    .alert-date-text span { font-weight: 800; }
-    </style>
+/* 3. تقليل المساحات العلوية */
+.block-container {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    max-width: 98% !important; 
+}
+
+/* 4. تصميم الشريط العلوي الاحترافي */
+.ak-navbar {
+    background: linear-gradient(90deg, #1E293B 0%, #0F172A 100%);
+    border-radius: 12px;
+    display: flex;
+    direction: rtl; 
+    padding: 0 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+    align-items: center;
+}
+.ak-logo {
+    color: #FFFFFF;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    padding: 15px 20px;
+    background-color: #4318FF;
+    border-radius: 12px;
+    margin-left: 20px;
+    letter-spacing: 1px;
+}
+.ak-nav-item {
+    position: relative;
+    padding: 20px 15px;
+    cursor: pointer;
+}
+.ak-nav-item > a {
+    color: #F8FAFC;
+    text-decoration: none;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    display: block;
+}
+.ak-nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+.ak-nav-item:hover > a {
+    color: #FFFFFF;
+}
+
+/* إخفاء القائمة المنسدلة في HTML وتفعيلها عبر Streamlit Popover */
+/* تم إزالة CSS الخاص بالقوائم المنسدلة السابقة لأنه يسبب مشاكل التوجيه */
+
+/* 5. تنسيقات البطاقات والجداول */
+.erp-card { background: #FFFFFF; border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
+.top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px; direction: rtl; border: 1px solid #E2E8F0; }
+.top-navbar-titles h2 { margin: 0; color: #1B2559; font-weight: 800; font-size: 24px; }
+.top-navbar-titles p { margin: 0; color: #64748B; font-size: 14px; font-weight: 600; margin-top: 4px; }
+.top-navbar-date { background: #F4F7FE; color: #4318FF; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; direction: rtl;}
+
+.summary-card { background: #FFFFFF; padding: 25px; border-radius: 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; border-bottom: 4px solid #4318FF; border: 1px solid #E2E8F0;}
+.summary-card h3 { margin: 0; font-size: 14px; color: #64748B; font-family: 'Cairo'; font-weight: 700;}
+.summary-card h2 { margin: 10px 0 0 0; font-size: 28px; font-weight: 800; color: #1B2559; font-family: 'Tajawal';}
+.summary-card.danger { border-bottom-color: #EE5D50; }
+.summary-card.danger h2 { color: #EE5D50; }
+
+.modern-table-wrapper { width: 100%; overflow-x: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; background: white; border: 1px solid #E2E8F0;}
+.modern-table { width: 100%; border-collapse: collapse; text-align: center; direction: rtl; font-family: 'Cairo';}
+.modern-table th { background-color: #F8FAFC; color: #1B2559; font-weight: 800; font-size: 14px; padding: 16px 12px; border-bottom: 2px solid #E2E8F0; text-transform: uppercase; white-space: nowrap; }
+.modern-table td { padding: 14px 12px; color: #475569; font-weight: 700; font-size: 14px; border-bottom: 1px solid #E2E8F0; vertical-align: middle; white-space: nowrap; transition: background 0.2s; }
+.modern-table tbody tr:hover td { background-color: #F1F5F9; }
+
+.stButton>button { border-radius: 10px !important; font-weight: 800 !important; font-family: 'Cairo', sans-serif !important; transition: all 0.3s ease !important; }
+button[data-testid="baseButton-primary"] { background: linear-gradient(135deg, #4318FF 0%, #3B82F6 100%) !important; color: white !important; border: none !important; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.2) !important; }
+button[data-testid="baseButton-primary"]:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 24, 255, 0.4) !important; }
+
+.status-badge { padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 800; display: inline-block; text-align: center; white-space: nowrap;}
+.status-danger { background-color: #FEE2E2; color: #EE5D50; }
+.status-warning { background-color: #FEF3C7; color: #D97706; }
+.status-success { background-color: #E0F2FE; color: #0284C7; } 
+.status-none { background-color: #F1F5F9; color: #64748B; }
+
+div[data-testid="stDataFrame"] { direction: rtl !important; width: 100% !important;}
+
+/* تصميم شبكة التنبيهات */
+.alerts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; margin-top: 15px; direction: rtl; }
+.alert-card-compact { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.alert-card-compact:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+.alert-icon-box { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.alert-text-box { display: flex; flex-direction: column; gap: 4px; }
+.alert-title-text { color: #1B2559; font-size: 13px; font-weight: 700; line-height: 1.5; }
+.alert-date-text { color: #64748B; font-size: 12px; font-weight: 600; }
+.alert-date-text span { font-weight: 800; }
+</style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. إدارة حالة تسجيل الدخول
+# 2. إدارة حالة تسجيل الدخول واستعادة كلمة المرور
 # ==========================================
 saved_user_id = cookie_manager.get("ak_erp_user_id")
 saved_user_name = cookie_manager.get("ak_erp_user_name")
@@ -226,17 +279,21 @@ if st.session_state["user_id"] is None:
                     if st.button("إلغاء", use_container_width=True): st.session_state.reset_step = 0; st.rerun()
     st.stop()
 
+# ==========================================
+# 3. الشريط العلوي باستخدام أزرار Streamlit (لحل مشكلة التوجيه)
+# ==========================================
+# نعتمد هنا على st.session_state بدلاً من روابط الـ HTML لضمان التوجيه الداخلي دون إعادة تحميل
+if "current_nav" not in st.session_state:
+    st.session_state.current_nav = "dashboard"
 
-# ==========================================
-# 3. بناء الشريط العلوي الأفقي (الآمن والمستقر)
-# ==========================================
-if "main_nav" not in st.session_state: st.session_state.main_nav = "لوحة القيادة"
-if "sub_nav" not in st.session_state: st.session_state.sub_nav = ""
+def set_nav(nav_key):
+    st.session_state.current_nav = nav_key
 
 user_name_display = str(st.session_state.get("user_name", ""))
 
+# ترويسة بسيطة
 st.markdown(f"""
-    <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 15px 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #E2E8F0; direction: rtl;">
+    <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 15px 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #E2E8F0; direction: rtl;">
         <div style="display: flex; align-items: center; gap: 15px;">
             <div style="background: linear-gradient(135deg, #4318FF, #3B82F6); padding: 10px 20px; border-radius: 12px; color: white; font-weight: 900; font-size: 24px; letter-spacing: 1px;">A.K</div>
             <div>
@@ -247,64 +304,54 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-main_opts = ["لوحة القيادة", "المتابعة الشاملة ⏷", "نظام الرواتب ⏷", "إدارة الأقساط", "إعدادات وجداول ⏷", "محول التاريخ", "تسجيل الخروج"]
-main_icons = ["speedometer2", "folder-fill", "cash-stack", "credit-card-fill", "gear-fill", "calendar3", "box-arrow-right"]
+# شريط تنقل باستخدام أعمدة وأزرار منسدلة (Popover)
+nav_cols = st.columns(6)
 
-# قائمة Option Menu أفقية ومستقرة، نعكس خياراتها لتظهر من اليمين لليسار
-selected_main = option_menu(
-    menu_title=None,
-    options=main_opts[::-1],
-    icons=main_icons[::-1],
-    default_index=main_opts[::-1].index(st.session_state.main_nav if st.session_state.main_nav in main_opts else "لوحة القيادة"),
-    orientation="horizontal",
-    styles={
-        "container": {"padding": "0!important", "background-color": "#FFFFFF", "border-radius": "12px", "box-shadow": "0 4px 10px rgba(0,0,0,0.02)", "margin-bottom": "10px", "border": "1px solid #E2E8F0"},
-        "icon": {"color": "#4318FF", "font-size": "16px"}, 
-        "nav-link": {"font-size": "14px", "font-family": "Cairo", "font-weight": "700", "color": "#1B2559", "margin": "0 2px"},
-        "nav-link-selected": {"background-color": "#4318FF", "color": "white", "font-weight": "800"},
-    }
-)
+with nav_cols[5]:
+    if st.button("📊 لوحة القيادة", use_container_width=True):
+        set_nav("dashboard")
+        st.rerun()
 
-if selected_main != st.session_state.main_nav:
-    st.session_state.main_nav = selected_main
-    if selected_main == "المتابعة الشاملة ⏷": st.session_state.sub_nav = "الموظفين"
-    elif selected_main == "نظام الرواتب ⏷": st.session_state.sub_nav = "كشف الرواتب"
-    elif selected_main == "إعدادات وجداول ⏷": st.session_state.sub_nav = "بيانات المدير"
-    else: st.session_state.sub_nav = ""
-    st.rerun()
+with nav_cols[4]:
+    with st.popover("📁 المتابعة الشاملة ⏷", use_container_width=True):
+        if st.button("الموظفين", use_container_width=True): set_nav("employees"); st.rerun()
+        if st.button("السيارات", use_container_width=True): set_nav("cars"); st.rerun()
+        if st.button("التأشيرات", use_container_width=True): set_nav("visas"); st.rerun()
+        if st.button("عقود الإيجار", use_container_width=True): set_nav("rents"); st.rerun()
+        if st.button("الاشتراكات العامة", use_container_width=True): set_nav("subs"); st.rerun()
 
-# القوائم الفرعية 
-if st.session_state.main_nav == "المتابعة الشاملة ⏷":
-    sub_opts = ["الموظفين", "السيارات", "التأشيرات", "عقود الإيجار", "الاشتراكات العامة"]
-    s_cols = st.columns(len(sub_opts))
-    for i, s in enumerate(reversed(sub_opts)):
-         if s_cols[i].button(s, type="primary" if st.session_state.sub_nav == s else "secondary", use_container_width=True):
-             st.session_state.sub_nav = s; st.rerun()
-elif st.session_state.main_nav == "نظام الرواتب ⏷":
-    sub_opts = ["كشف الرواتب", "حركة وسلف", "راتب مساند", "التقرير السنوي"]
-    s_cols = st.columns(len(sub_opts))
-    for i, s in enumerate(reversed(sub_opts)):
-         if s_cols[i].button(s, type="primary" if st.session_state.sub_nav == s else "secondary", use_container_width=True):
-             st.session_state.sub_nav = s; st.rerun()
-elif st.session_state.main_nav == "إعدادات وجداول ⏷":
-    sub_opts = ["بيانات المدير", "بيانات العمال", "جداول إضافية", "الإعدادات"]
-    s_cols = st.columns(len(sub_opts))
-    for i, s in enumerate(reversed(sub_opts)):
-         if s_cols[i].button(s, type="primary" if st.session_state.sub_nav == s else "secondary", use_container_width=True):
-             st.session_state.sub_nav = s; st.rerun()
+with nav_cols[3]:
+    with st.popover("💰 نظام الرواتب ⏷", use_container_width=True):
+        if st.button("كشف الرواتب", use_container_width=True): set_nav("payroll"); st.rerun()
+        if st.button("حركة وسلف", use_container_width=True): set_nav("loans"); st.rerun()
+        if st.button("راتب مساند", use_container_width=True): set_nav("support"); st.rerun()
+        if st.button("التقرير السنوي", use_container_width=True): set_nav("annual"); st.rerun()
 
-if st.session_state.main_nav == "تسجيل الخروج":
-    st.session_state["user_id"] = None
-    st.session_state["user_name"] = ""
-    try: cookie_manager.delete("ak_erp_user_id"); cookie_manager.delete("ak_erp_user_name")
-    except: pass
-    st.rerun()
+with nav_cols[2]:
+    if st.button("💳 إدارة الأقساط", use_container_width=True):
+        set_nav("installments")
+        st.rerun()
 
-# توجيه المتغيرات 
-main_menu = st.session_state.main_nav
-selected_sub = st.session_state.sub_nav
+with nav_cols[1]:
+    with st.popover("⚙️ إعدادات وجداول ⏷", use_container_width=True):
+        if st.button("بيانات المدير", use_container_width=True): set_nav("manager"); st.rerun()
+        if st.button("بيانات العمال", use_container_width=True): set_nav("workers"); st.rerun()
+        if st.button("جداول إضافية", use_container_width=True): set_nav("extra"); st.rerun()
+        if st.button("محول التاريخ", use_container_width=True): set_nav("calendar"); st.rerun()
+        if st.button("الإعدادات", use_container_width=True): set_nav("settings"); st.rerun()
 
-if main_menu in ["إعدادات وجداول ⏷", "المتابعة الشاملة ⏷", "نظام الرواتب ⏷"]: main_menu = selected_sub
+with nav_cols[0]:
+    if st.button("🚪 خروج", use_container_width=True):
+        st.session_state["user_id"] = None
+        st.session_state["user_name"] = ""
+        try:
+            cookie_manager.delete("ak_erp_user_id")
+            cookie_manager.delete("ak_erp_user_name")
+        except: pass
+        st.rerun()
+
+st.markdown("<hr style='margin-top: 5px; margin-bottom: 20px; border-color: #E2E8F0;'>", unsafe_allow_html=True)
+
 
 # ==========================================
 # 4. الدوال المساعدة
@@ -433,10 +480,11 @@ def render_top_navbar(title, subtitle):
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 5. الواجهة الرئيسية
+# 5. الواجهة الرئيسية والتوجيه
 # ==========================================
+current_nav = st.session_state.current_nav
 
-if main_menu == "لوحة القيادة":
+if current_nav == "dashboard":
     render_top_navbar("لوحة القيادة 📊", "نظرة عامة على التنبيهات وحالة النظام")
     data = fetch_data(f"api/daily-report/{UID}")
     alerts = data.get("التفاصيل", []) if isinstance(data, dict) else []
@@ -457,7 +505,7 @@ if main_menu == "لوحة القيادة":
                 border_color = "#D97706"  
                 bg_color = "#FEF3C7"
                 text_color = "#D97706"
-                icon = "⚠️"
+                icon = "⚠️️"
             
             grid_html += f"""<div class="alert-card-compact" style="border-right: 5px solid {border_color};">
 <div class="alert-icon-box" style="background-color: {bg_color};">{icon}</div>
@@ -471,7 +519,7 @@ if main_menu == "لوحة القيادة":
     else:
         st.success("🎉 لا توجد أي تنبيهات حالياً. كل الأمور ممتازة!")
 
-elif main_menu == "محول التاريخ":
+elif current_nav == "calendar":
     render_top_navbar("محول التاريخ 🔄", "تحويل دقيق ومباشر بين التاريخ الميلادي والهجري")
     if not HAS_HIJRI: st.error("مكتبة التحويل غير مثبتة.")
     else:
@@ -497,7 +545,7 @@ elif main_menu == "محول التاريخ":
                 except OverflowError: st.error("تاريخ هجري غير صحيح.")
         st.markdown("</div>", unsafe_allow_html=True)
 
-elif main_menu == "كشف الرواتب":
+elif current_nav == "payroll":
     render_top_navbar("كشف الرواتب", "حسابات دقيقة وتفاعلية مرنة")
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
     c_y, c_m = st.columns([1, 2])
@@ -544,7 +592,7 @@ elif main_menu == "كشف الرواتب":
         requests.post(f"{API_URL}/payroll/{p_year}/{p_month}/sync", json={"owner_id": UID, "records": save_data})
         st.success("تم الحساب والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
 
-elif main_menu == "حركة وسلف":
+elif current_nav == "loans":
     render_top_navbar("حركة وسلف", "إدارة حركات سلف الموظفين")
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
     c_y, c_e = st.columns([1, 2])
@@ -580,7 +628,7 @@ elif main_menu == "حركة وسلف":
             st.success("تم الحفظ!"); time.sleep(0.5); st.rerun()
     else: st.info("الرجاء إدخال اسم الموظف لبدء الإدخال.")
 
-elif main_menu == "راتب مساند":
+elif current_nav == "support":
     render_top_navbar("راتب مساند", "إدارة الرواتب المساندة")
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
     s_year = st.number_input("السنة:", min_value=2000, value=date.today().year, key="sy")
@@ -613,7 +661,7 @@ elif main_menu == "راتب مساند":
         requests.post(f"{API_URL}/support_salary/{s_year}/sync", json={"owner_id": UID, "records": save_data})
         st.success("تم الحساب والحفظ!"); time.sleep(0.5); st.rerun()
 
-elif main_menu == "التقرير السنوي":
+elif current_nav == "annual":
     render_top_navbar("التقرير السنوي", "التقرير السنوي المجمع للموظفين")
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
     c_y, c_e = st.columns([1, 2])
@@ -660,7 +708,7 @@ elif main_menu == "التقرير السنوي":
             st.success("تم التجميع والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
     else: st.info("يرجى إدخال اسم الموظف للعرض.")
 
-elif main_menu == "الإعدادات":
+elif current_nav == "settings":
     render_top_navbar("إعدادات النظام ⚙", "التحكم في التنبيهات والألوان والنسخ الاحتياطي")
     
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
@@ -691,12 +739,13 @@ elif main_menu == "الإعدادات":
         st.markdown("<hr style='border:1px solid #E9EDF7;'>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-elif main_menu in ["بيانات المدير", "بيانات العمال", "جداول إضافية"]:
-    icon_n = "💼" if main_menu == "بيانات المدير" else "👷" if main_menu == "بيانات العمال" else "📋"
-    db_endpoint = "manager_pages" if main_menu == "بيانات المدير" else "custom_pages" if main_menu == "بيانات العمال" else "extra_pages"
-    rec_endpoint = "manager_records" if main_menu == "بيانات المدير" else "custom_records" if main_menu == "بيانات العمال" else "extra_records"
+elif current_nav in ["manager", "workers", "extra"]:
+    icon_n = "💼" if current_nav == "manager" else "👷" if current_nav == "workers" else "📋"
+    ar_title = "بيانات المدير" if current_nav == "manager" else "بيانات العمال" if current_nav == "workers" else "جداول إضافية"
+    db_endpoint = "manager_pages" if current_nav == "manager" else "custom_pages" if current_nav == "workers" else "extra_pages"
+    rec_endpoint = "manager_records" if current_nav == "manager" else "custom_records" if current_nav == "workers" else "extra_records"
     
-    render_top_navbar(f"{main_menu} {icon_n}", "إدارة الجداول المخصصة بشكل حر")
+    render_top_navbar(f"{ar_title} {icon_n}", "إدارة الجداول المخصصة بشكل حر")
     pages_data = fetch_data(f"{db_endpoint}/{UID}")
     
     st.markdown("<div class='erp-card' style='padding: 15px 20px;'>", unsafe_allow_html=True)
@@ -772,7 +821,7 @@ elif main_menu in ["بيانات المدير", "بيانات العمال", "ج
                         requests.delete(f"{API_URL}/{db_endpoint}/{active_page_id}/{UID}")
                         st.session_state[f"active_{db_endpoint}"] = None; st.rerun()
 
-elif main_menu == "إدارة الأقساط":
+elif current_nav == "installments":
     render_top_navbar("إدارة الأقساط 💰", "المتابعة المالية الذكية وجدولة الدفعات")
     endpoint = "installments"; selected_sub = "إدارة الأقساط"; raw_data = fetch_data(f"{endpoint}/{UID}")
     render_delete_notification(endpoint); manage_id = st.session_state.get("manage_installment_id", None)
@@ -839,7 +888,7 @@ elif main_menu == "إدارة الأقساط":
             
         st.markdown(f"""
         <div style="display: flex; gap: 15px; margin-bottom: 25px; direction: rtl;">
-            <div class="summary-card" style="flex:1;"><h3>إجمالي مبال العقود</h3><h2>{g_total:,.2f}</h2></div>
+            <div class="summary-card" style="flex:1;"><h3>إجمالي مبالغ العقود</h3><h2>{g_total:,.2f}</h2></div>
             <div class="summary-card" style="flex:1; border-bottom-color:#0284C7;"><h3>إجمالي المدفوعات للشركة</h3><h2 style="color:#0284C7;">{g_paid:,.2f}</h2></div>
             <div class="summary-card" style="flex:1; border-bottom-color:#D97706;"><h3>الديون المتبقية للشركة</h3><h2 style="color:#D97706;">{g_rem:,.2f}</h2></div>
             <div class="summary-card danger" style="flex:1;"><h3>المتأخرات</h3><h2>{g_late:,.2f}</h2></div>
@@ -889,12 +938,14 @@ elif main_menu == "إدارة الأقساط":
                         with c_manage:
                             if st.button("📊 إدارة الأقساط", key=f"manage_inst_{row['id']}", use_container_width=True): st.session_state["manage_installment_id"] = row['id']; st.rerun()
                         with c_del:
-                            if st.button("🗑️️ حذف", key=f"del_inst_{row['id']}", use_container_width=True): st.session_state['pending_delete'] = {'endpoint': endpoint, 'id': row['id'], 'time': time.time()}; st.rerun()
+                            if st.button("🗑️ حذف", key=f"del_inst_{row['id']}", use_container_width=True): st.session_state['pending_delete'] = {'endpoint': endpoint, 'id': row['id'], 'time': time.time()}; st.rerun()
             else: st.info("لا توجد نتائج للبحث.")
 
-elif main_menu in ["الموظفين", "السيارات", "التأشيرات", "عقود الإيجار", "الاشتراكات العامة"]:
-    selected_sub = main_menu
-    endpoint = {"الموظفين":"employees", "السيارات":"vehicles", "التأشيرات":"visas", "عقود الإيجار":"rents", "الاشتراكات العامة":"subscriptions"}[selected_sub]
+elif current_nav in ["employees", "cars", "visas", "rents", "subs"]:
+    mapped_subs = {"employees": "الموظفين", "cars": "السيارات", "visas": "التأشيرات", "rents": "عقود الإيجار", "subs": "الاشتراكات العامة"}
+    selected_sub = mapped_subs[current_nav]
+    endpoint = current_nav
+    if endpoint == "subs": endpoint = "subscriptions" 
     
     render_top_navbar(f"إدارة {selected_sub}", "إضافة، تعديل سريع للبيانات، وإدارة السجلات بسهولة")
     render_delete_notification(endpoint)
