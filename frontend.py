@@ -59,39 +59,6 @@ st.markdown("""
     .stDeployButton {display: none !important;}
     #MainMenu, footer {display:none !important;}
 
-    /* 5. تصميم القائمة الجانبية المستقر */
-    section[data-testid="stSidebar"] { 
-        background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important; 
-        border-right: none !important;
-        border-left: none !important; 
-    }
-    
-    section[data-testid="stSidebar"][aria-expanded="true"] {
-        border-left: 1px solid #E2E8F0 !important;
-    }
-    
-    [data-testid="stSidebarUserContent"] {
-        direction: rtl !important;
-        text-align: right !important;
-    }
-    
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] p {
-        color: #0F172A !important;
-    }
-    
-    [data-testid="stSidebar"] hr { 
-        border-color: #E2E8F0 !important; 
-    }
-
-    button[data-testid="stSidebarCollapseButton"] {
-        background-color: #FFFFFF !important;
-        border-radius: 50% !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
-        border: 1px solid #E2E8F0 !important;
-        color: #1B2559 !important;
-        direction: ltr !important; 
-    }
-
     /* 6. باقي تنسيقات النظام */
     .erp-card { background: #FFFFFF; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0 !important; margin-bottom: 25px; direction: rtl !important; }
     .top-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; direction: rtl; border: 1px solid #E2E8F0; }
@@ -200,7 +167,6 @@ else:
 if "reset_step" not in st.session_state:
     st.session_state.reset_step = 0
 
-# شاشات الدخول
 if st.session_state["user_id"] is None:
     st.sidebar.title("نظام A.K (ERP)")
     auth_choice = st.sidebar.radio("بوابة الدخول", ["تسجيل الدخول", "إنشاء حساب جديد كلياً"])
@@ -541,7 +507,7 @@ with st.sidebar:
     except ValueError: def_idx = 0
 
     selected_item = option_menu(
-        menu_title=None, 
+        menu_title="القائمة الرئيسية", 
         options=menu_options,
         icons=menu_icons,
         default_index=def_idx,
@@ -562,6 +528,9 @@ with st.sidebar:
                 "background-color": "#2563EB", 
                 "color": "#FFFFFF", 
                 "font-weight": "800"
+            },
+            "menu-title": {
+                "display": "none"
             }
         }
     )
@@ -862,11 +831,11 @@ elif main_menu == "نظام الرواتب" and selected_sub:
                     save_data = work_df.replace({np.nan: "", None: ""}).astype(str).to_dict(orient="records")
                     requests.post(f"{API_URL}/annual_report/{a_emp}/{a_year}/sync", json={"owner_id": UID, "records": save_data})
                     st.success("تم التجميع والحفظ بنجاح!"); time.sleep(0.5); st.rerun()
-            with c_p: st.download_button("🖨️ PDF", to_pdf_html_basic(edited_ann[cols], f"التقرير السنوي - {a_emp} ({a_year})"), f"ann_{a_emp}_{a_year}.html", mime="text/html", use_container_width=True)
+            with c_p: st.download_button("🖨️️ PDF", to_pdf_html_basic(edited_ann[cols], f"التقرير السنوي - {a_emp} ({a_year})"), f"ann_{a_emp}_{a_year}.html", mime="text/html", use_container_width=True)
         else: st.info("يرجى إدخال اسم الموظف للعرض.")
 
 elif main_menu == "الإعدادات":
-    render_top_navbar("إعدادات النظام ⚙️️", "التحكم في التنبيهات والألوان والنسخ الاحتياطي")
+    render_top_navbar("إعدادات النظام ⚙", "التحكم في التنبيهات والألوان والنسخ الاحتياطي")
     
     st.markdown("<div class='erp-card'>", unsafe_allow_html=True)
     st.markdown("<h3 style='color:#4318FF; font-family:Cairo; font-weight:800; margin-bottom:15px;'>🛡️ النسخة الاحتياطية السحابية</h3>", unsafe_allow_html=True)
@@ -1355,4 +1324,4 @@ elif main_menu == "المتابعة الشاملة" and selected_sub:
                     with c_edit:
                         if st.button("✏️ تعديل", key=f"e_{row['id']}", use_container_width=True): st.session_state[f"edit_id_{endpoint}"] = row['id']; st.rerun()
                     with c_del:
-                        if st.button("🗑️ حذف", key=f"d_{row['id']}", use_container_width=True): st.session_state['pending_delete'] = {'endpoint': endpoint, 'id': row['id'], 'time': time.time()}; st.rerun()
+                        if st.button("🗑️️ حذف", key=f"d_{row['id']}", use_container_width=True): st.session_state['pending_delete'] = {'endpoint': endpoint, 'id': row['id'], 'time': time.time()}; st.rerun()
