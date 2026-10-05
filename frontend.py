@@ -29,7 +29,7 @@ except ImportError:
 st.set_page_config(page_title="A.K ERP System", page_icon="💠", layout="wide", initial_sidebar_state="expanded")
 API_URL = "https://ak-erp-system.onrender.com"
 
-# تهيئة مدير الكوكيز بالطريقة المباشرة
+# تهيئة مدير الكوكيز
 cookie_manager = stx.CookieManager(key="ak_erp_cookie_manager")
 
 st.markdown("""
@@ -68,6 +68,15 @@ st.markdown("""
     
     section[data-testid="stSidebar"][aria-expanded="true"] {
         border-left: 1px solid #E2E8F0 !important;
+    }
+    
+    /* 💡 منع النصوص من الالتفاف عامودياً أثناء إغلاق القائمة لتجنب التشوه 💡 */
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] span, 
+    [data-testid="stSidebar"] label, 
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2 {
+        white-space: nowrap !important;
     }
     
     [data-testid="stSidebarUserContent"] {
@@ -534,17 +543,37 @@ with st.sidebar:
         menu_icons.append("cash-coin")
 
     menu_options.extend(["بيانات المدير", "بيانات العمال", "جداول إضافية", "إدارة الأقساط", "محول التاريخ", "الإعدادات"])
-    menu_icons.extend(["person-badge-fill", "people-fill", "clipboard-data", "credit-card", "calendar-range", "gear-fill"])
+    
+    # 🚨 تم تصحيح اسم أيقونة "محول التاريخ" هنا لتجنب انهيار مكتبة option_menu 🚨
+    menu_icons.extend(["person-badge-fill", "people-fill", "clipboard-data", "credit-card", "calendar3", "gear-fill"])
     
     try: def_idx = menu_options.index(st.session_state.current_nav)
     except ValueError: def_idx = 0
 
-    # تم تبسيط استدعاء القائمة لتجنب أي تعارض في الأنماط أو الـ CSS
     selected_item = option_menu(
-        "", 
-        menu_options,
+        None, 
+        options=menu_options,
         icons=menu_icons,
         default_index=def_idx,
+        styles={
+            "container": {"background-color": "transparent", "padding": "0", "border": "none"},
+            "icon": {"color": "#3B82F6", "font-size": "18px"}, 
+            "nav-link": {
+                "color": "#0F172A", 
+                "font-size": "15px", 
+                "font-family": "Cairo", 
+                "font-weight": "700", 
+                "margin":"4px 0", 
+                "text-align": "right", 
+                "border-radius": "8px", 
+                "transition": "all 0.3s"
+            },
+            "nav-link-selected": {
+                "background-color": "#2563EB", 
+                "color": "#FFFFFF", 
+                "font-weight": "800"
+            }
+        }
     )
 
     st.markdown("<hr style='border-color: #E2E8F0; margin: 20px 10px;'>", unsafe_allow_html=True)
