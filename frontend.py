@@ -411,16 +411,7 @@ if st.session_state["user_id"] is None:
 # ==========================================
 # 3. الشريط العلوي HTML/CSS - بدون إعادة تحميل (SPA)
 # ==========================================
-st.markdown("""
-<script>
-function changeNav(navName) {
-    const url = new URL(window.location);
-    url.searchParams.set('nav', navName);
-    window.history.pushState({}, '', url);
-    window.dispatchEvent(new Event('popstate'));
-}
-</script>
-""", unsafe_allow_html=True)
+# قمنا بإزالة سكريبت الجافاسكريبت واستخدام روابط اعتيادية مع target="_self"
 
 query_params = st.query_params
 current_nav = query_params.get("nav", "dashboard")
@@ -441,40 +432,40 @@ user_name_display = str(st.session_state.get("user_name", ""))
 st.markdown(f"""
 <div class="ak-navbar">
 <div class="ak-logo">A.K</div>
-<div class="ak-nav-item"><a href="javascript:void(0)" onclick="changeNav('dashboard')">📊 لوحة القيادة</a></div>
+<div class="ak-nav-item"><a href="/?nav=dashboard" target="_self">📊 لوحة القيادة</a></div>
 <div class="ak-nav-item">
 <a href="javascript:void(0)">📁 المتابعة الشاملة ⏷</a>
 <div class="ak-dropdown">
-<a href="javascript:void(0)" onclick="changeNav('employees')">الموظفين</a>
-<a href="javascript:void(0)" onclick="changeNav('cars')">السيارات</a>
-<a href="javascript:void(0)" onclick="changeNav('visas')">التأشيرات</a>
-<a href="javascript:void(0)" onclick="changeNav('rents')">عقود الإيجار</a>
-<a href="javascript:void(0)" onclick="changeNav('subs')">الاشتراكات العامة</a>
+<a href="/?nav=employees" target="_self">الموظفين</a>
+<a href="/?nav=cars" target="_self">السيارات</a>
+<a href="/?nav=visas" target="_self">التأشيرات</a>
+<a href="/?nav=rents" target="_self">عقود الإيجار</a>
+<a href="/?nav=subs" target="_self">الاشتراكات العامة</a>
 </div>
 </div>
 <div class="ak-nav-item">
 <a href="javascript:void(0)">💰 نظام الرواتب ⏷</a>
 <div class="ak-dropdown">
-<a href="javascript:void(0)" onclick="changeNav('payroll')">كشف الرواتب</a>
-<a href="javascript:void(0)" onclick="changeNav('loans')">حركة وسلف</a>
-<a href="javascript:void(0)" onclick="changeNav('support')">راتب مساند</a>
-<a href="javascript:void(0)" onclick="changeNav('annual')">التقرير السنوي</a>
+<a href="/?nav=payroll" target="_self">كشف الرواتب</a>
+<a href="/?nav=loans" target="_self">حركة وسلف</a>
+<a href="/?nav=support" target="_self">راتب مساند</a>
+<a href="/?nav=annual" target="_self">التقرير السنوي</a>
 </div>
 </div>
-<div class="ak-nav-item"><a href="javascript:void(0)" onclick="changeNav('installments')">💳 إدارة الأقساط</a></div>
+<div class="ak-nav-item"><a href="/?nav=installments" target="_self">💳 إدارة الأقساط</a></div>
 <div class="ak-nav-item">
 <a href="javascript:void(0)">⚙️ إعدادات وجداول ⏷</a>
 <div class="ak-dropdown">
-<a href="javascript:void(0)" onclick="changeNav('manager')">بيانات المدير</a>
-<a href="javascript:void(0)" onclick="changeNav('workers')">بيانات العمال</a>
-<a href="javascript:void(0)" onclick="changeNav('extra')">جداول إضافية</a>
-<a href="javascript:void(0)" onclick="changeNav('calendar')">محول التاريخ</a>
-<a href="javascript:void(0)" onclick="changeNav('settings')">الإعدادات</a>
+<a href="/?nav=manager" target="_self">بيانات المدير</a>
+<a href="/?nav=workers" target="_self">بيانات العمال</a>
+<a href="/?nav=extra" target="_self">جداول إضافية</a>
+<a href="/?nav=calendar" target="_self">محول التاريخ</a>
+<a href="/?nav=settings" target="_self">الإعدادات</a>
 </div>
 </div>
 <div style="flex-grow: 1;"></div>
 <div class="ak-nav-item" style="color:#64748B; font-size:13px; font-weight:700;">{user_name_display} :المساحة السحابية</div>
-<div class="ak-nav-item"><a href="javascript:void(0)" onclick="changeNav('logout')" style="color:#EE5D50;">🚪 خروج</a></div>
+<div class="ak-nav-item"><a href="/?nav=logout" target="_self" style="color:#EE5D50;">🚪 خروج</a></div>
 </div>
 """, unsafe_allow_html=True)
 
