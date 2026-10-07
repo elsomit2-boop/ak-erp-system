@@ -710,6 +710,7 @@ def render_delete_notification(endpoint_name):
             del st.session_state['pending_delete']
             st.markdown(f"<h3 style='color:#059669; text-align:center;'>✅ تم الحذف بنجاح!</h3>", unsafe_allow_html=True)
             time.sleep(1)
+            fetch_data.clear()
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -926,6 +927,7 @@ elif current_nav == "payroll":
                 requests.post(f"{API_URL}/payroll/{p_year}/{p_month}/sync", json={"owner_id": UID, "records": save_data})
                 st.success("تم الحساب والحفظ بنجاح!")
                 time.sleep(0.5)
+                fetch_data.clear()
                 st.rerun()
             except Exception as e:
                 st.error(f"حدث خطأ في الاتصال: {e}")
@@ -995,6 +997,7 @@ elif current_nav == "loans":
                     requests.post(f"{API_URL}/loans/{l_emp}/{l_year}/sync", json={"owner_id": UID, "records": save_data})
                     st.success("تم الحفظ!")
                     time.sleep(0.5)
+                    fetch_data.clear()
                     st.rerun()
                 except Exception as e:
                     st.error(f"حدث خطأ في الاتصال: {e}")
@@ -1050,6 +1053,7 @@ elif current_nav == "support":
                 requests.post(f"{API_URL}/support_salary/{s_year}/sync", json={"owner_id": UID, "records": save_data})
                 st.success("تم الحساب والحفظ!")
                 time.sleep(0.5)
+                fetch_data.clear()
                 st.rerun()
             except Exception as e:
                 st.error(f"حدث خطأ في الاتصال: {e}")
@@ -1116,6 +1120,7 @@ elif current_nav == "annual":
                     requests.post(f"{API_URL}/annual_report/{a_emp}/{a_year}/sync", json={"owner_id": UID, "records": save_data})
                     st.success("تم التجميع والحفظ بنجاح!")
                     time.sleep(0.5)
+                    fetch_data.clear()
                     st.rerun()
                 except Exception as e:
                     st.error(f"حدث خطأ في الاتصال: {e}")
@@ -1177,6 +1182,7 @@ elif current_nav == "settings":
                     requests.put(f"{API_URL}/settings/{sec}", json={"owner_id": UID, "warning_days": warn, "danger_days": danger})
                     st.success("تم الحفظ بنجاح!")
                     time.sleep(1)
+                    fetch_data.clear()
                     st.rerun()
                 except Exception as e:
                     st.error(f"خطأ: {e}")
@@ -1210,6 +1216,7 @@ elif current_nav in ["manager", "workers", "extra"]:
                 try:
                     requests.post(f"{API_URL}/{db_endpoint}/", json={"owner_id": UID, "title": page_title, "columns_data": json.dumps(cols_list)})
                     st.session_state[f"show_add_{db_endpoint}"] = False
+                    fetch_data.clear()
                     st.rerun()
                 except Exception as e:
                     st.error(f"خطأ في الاتصال: {e}")
@@ -1306,6 +1313,7 @@ elif current_nav in ["manager", "workers", "extra"]:
                             requests.post(f"{API_URL}/{db_endpoint}/{active_page_id}/sync", json={"owner_id": UID, "records": save_data})
                             st.success("تم الحفظ بنجاح!")
                             time.sleep(0.5)
+                            fetch_data.clear()
                             st.rerun()
                         except Exception as e:
                             st.error(f"خطأ في الاتصال: {e}")
@@ -1323,6 +1331,7 @@ elif current_nav in ["manager", "workers", "extra"]:
                         try:
                             requests.delete(f"{API_URL}/{db_endpoint}/{active_page_id}/{UID}")
                             st.session_state[f"active_{db_endpoint}"] = None
+                            fetch_data.clear()
                             st.rerun()
                         except Exception as e:
                             st.error(f"خطأ: {e}")
@@ -1428,6 +1437,7 @@ elif current_nav == "installments":
                             requests.put(f"{API_URL}/{endpoint}/{manage_id}", json={"owner_id": UID, "payments_data": json.dumps(updated_payments)})
                             st.success("تم التحديث بنجاح")
                             time.sleep(0.5)
+                            fetch_data.clear()
                             st.rerun()
                         except Exception as e:
                             st.error(f"خطأ في الاتصال: {e}")
@@ -1521,345 +1531,4 @@ elif current_nav == "installments":
                             due_d = add_months(first_date, i * period_months)
                             payments.append({
                                 "installment_number": i + 1, 
-                                "due_date": due_d.isoformat(), 
-                                "amount_due": inst_value, 
-                                "paid_amount": 0.0, 
-                                "payment_date": "", 
-                                "notes": ""
-                            })
-                            
-                        payload = {
-                            "owner_id": UID, "client_name": client_name, "title": title, 
-                            "total_amount": total_amount, "advance_payment": advance_payment, 
-                            "installments_count": installments_count, "period_months": period_months, 
-                            "first_installment_date": str(first_date), 
-                            "payments_data": json.dumps(payments), "notes": ""
-                        }
-                        try:
-                            requests.post(f"{API_URL}/{endpoint}/", json=payload)
-                            st.session_state[f"show_add_{endpoint}"] = False
-                            st.rerun()
-                        except Exception as e:
-                            st.error(f"خطأ في الاتصال: {e}")
-                    else: 
-                        st.warning("تأكد من إدخال اسم العميل، المبلغ الإجمالي، وتاريخ القسط الأول.")
-                st.markdown("</div>", unsafe_allow_html=True)
-            
-            if search_q: 
-                df_inst = df_inst[df_inst.apply(lambda row: row.astype(str).str.contains(search_q, case=False).any(), axis=1)]
-            
-            if sort_by_date and not df_inst.empty:
-                df_inst = df_inst.sort_values(by='id', ascending=False)
-            
-            if not df_inst.empty:
-                st.markdown("<h4 style='color:#1E293B; margin-top:20px; font-weight:800; text-align:right;'>سجل العقود:</h4>", unsafe_allow_html=True)
-                for _, row in df_inst.iterrows():
-                    with st.container():
-                        c_del, c_manage, c_name = st.columns([1, 1, 4])
-                        with c_name: 
-                            st.markdown(f"<div style='padding:10px 15px; background:#FFFFFF; border-radius:8px; border:1px solid #E9EDF7; text-align:right; font-weight:700; color:#1E293B;'>عقد م: <b>{row['id']}</b> | العميل: {display_clean(row.get('client_name'))}</div>", unsafe_allow_html=True)
-                        with c_manage:
-                            if st.button("📊 إدارة الأقساط", key=f"manage_inst_{row['id']}", use_container_width=True): 
-                                st.session_state["manage_installment_id"] = row['id']
-                                st.rerun()
-                        with c_del:
-                            if st.button("🗑️ حذف", key=f"del_inst_{row['id']}", use_container_width=True): 
-                                st.session_state['pending_delete'] = {'endpoint': endpoint, 'id': row['id'], 'time': time.time()}
-                                st.rerun()
-            else: 
-                st.info("لا توجد نتائج.")
-        else: 
-            st.markdown("<div class='erp-card' style='padding: 15px 20px;'><h4 style='text-align:center;'>لا توجد عقود حتى الآن.</h4></div>", unsafe_allow_html=True)
-            if st.button("➕ إضافة عقد قسط", type="primary"): 
-                st.session_state[f"show_add_{endpoint}"] = True
-                st.rerun()
-
-elif current_nav in ["employees", "cars", "visas", "rents", "subs"]:
-    mapped_subs = {
-        "employees": "الموظفين", "cars": "السيارات", 
-        "visas": "التأشيرات", "rents": "عقود الإيجار", "subs": "الاشتراكات العامة"
-    }
-    selected_sub = mapped_subs[current_nav]
-    
-    if current_nav == "employees": endpoint = "employees"
-    elif current_nav == "cars": endpoint = "vehicles"
-    elif current_nav == "visas": endpoint = "visas"
-    elif current_nav == "rents": endpoint = "rents"
-    elif current_nav == "subs": endpoint = "subscriptions"
-    
-    render_top_navbar(f"إدارة {selected_sub}", "إضافة، تعديل سريع للبيانات، وإدارة السجلات بسهولة")
-    render_delete_notification(endpoint)
-    
-    raw_data = fetch_data(f"{endpoint}/{UID}", UID)
-    df = pd.DataFrame(raw_data) if raw_data else pd.DataFrame()
-    
-    st.markdown("<div class='erp-card' style='padding: 15px 20px;'>", unsafe_allow_html=True)
-    col_search, col_sort, col_pdf, col_excel, col_add = st.columns([2.5, 1, 1, 1, 1.5])
-    with col_add:
-        if st.button("➕ إضافة سجل جديد", type="primary", use_container_width=True): 
-            st.session_state[f"show_add_{endpoint}"] = not st.session_state.get(f"show_add_{endpoint}", False)
-    with col_excel:
-        if not df.empty: 
-            st.download_button("📊 Excel", to_excel(prepare_export_df(df, selected_sub), selected_sub), f"{selected_sub}.xlsx", use_container_width=True)
-    with col_pdf:
-        if not df.empty: 
-            st.download_button("🖨️ PDF", to_pdf_html_basic(prepare_export_df(df, selected_sub), f"تقرير {selected_sub}"), f"{selected_sub}.html", mime="text/html", use_container_width=True)
-    with col_sort:
-        sort_by_date = st.checkbox("🔃 الأقرب انتهاءً", key=f"sort_{endpoint}")
-    with col_search: 
-        search_q = st.text_input("🔍", placeholder="بحث ذكي في جميع الحقول...", label_visibility="collapsed")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    if st.session_state.get(f"show_add_{endpoint}", False):
-        st.markdown("<div class='erp-card' style='border-top: 4px solid #2563EB;'>", unsafe_allow_html=True)
-        st.markdown(f"<h4 style='color:#1B2559; margin-bottom:20px; font-weight:800;'>📝 إضافة سجل جديد لـ {selected_sub}</h4>", unsafe_allow_html=True)
-        
-        if selected_sub == "الموظفين":
-            c2, c1 = st.columns(2)
-            with c1: 
-                name = st.text_input("اسم الموظف", key="add_emp_name")
-                iq_num = st.text_input("رقم الإقامة", key="add_emp_iq_num")
-                sponsorship = st.text_input("الكفالة", key="add_emp_spon")
-            with c2: 
-                iq_exp = custom_date_picker("تاريخ انتهاء الإقامة", key_suffix="add_iq")
-                ins_exp = custom_date_picker("تاريخ انتهاء التأمين", key_suffix="add_ins")
-                pass_exp = custom_date_picker("تاريخ انتهاء الجواز", key_suffix="add_pass")
-                
-            if st.button("حفظ السجل", type="primary", key="btn_add_emp"):
-                payload = {
-                    "owner_id": UID, "name": name, "iqama_number": iq_num, "sponsorship": sponsorship, 
-                    "iqama_expiry": str(iq_exp) if iq_exp else None, 
-                    "health_insurance_expiry": str(ins_exp) if ins_exp else None, 
-                    "passport_expiry": str(pass_exp) if pass_exp else None
-                }
-                try:
-                    requests.post(f"{API_URL}/{endpoint}/", json=payload)
-                    st.session_state[f"show_add_{endpoint}"] = False
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"خطأ: {e}")
-                    
-        elif selected_sub == "السيارات":
-            c2, c1 = st.columns(2)
-            with c1: 
-                car_name = st.text_input("اسم السيارة", key="add_veh_name")
-                plate = st.text_input("رقم اللوحة", key="add_veh_plate")
-                reg_num = st.text_input("رقم الاستمارة", key="add_veh_reg")
-            with c2: 
-                reg_exp = custom_date_picker("تاريخ انتهاء الاستمارة", key_suffix="add_reg_exp")
-                ins_exp = custom_date_picker("تاريخ انتهاء التأمين", key_suffix="add_ins_exp")
-                
-            if st.button("حفظ السجل", type="primary", key="btn_add_veh"):
-                payload = {
-                    "owner_id": UID, "car_name": car_name, "plate_number": plate, 
-                    "registration_number": reg_num, "registration_expiry": str(reg_exp) if reg_exp else None, 
-                    "insurance_expiry": str(ins_exp) if ins_exp else None
-                }
-                try:
-                    requests.post(f"{API_URL}/{endpoint}/", json=payload)
-                    st.session_state[f"show_add_{endpoint}"] = False
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"خطأ: {e}")
-                    
-        elif selected_sub == "التأشيرات":
-            c2, c1 = st.columns(2)
-            with c1: 
-                emp = st.text_input("الاسم", key="add_visa_emp")
-                visa_num = st.text_input("رقم التأشيرة", key="add_visa_num")
-                travel_d = custom_date_picker("تاريخ السفر", key_suffix="add_visa_trav")
-            with c2: 
-                v_dur_m = st.text_input("مدة التأشيرة بالاشهر", value="0", key="add_visa_m")
-                v_dur_d = st.text_input("مدة التأشيرة بالايام", value="0", key="add_visa_d")
-                ext_count = st.number_input("عدد مرات التمديد", min_value=0, value=0, key="add_visa_ext")
-                
-            exp_date = calculate_visa_expiry(travel_d, v_dur_m, v_dur_d, ext_count)
-            notes = st.text_area("ملاحظات", key="add_visa_notes")
-            
-            if st.button("حفظ السجل", type="primary", key="btn_add_visa"):
-                payload = {
-                    "owner_id": UID, "employee_name": emp, "visa_number": visa_num, 
-                    "visa_duration_months": str(v_dur_m), "visa_duration_days": str(v_dur_d), 
-                    "extension_count": ext_count, "notes": notes, 
-                    "travel_date": str(travel_d) if travel_d else None, 
-                    "expiry_date": str(exp_date) if exp_date else None
-                }
-                try:
-                    requests.post(f"{API_URL}/{endpoint}/", json=payload)
-                    st.session_state[f"show_add_{endpoint}"] = False
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"خطأ: {e}")
-                    
-        elif selected_sub == "عقود الإيجار":
-            c3, c2, c1 = st.columns(3)
-            with c1: 
-                tenant = st.text_input("اسم المستاجر", key="add_rent_ten")
-                apt_num = st.text_input("رقم الشقة", key="add_rent_apt")
-                contract_num = st.text_input("رقم العقد", key="add_rent_cont")
-                duration = st.text_input("مدة العقد", key="add_rent_dur")
-            with c2: 
-                start_d = custom_date_picker("تاريخ بداية العقد", key_suffix="add_rent_start")
-                exp = custom_date_picker("تاريخ انتهاء العقد", key_suffix="add_rent_exp")
-                next_pay = custom_date_picker("تاريخ الدفعة القادمة", key_suffix="add_rent_next")
-            with c3: 
-                pay_amt = st.text_input("مبلغ الدفعة", key="add_rent_amt")
-                period_m = st.text_input("فترة الدفع بالشهر", key="add_rent_per")
-                ann_rent = st.text_input("مبلغ الايجار السنوي", key="add_rent_ann")
-                
-            if st.button("حفظ السجل", type="primary", key="btn_add_rent"):
-                payload = {
-                    "owner_id": UID, "tenant_name": tenant, "apartment_number": apt_num, 
-                    "contract_number": contract_num, "contract_duration": duration, 
-                    "payment_amount": pay_amt, "payment_period_months": period_m, 
-                    "annual_rent": ann_rent, "contract_start_date": str(start_d) if start_d else None, 
-                    "contract_expiry": str(exp) if exp else None, 
-                    "next_payment_date": str(next_pay) if next_pay else None
-                }
-                try:
-                    requests.post(f"{API_URL}/{endpoint}/", json=payload)
-                    st.session_state[f"show_add_{endpoint}"] = False
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"خطأ: {e}")
-                    
-        elif selected_sub == "الاشتراكات العامة":
-            c2, c1 = st.columns(2)
-            with c1: 
-                srv = st.text_input("اسم الاشتراك او الترخيص", key="add_sub_srv")
-                sub_num = st.text_input("الرقم", key="add_sub_num")
-            with c2: 
-                exp = custom_date_picker("تاريخ الانتهاء", key_suffix="add_sub_exp")
-            notes = st.text_area("ملاحظات", key="add_sub_notes")
-            
-            if st.button("حفظ السجل", type="primary", key="btn_add_sub"):
-                payload = {
-                    "owner_id": UID, "service_name": srv, "subscription_number": sub_num, 
-                    "notes": notes, "subscription_expiry": str(exp) if exp else None
-                }
-                try:
-                    requests.post(f"{API_URL}/{endpoint}/", json=payload)
-                    st.session_state[f"show_add_{endpoint}"] = False
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"خطأ: {e}")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    if not df.empty:
-        # البحث
-        if search_q: 
-            df = df[df.apply(lambda row: row.astype(str).str.contains(search_q, case=False).any(), axis=1)]
-        
-        # الترتيب حسب الانتهاء
-        if sort_by_date and not df.empty:
-            date_col = ""
-            if selected_sub == "الموظفين": date_col = "iqama_expiry"
-            elif selected_sub == "السيارات": date_col = "registration_expiry"
-            elif selected_sub == "التأشيرات": date_col = "expiry_date"
-            elif selected_sub == "عقود الإيجار": date_col = "contract_expiry"
-            elif selected_sub == "الاشتراكات العامة": date_col = "subscription_expiry"
-            
-            if date_col:
-                df['_temp_date'] = pd.to_datetime(df[date_col], errors='coerce')
-                df = df.sort_values(by='_temp_date', ascending=True, na_position='last').drop(columns=['_temp_date'])
-
-        if not df.empty:
-            st.markdown("<h4 style='color:#1E293B; font-weight:800; text-align:right;'>جدول عرض البيانات (احترافي):</h4>", unsafe_allow_html=True)
-            
-            # عرض الجدول الملون الاحترافي
-            if selected_sub == "الموظفين":
-                html_table = "<div class='modern-table-wrapper'><table class='modern-table'><thead><tr><th>م</th><th>اسم الموظف</th><th>رقم الإقامة</th><th>انتهاء الإقامة</th><th>حالة الإقامة</th><th>انتهاء التأمين</th><th>حالة التأمين</th><th>الكفالة</th><th>انتهاء الجواز</th></tr></thead><tbody>"
-                for _, row in df.iterrows(): 
-                    html_table += f"<tr><td>{row['id']}</td><td><b>{display_clean(row.get('name'))}</b></td><td>{display_clean(row.get('iqama_number'))}</td><td>{display_clean(row.get('iqama_expiry'))}</td><td>{format_status(row.get('iqama_expiry'), 'الموظفين')}</td><td>{display_clean(row.get('health_insurance_expiry'))}</td><td>{format_status(row.get('health_insurance_expiry'), 'الموظفين')}</td><td>{display_clean(row.get('sponsorship'))}</td><td>{display_clean(row.get('passport_expiry'))}</td></tr>"
-                html_table += "</tbody></table></div>"
-                st.markdown(html_table, unsafe_allow_html=True)
-                
-            elif selected_sub == "السيارات":
-                html_table = "<div class='modern-table-wrapper'><table class='modern-table'><thead><tr><th>م</th><th>السيارة</th><th>رقم اللوحة</th><th>الاستمارة</th><th>انتهاء الاستمارة</th><th>حالة الاستمارة</th><th>انتهاء التامين</th><th>حالة التأمين</th></tr></thead><tbody>"
-                for _, row in df.iterrows(): 
-                    html_table += f"<tr><td>{row['id']}</td><td><b>{display_clean(row.get('car_name'))}</b></td><td>{display_clean(row.get('plate_number'))}</td><td>{display_clean(row.get('registration_number'))}</td><td>{display_clean(row.get('registration_expiry'))}</td><td>{format_status(row.get('registration_expiry'), 'السيارات')}</td><td>{display_clean(row.get('insurance_expiry'))}</td><td>{format_status(row.get('insurance_expiry'), 'السيارات')}</td></tr>"
-                html_table += "</tbody></table></div>"
-                st.markdown(html_table, unsafe_allow_html=True)
-                
-            elif selected_sub == "التأشيرات":
-                html_table = "<div class='modern-table-wrapper'><table class='modern-table'><thead><tr><th>م</th><th>الاسم</th><th>رقم التاشيرة</th><th>تاريخ السفر</th><th>مدة (أشهر)</th><th>مدة (أيام)</th><th>تمديدات</th><th>تاريخ الانتهاء</th><th>الحالة</th></tr></thead><tbody>"
-                for _, row in df.iterrows(): 
-                    html_table += f"<tr><td>{row['id']}</td><td><b>{display_clean(row.get('employee_name'))}</b></td><td>{display_clean(row.get('visa_number'))}</td><td>{display_clean(row.get('travel_date'))}</td><td>{display_clean(row.get('visa_duration_months'))}</td><td>{display_clean(row.get('visa_duration_days'))}</td><td>{display_clean(row.get('extension_count'))}</td><td>{display_clean(row.get('expiry_date'))}</td><td>{format_status(row.get('expiry_date'), 'التأشيرات')}</td></tr>"
-                html_table += "</tbody></table></div>"
-                st.markdown(html_table, unsafe_allow_html=True)
-                
-            elif selected_sub == "عقود الإيجار":
-                html_table = "<div class='modern-table-wrapper'><table class='modern-table'><thead><tr><th>م</th><th>المستاجر</th><th>الشقة</th><th>العقد</th><th>بداية العقد</th><th>الانتهاء</th><th>حالة العقد</th><th>الدفعة القادمة</th><th>المبلغ</th></tr></thead><tbody>"
-                for _, row in df.iterrows(): 
-                    html_table += f"<tr><td>{row['id']}</td><td><b>{display_clean(row.get('tenant_name'))}</b></td><td>{display_clean(row.get('apartment_number'))}</td><td>{display_clean(row.get('contract_number'))}</td><td>{display_clean(row.get('contract_start_date'))}</td><td>{display_clean(row.get('contract_expiry'))}</td><td>{format_status(row.get('contract_expiry'), 'عقود الإيجار')}</td><td>{display_clean(row.get('next_payment_date'))}</td><td>{display_clean(row.get('payment_amount'))}</td></tr>"
-                html_table += "</tbody></table></div>"
-                st.markdown(html_table, unsafe_allow_html=True)
-                
-            elif selected_sub == "الاشتراكات العامة":
-                html_table = "<div class='modern-table-wrapper'><table class='modern-table'><thead><tr><th>م</th><th>الاشتراك</th><th>الرقم</th><th>الانتهاء</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody>"
-                for _, row in df.iterrows(): 
-                    html_table += f"<tr><td>{row['id']}</td><td><b>{display_clean(row.get('service_name'))}</b></td><td>{display_clean(row.get('subscription_number'))}</td><td>{display_clean(row.get('subscription_expiry'))}</td><td>{format_status(row.get('subscription_expiry'), 'الاشتراكات العامة')}</td><td>{display_clean(row.get('notes'))}</td></tr>"
-                html_table += "</tbody></table></div>"
-                st.markdown(html_table, unsafe_allow_html=True)
-
-            st.markdown("<hr style='border:1px dashed #E2E8F0; margin: 25px 0;'>", unsafe_allow_html=True)
-            st.markdown("<h4 style='color:#1E293B; font-weight:800; text-align:right;'>أداة التحرير السريع (يمكنك تعديل القيم مباشرة من الجدول أدناه):</h4>", unsafe_allow_html=True)
-            
-            # جدول التعديل (Editor) 
-            if selected_sub == "الموظفين":
-                display_df = df[["id", "name", "iqama_number", "sponsorship", "iqama_expiry", "health_insurance_expiry", "passport_expiry"]].copy()
-                display_df.columns = ["م", "الاسم", "رقم الإقامة", "الكفالة", "انتهاء الإقامة", "انتهاء التأمين", "انتهاء الجواز"]
-                edited_df = st.data_editor(display_df, use_container_width=True, hide_index=True, key=f"tbl_emp")
-            elif selected_sub == "السيارات":
-                display_df = df[["id", "car_name", "plate_number", "registration_number", "registration_expiry", "insurance_expiry"]].copy()
-                display_df.columns = ["م", "السيارة", "اللوحة", "الاستمارة", "انتهاء الاستمارة", "انتهاء التامين"]
-                edited_df = st.data_editor(display_df, use_container_width=True, hide_index=True, key=f"tbl_car")
-            elif selected_sub == "التأشيرات":
-                display_df = df[["id", "employee_name", "visa_number", "travel_date", "visa_duration_months", "visa_duration_days", "extension_count", "expiry_date"]].copy()
-                display_df.columns = ["م", "الاسم", "رقم التأشيرة", "تاريخ السفر", "المدة(أشهر)", "المدة(أيام)", "التمديدات", "تاريخ الانتهاء"]
-                edited_df = st.data_editor(display_df, use_container_width=True, hide_index=True, key=f"tbl_visa")
-            elif selected_sub == "عقود الإيجار":
-                display_df = df[["id", "tenant_name", "apartment_number", "contract_number", "contract_start_date", "contract_expiry", "next_payment_date", "payment_amount"]].copy()
-                display_df.columns = ["م", "المستأجر", "الشقة", "رقم العقد", "بداية العقد", "الانتهاء", "الدفعة القادمة", "المبلغ"]
-                edited_df = st.data_editor(display_df, use_container_width=True, hide_index=True, key=f"tbl_rent")
-            elif selected_sub == "الاشتراكات العامة":
-                display_df = df[["id", "service_name", "subscription_number", "subscription_expiry", "notes"]].copy()
-                display_df.columns = ["م", "الاشتراك", "الرقم", "الانتهاء", "ملاحظات"]
-                edited_df = st.data_editor(display_df, use_container_width=True, hide_index=True, key=f"tbl_sub")
-            
-            c_save, c_del, c_id = st.columns([2, 1, 1])
-            with c_id: 
-                del_id = st.number_input("أدخل رقم (م) للحذف", min_value=0, step=1, value=0)
-            with c_del:
-                st.markdown("<br>", unsafe_allow_html=True)
-                if st.button("🗑️ تأكيد الحذف", use_container_width=True):
-                    if del_id > 0:
-                        try:
-                            requests.delete(f"{API_URL}/{endpoint}/{del_id}/{UID}")
-                            st.success("تم الحذف بنجاح!")
-                            time.sleep(0.5)
-                            st.rerun()
-                        except Exception as e:
-                            st.error(f"خطأ: {e}")
-            with c_save:
-                st.markdown("<br>", unsafe_allow_html=True)
-                if st.button("💾 حفظ التعديلات", type="primary", use_container_width=True):
-                    for _, r in edited_df.iterrows():
-                        rid = r["م"]
-                        try:
-                            if selected_sub == "الموظفين": 
-                                requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "name": str(r["الاسم"]), "iqama_number": str(r["رقم الإقامة"]), "sponsorship": str(r["الكفالة"]), "iqama_expiry": str(r["انتهاء الإقامة"]), "health_insurance_expiry": str(r["انتهاء التأمين"]), "passport_expiry": str(r["انتهاء الجواز"])})
-                            elif selected_sub == "السيارات": 
-                                requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "car_name": str(r["السيارة"]), "plate_number": str(r["اللوحة"]), "registration_number": str(r["الاستمارة"]), "registration_expiry": str(r["انتهاء الاستمارة"]), "insurance_expiry": str(r["انتهاء التامين"])})
-                            elif selected_sub == "التأشيرات": 
-                                requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "employee_name": str(r["الاسم"]), "visa_number": str(r["رقم التأشيرة"]), "visa_duration_months": str(r["المدة(أشهر)"]), "visa_duration_days": str(r["المدة(أيام)"]), "extension_count": int(r["التمديدات"] or 0), "travel_date": str(r["تاريخ السفر"]), "expiry_date": str(r["تاريخ الانتهاء"])})
-                            elif selected_sub == "عقود الإيجار": 
-                                requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "tenant_name": str(r["المستأجر"]), "apartment_number": str(r["الشقة"]), "contract_number": str(r["رقم العقد"]), "payment_amount": str(r["المبلغ"]), "contract_start_date": str(r["بداية العقد"]), "contract_expiry": str(r["الانتهاء"]), "next_payment_date": str(r["الدفعة القادمة"])})
-                            elif selected_sub == "الاشتراكات العامة": 
-                                requests.put(f"{API_URL}/{endpoint}/{rid}", json={"owner_id": UID, "service_name": str(r["الاشتراك"]), "subscription_number": str(r["الرقم"]), "notes": str(r["ملاحظات"]), "subscription_expiry": str(r["الانتهاء"])})
-                        except Exception as e:
-                            st.error(f"حدث خطأ أثناء حفظ السجل ({rid}): {e}")
-                            
-                    st.success("تم الحفظ بنجاح!")
-                    time.sleep(0.5)
-                    st.rerun()
+                                "due_date": due_d.
